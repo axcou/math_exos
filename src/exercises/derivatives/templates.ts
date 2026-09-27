@@ -22,6 +22,8 @@ function derivative(s: DerivSpec): ExerciseDraft {
   const dfl = L(s.df);
   return {
     statement: `Soit $f$ la fonction définie ${s.domainText} par $f(x) = ${fl}$. Calculer $f'(x)$.`,
+    lead: 'Calculer la dérivée de chacune des fonctions suivantes.',
+    item: `$f(x) = ${fl}$ ${s.domainText}`,
     questions: [
       {
         id: 'q1',
@@ -453,7 +455,7 @@ const D11: Template = {
       const a = rng.int(1, 5);
       const r = rng.int(-4, 4);
       u = Poly.fromHigh(a, -a * r);
-      domainText = `sur $]${r}\\,;\\,+\\infty[$`;
+      domainText = `sur $]{${r}}\\,;\\,+\\infty[$`;
       domain = [r + 0.2, r + 6];
     } else {
       u = Poly.fromHigh(1, 0, rng.int(1, 9));
@@ -497,7 +499,7 @@ const D12: Template = {
     return derivative({
       f: sqrt(u.toExpr()),
       df,
-      domainText: `sur $]${r}\\,;\\,+\\infty[$`,
+      domainText: `sur $]{${r}}\\,;\\,+\\infty[$`,
       domain: [r + 0.2, r + 6],
       steps: [
         {

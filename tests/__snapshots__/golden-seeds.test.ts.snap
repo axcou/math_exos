@@ -248,7 +248,7 @@ exports[`golden seeds > D11 est stable 1`] = `
     "answers": [
       "\\frac{5}{5x - 15}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]3\\,;\\,+\\infty[$ par $f(x) = \\ln(5x - 15)$. Calculer $f'(x)$.",
+    "statement": "Soit $f$ la fonction définie sur $]{3}\\,;\\,+\\infty[$ par $f(x) = \\ln(5x - 15)$. Calculer $f'(x)$.",
   },
 ]
 `;
@@ -259,19 +259,19 @@ exports[`golden seeds > D12 est stable 1`] = `
     "answers": [
       "\\frac{2}{\\sqrt{4x + 16}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]-4\\,;\\,+\\infty[$ par $f(x) = \\sqrt{4x + 16}$. Calculer $f'(x)$.",
+    "statement": "Soit $f$ la fonction définie sur $]{-4}\\,;\\,+\\infty[$ par $f(x) = \\sqrt{4x + 16}$. Calculer $f'(x)$.",
   },
   {
     "answers": [
       "\\frac{2}{\\sqrt{4x}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = \\sqrt{4x}$. Calculer $f'(x)$.",
+    "statement": "Soit $f$ la fonction définie sur $]{0}\\,;\\,+\\infty[$ par $f(x) = \\sqrt{4x}$. Calculer $f'(x)$.",
   },
   {
     "answers": [
       "\\frac{1}{\\sqrt{2x - 8}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]4\\,;\\,+\\infty[$ par $f(x) = \\sqrt{2x - 8}$. Calculer $f'(x)$.",
+    "statement": "Soit $f$ la fonction définie sur $]{4}\\,;\\,+\\infty[$ par $f(x) = \\sqrt{2x - 8}$. Calculer $f'(x)$.",
   },
 ]
 `;

@@ -3,7 +3,7 @@ import { evaluate } from '../core/expr/evaluate';
 import { Rng } from '../core/random/prng';
 import { DERIVATIVE_TEMPLATES } from './derivatives/templates';
 import { LIMIT_TEMPLATES } from './limits/templates';
-import type { Difficulty, Exercise, Question, Template, Theme, ValueAnswer } from './types';
+import { type Difficulty, type Exercise, type ExerciseDraft, type ExercisePart, MAX_PARTS, type Question, type Template, type Theme, type ValueAnswer } from './types';
 import { VARIATION_TEMPLATES } from './variations/templates';
 
 /*
@@ -60,7 +60,16 @@ export function subtypesOf(theme: Theme): string[] {
   return [...new Set(TEMPLATES.filter((t) => t.theme === theme && !t.legacy).map((t) => t.subtype))];
 }
 
-export const exerciseUid = (code: string, seed: number) => `${code}.${(seed >>> 0).toString(36)}`;
+export const exerciseUid = (code: string, seed: number, parts = 1) => `${code}.${(seed >>> 0).toString(36)}${parts > 1 ? `.${parts}` : ''}`;
+
+/** Inverse de exerciseUid. */
+export function parseUid(uid: string): { code: string; seed: number; parts: number } | null {
+  const m = /^([A-Z]\d{2,3}[a-z]?)\.([0-9a-z]{1,7})(?:\.(\d))?$/.exec(uid);
+  if (!m) return null;
+  const parts = m[3] ? Number(m[3]) : 1;
+  if (parts < 1 || parts > MAX_PARTS) return null;
+  return { code: m[1], seed: parseInt(m[2], 36), parts };
+}
 
 /**
  * Retire les « erreurs classiques » qui coïncident avec la bonne réponse
@@ -81,12 +90,49 @@ function dropHarmlessMistakes(q: Question): Question {
   return q;
 }
 
-export function generateExercise(template: Template, seed: number): Exercise {
-  const draft = template.generate(new Rng(seed));
+/** Graine de la partie i (la partie 0 garde la graine de l'exercice). */
+function partSeed(seed: number, i: number): number {
+  return i === 0 ? seed >>> 0 : Math.floor(new Rng((seed ^ Math.imul(i, 0x9e3779b9)) >>> 0).next() * 2 ** 32);
+}
+
+const LABELS = 'abcdefgh';
+
+/**
+ * Génère un exercice. Avec `parts` > 1, regroupe plusieurs énoncés du même
+ * type en parties a, b, c… (tirés de graines dérivées, donc reproductibles).
+ */
+export function generateExercise(template: Template, seed: number, parts = 1): Exercise {
+  const n = Math.max(1, Math.min(MAX_PARTS, Math.floor(parts)));
+  const drafts: ExerciseDraft[] = [];
+  const items = new Set<string>();
+  for (let i = 0; i < n; i++) {
+    let d = template.generate(new Rng(partSeed(seed, i)));
+    // Parties toutes différentes
+    for (let k = 1; k < 20 && items.has(d.item ?? d.statement); k++) d = template.generate(new Rng(partSeed(seed, i + k * 16)));
+    items.add(d.item ?? d.statement);
+    drafts.push({ ...d, questions: d.questions.map(dropHarmlessMistakes) });
+  }
+  const multi = n > 1;
+  const exParts: ExercisePart[] = drafts.map((d, i) => {
+    const label = multi ? LABELS[i] : '';
+    return {
+      label,
+      item: multi ? d.item ?? d.statement : d.statement,
+      questions: multi ? d.questions.map((q) => ({ ...q, id: `${label}-${q.id}` })) : d.questions,
+      steps: d.steps,
+    };
+  });
+  const statement = multi ? drafts[0].lead ?? 'Traiter chacune des situations suivantes.' : drafts[0].statement;
   return {
-    ...draft,
-    questions: draft.questions.map(dropHarmlessMistakes),
-    uid: exerciseUid(template.code, seed),
+    statement,
+    lead: drafts[0].lead,
+    item: drafts[0].item,
+    questions: exParts.flatMap((p) => p.questions),
+    steps: exParts.flatMap((p) => p.steps),
+    meta: drafts.flatMap((d) => d.meta),
+    parts: exParts,
+    signature: multi ? `${statement}\n${exParts.map((p) => p.item).join('\n')}` : statement,
+    uid: exerciseUid(template.code, seed, n),
     code: template.code,
     seed: seed >>> 0,
     theme: template.theme,
@@ -96,7 +142,12 @@ export function generateExercise(template: Template, seed: number): Exercise {
 }
 
 /** Régénère un exercice depuis son code et sa graine (liens de partage, historique). */
-export function exerciseFromRef(code: string, seed: number): Exercise | null {
+export function exerciseFromRef(code: string, seed: number, parts = 1): Exercise | null {
   const t = TEMPLATE_BY_CODE.get(code);
-  return t ? generateExercise(t, seed) : null;
+  return t ? generateExercise(t, seed, parts) : null;
+}
+
+export function exerciseFromUid(uid: string): Exercise | null {
+  const r = parseUid(uid);
+  return r ? exerciseFromRef(r.code, r.seed, r.parts) : null;
 }

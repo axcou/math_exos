@@ -5,7 +5,7 @@ import type { Exercise, Template } from '../exercises/types';
 /** Entrée minimale d'historique utilisée pour pondérer les tirages. */
 export interface PastExercise {
   code: string;
-  key: string; // empreinte de l'énoncé
+  key: string; // empreinte du contenu (voir Exercise.signature)
   result?: 'reussi' | 'rate';
 }
 
@@ -62,13 +62,14 @@ export function nextExercise(
   sheet: Exercise[],
   rand: () => number = Math.random,
   seedFn: () => number = randomSeed,
+  parts = 1,
 ): Exercise {
   const sheetCodes = sheet.map((e) => e.code);
   const lastCode = sheetCodes[sheetCodes.length - 1] ?? past[past.length - 1]?.code;
   const weights = candidates.map((t) => templateWeight(t, past, sheetCodes, lastCode, candidates.length === 1));
   const template = pickWeighted(candidates, weights, rand);
-  const seen = new Set([...past.slice(-300).map((p) => p.key), ...sheet.map((e) => statementKey(e.statement))]);
-  let ex = generateExercise(template, seedFn());
-  for (let i = 0; i < 20 && seen.has(statementKey(ex.statement)); i++) ex = generateExercise(template, seedFn());
+  const seen = new Set([...past.slice(-300).map((p) => p.key), ...sheet.map((e) => statementKey(e.signature))]);
+  let ex = generateExercise(template, seedFn(), parts);
+  for (let i = 0; i < 20 && seen.has(statementKey(ex.signature)); i++) ex = generateExercise(template, seedFn(), parts);
   return ex;
 }

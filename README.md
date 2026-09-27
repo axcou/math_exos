@@ -4,6 +4,7 @@ Générateur d'exercices de maths aléatoires et corrigés : **dérivées**, **l
 
 - 35 types d'exercices sur 3 niveaux (Facile, Moyen, Difficile), avec des milliers de variantes chacun.
 - Feuilles sur un seul thème (ex. 10 dérivées) ou sur plusieurs thèmes, avec un nombre, un niveau et un filtre de types propres à chaque thème.
+- Plusieurs questions par exercice, comme dans un manuel (« Dériver les fonctions suivantes : a. … b. … c. … ») : de 1 à 4 parties du même type, chacune vérifiée et corrigée séparément.
 - Saisie des réponses et vérification automatique : comparaison numérique, formes équivalentes acceptées, erreurs classiques détectées. Les tableaux se remplissent par clics.
 - Corrections étape par étape, avec explications et rappel des formules.
 - Historique dans le `localStorage`, et anti-répétition (le même type ne sort pas deux fois de suite, le même énoncé ne revient pas).

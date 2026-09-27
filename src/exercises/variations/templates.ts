@@ -269,7 +269,7 @@ const V06: Template = {
       [
         { title: 'Dérivée', text: 'Formule du quotient :', math: `f'(x) = \\frac{${a}(${v.toLatex()}) - (${u.toLatex()}) \\times ${pn(c)}}{(${v.toLatex()})^2} = ${L(df)}`, formulas: ['d.quot'] },
         { title: "Signe de f'", text: `Le dénominateur est un carré, strictement positif pour $x \\neq ${r}$ : $f'(x)$ est du signe de $${k}$, donc ${k > 0 ? 'positive' : 'négative'}.` },
-        { title: 'Tableau de variations', text: `$f$ est ${k > 0 ? 'croissante' : 'décroissante'} sur chacun des intervalles $]-\\infty\\,;\\,${r}[$ et $]${r}\\,;\\,+\\infty[$ (mais pas sur leur réunion !).`, table, formulas: ['v.var'] },
+        { title: 'Tableau de variations', text: `$f$ est ${k > 0 ? 'croissante' : 'décroissante'} sur chacun des intervalles $]-\\infty\\,;\\,${r}[$ et $]{${r}}\\,;\\,+\\infty[$ (mais pas sur leur réunion !).`, table, formulas: ['v.var'] },
       ],
       f,
       df,

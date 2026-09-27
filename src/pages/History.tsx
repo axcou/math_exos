@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { exerciseFromRef, TEMPLATE_BY_CODE } from '../exercises/registry';
+import { exerciseFromUid, TEMPLATE_BY_CODE } from '../exercises/registry';
 import { DIFFICULTY_LABELS, type Difficulty, type Exercise, THEME_LABELS, THEMES } from '../exercises/types';
 import { type HistoryEntry, useStore } from '../history/store';
 
@@ -17,7 +17,7 @@ export default function History() {
   const recent = [...history].reverse().slice(0, 60);
 
   const reopen = (entries: HistoryEntry[]) => {
-    const exs = entries.map((h) => exerciseFromRef(h.code, parseInt(h.uid.split('.')[1], 36))).filter((e): e is Exercise => !!e);
+    const exs = entries.map((h) => exerciseFromUid(h.uid)).filter((e): e is Exercise => !!e);
     setSheet(exs, { title: entries.length > 1 ? 'Exercices à revoir' : '' });
     navigate('/exercices');
   };

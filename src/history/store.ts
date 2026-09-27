@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { CheckResult, TableAnswer } from '../checking/check';
+import { exerciseUid } from '../exercises/registry';
 import type { Difficulty, Exercise, Theme } from '../exercises/types';
 import type { ExerciseRef } from '../share/share';
 import { DEFAULT_CONFIG, type SheetConfig } from '../sheet/sheetConfig';
@@ -87,8 +88,11 @@ function capProgress(p: Record<string, Progress>): Record<string, Progress> {
   return out;
 }
 
+/** Référence compacte d'un exercice dans la feuille courante. */
+export const refOf = (e: Exercise): ExerciseRef => (e.parts.length > 1 ? { code: e.code, seed: e.seed, parts: e.parts.length } : { code: e.code, seed: e.seed });
+
 function toEntry(ex: Exercise, source: HistoryEntry['source']): HistoryEntry {
-  return { uid: ex.uid, code: ex.code, theme: ex.theme, difficulty: ex.difficulty, key: statementKey(ex.statement), date: Date.now(), source };
+  return { uid: ex.uid, code: ex.code, theme: ex.theme, difficulty: ex.difficulty, key: statementKey(ex.signature), date: Date.now(), source };
 }
 
 export const useStore = create<State>()(
@@ -121,7 +125,7 @@ export const useStore = create<State>()(
           const source = opts?.source ?? 'generated';
           set({
             sheet: {
-              refs: exercises.map((e) => ({ code: e.code, seed: e.seed })),
+              refs: exercises.map(refOf),
               title: opts?.title ?? '',
               source,
               showSolutions: opts?.showSolutions ?? true,
@@ -133,7 +137,7 @@ export const useStore = create<State>()(
         replaceInSheet: (oldUid, ex) => {
           set((s) =>
             s.sheet
-              ? { sheet: { ...s.sheet, refs: s.sheet.refs.map((r) => (`${r.code}.${r.seed.toString(36)}` === oldUid ? { code: ex.code, seed: ex.seed } : r)) } }
+              ? { sheet: { ...s.sheet, refs: s.sheet.refs.map((r) => (exerciseUid(r.code, r.seed, r.parts) === oldUid ? refOf(ex) : r)) } }
               : {},
           );
           record([ex], 'generated');
@@ -142,8 +146,8 @@ export const useStore = create<State>()(
           set((s) => {
             if (!s.sheet) return {};
             const refs = [...s.sheet.refs];
-            const idx = afterUid ? refs.findIndex((r) => `${r.code}.${r.seed.toString(36)}` === afterUid) : -1;
-            refs.splice(idx === -1 ? refs.length : idx + 1, 0, { code: ex.code, seed: ex.seed });
+            const idx = afterUid ? refs.findIndex((r) => exerciseUid(r.code, r.seed, r.parts) === afterUid) : -1;
+            refs.splice(idx === -1 ? refs.length : idx + 1, 0, refOf(ex));
             return { sheet: { ...s.sheet, refs } };
           });
           record([ex], 'generated');
@@ -182,7 +186,15 @@ export const useStore = create<State>()(
     },
     {
       name: 'math-exo',
-      version: 1,
+      version: 2,
+      // v2 : nombre de parties par exercice dans la composition
+      migrate: (state, version) => {
+        const st = state as State;
+        if (version < 2 && st?.config) {
+          st.config = { ...st.config, items: st.config.items.map((i) => ({ ...i, parts: i.parts ?? DEFAULT_CONFIG.items.find((d) => d.theme === i.theme)?.parts ?? 1 })) };
+        }
+        return st;
+      },
       storage: createJSONStorage(() => localStorage),
     },
   ),

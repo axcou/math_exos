@@ -30,7 +30,7 @@ export function buildSheet(config: SheetConfig, past: PastExercise[], rand: () =
     for (let i = 0; i < item.count; i++) {
       const level = item.difficulty === 'mixte' ? mixedLevel(item, levels, rand) : item.difficulty;
       levels.push(level);
-      sheet.push(nextExercise(candidatesFor(item, level), past, sheet, rand));
+      sheet.push(nextExercise(candidatesFor(item, level), past, sheet, rand, undefined, item.parts ?? 1));
     }
   }
   if (config.order === 'shuffled') {
@@ -44,6 +44,6 @@ export function buildSheet(config: SheetConfig, past: PastExercise[], rand: () =
 
 /** Un exercice de remplacement (même thème et même niveau), différent de ceux de la feuille. */
 export function replacementFor(ex: Exercise, sheet: Exercise[], past: PastExercise[], subtypes: string[] = []): Exercise {
-  const item: SheetItem = { theme: ex.theme, enabled: true, count: 1, difficulty: ex.difficulty, subtypes };
-  return nextExercise(candidatesFor(item, ex.difficulty), past, sheet.filter((e) => e.uid !== ex.uid).concat(ex));
+  const item: SheetItem = { theme: ex.theme, enabled: true, count: 1, difficulty: ex.difficulty, parts: ex.parts.length, subtypes };
+  return nextExercise(candidatesFor(item, ex.difficulty), past, sheet.filter((e) => e.uid !== ex.uid).concat(ex), Math.random, undefined, ex.parts.length);
 }

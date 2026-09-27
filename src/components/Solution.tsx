@@ -64,24 +64,66 @@ export function StepItem({ step, index }: { step: Step; index: number }) {
   );
 }
 
-/** Corrigé détaillé, affichable d'un coup ou étape par étape. */
-export function Solution({ steps }: { steps: Step[] }) {
+export interface SolutionSection {
+  label: string; // 'a', 'b'… ; vide pour un exercice sans parties
+  item?: string; // rappel de la donnée de la partie
+  steps: Step[];
+}
+
+/** Corrigé détaillé (par partie a, b, c… le cas échéant), affichable d'un coup ou étape par étape. */
+export function Solution({ sections }: { sections: SolutionSection[] }) {
   const [shown, setShown] = useState(1);
-  const all = shown >= steps.length;
+  const total = sections.reduce((n, s) => n + s.steps.length, 0);
+  const all = shown >= total;
+  let before = 0;
   return (
     <div className="box">
       <span className="box-tab">Corrigé</span>
-      <ol className="space-y-4">
-        {steps.slice(0, shown).map((s, i) => (
-          <StepItem key={i} step={s} index={i} />
-        ))}
-      </ol>
+      <div className="space-y-6">
+        {sections.map((sec) => {
+          const start = before;
+          before += sec.steps.length;
+          const visible = sec.steps.slice(0, Math.max(0, shown - start));
+          if (!visible.length) return null;
+          return (
+            <section key={sec.label || 'unique'}>
+              {sec.label && (
+                <p className="mb-2 border-b border-chap/30 pb-1">
+                  <span className="mr-2 font-sans font-bold text-chap">{sec.label}.</span>
+                  {sec.item && <MathText text={sec.item} className="text-ink-soft" />}
+                </p>
+              )}
+              <ol className="space-y-4">
+                {visible.map((s, i) => (
+                  <StepItem key={i} step={s} index={i} />
+                ))}
+              </ol>
+            </section>
+          );
+        })}
+      </div>
       {!all && (
         <div className="mt-4 flex flex-wrap items-baseline gap-4 pl-6 print:hidden">
           <button type="button" onClick={() => setShown(shown + 1)} className="btn">
-            Étape suivante <span className="text-ink-faint">{shown}/{steps.length}</span>
+            Étape suivante <span className="text-ink-faint">{shown}/{total}</span>
           </button>
-          <button type="button" onClick={() => setShown(steps.length)} className="btn-link">
+          {sections.length > 1 && (
+            <button
+              type="button"
+              className="btn-link"
+              onClick={() => {
+                // jusqu'à la fin de la partie en cours
+                let acc = 0;
+                for (const s of sections) {
+                  acc += s.steps.length;
+                  if (acc > shown) return setShown(acc);
+                }
+              }}
+            >
+              toute cette question
+            </button>
+          )}
+          <button type="button" onClick={() => setShown(total)} className="btn-link">
             tout afficher
           </button>
         </div>

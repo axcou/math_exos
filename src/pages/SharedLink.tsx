@@ -17,7 +17,7 @@ export default function SharedLink({ kind }: { kind: 'sheet' | 'config' }) {
     if (kind === 'sheet') {
       const decoded = decodeSheet(params);
       if (!decoded) return setError(true);
-      const exercises = decoded.refs.map((r) => exerciseFromRef(r.code, r.seed)).filter((e): e is Exercise => !!e);
+      const exercises = decoded.refs.map((r) => exerciseFromRef(r.code, r.seed, r.parts)).filter((e): e is Exercise => !!e);
       store.setSheet(exercises, { source: 'shared', title: decoded.title, showSolutions: decoded.showSolutions, skipped: decoded.skipped });
       store.setInputsEnabled(decoded.inputs);
     } else {

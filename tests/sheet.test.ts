@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Rng } from '../src/core/random/prng';
-import { exerciseFromRef, templatesFor, TEMPLATES } from '../src/exercises/registry';
+import { exerciseFromRef, exerciseFromUid, generateExercise, parseUid, templatesFor, TEMPLATES } from '../src/exercises/registry';
 import { nextExercise, type PastExercise, statementKey } from '../src/history/antiRepeat';
 import { decodeConfig, decodeSheet, encodeConfig, encodeSheet } from '../src/share/share';
 import { buildSheet } from '../src/sheet/buildSheet';
@@ -50,7 +50,7 @@ describe('composition de feuille', () => {
     expect(sheet.slice(0, 6).every((e) => e.theme === 'derivee')).toBe(true);
     expect(sheet.slice(6).every((e) => e.theme === 'limite')).toBe(true);
     expect(sheet.every((e) => e.difficulty === 2)).toBe(true);
-    expect(new Set(sheet.map((e) => e.statement)).size).toBe(10);
+    expect(new Set(sheet.map((e) => e.signature)).size).toBe(10);
   });
 
   it('varie les types dans une feuille mono-thème', () => {
@@ -71,7 +71,7 @@ describe('composition de feuille', () => {
     const config = only({ ...DEFAULT_CONFIG, items: DEFAULT_CONFIG.items.map((i) => ({ ...i, difficulty: 2 as const, subtypes: ['quotient'] })) }, { derivee: 5 });
     const sheet = buildSheet(config, [], seeded(11));
     expect(sheet.every((e) => TEMPLATES.find((t) => t.code === e.code)!.subtype === 'quotient')).toBe(true);
-    expect(new Set(sheet.map((e) => e.statement)).size).toBe(5);
+    expect(new Set(sheet.map((e) => e.signature)).size).toBe(5);
   });
 
   it('mélange sur demande', () => {
@@ -84,7 +84,7 @@ describe('composition de feuille', () => {
 
 describe('partage par URL', () => {
   const sheet = buildSheet(DEFAULT_CONFIG, [], seeded(17));
-  const refs = sheet.map((e) => ({ code: e.code, seed: e.seed }));
+  const refs = sheet.map((e) => (e.parts.length > 1 ? { code: e.code, seed: e.seed, parts: e.parts.length } : { code: e.code, seed: e.seed }));
 
   it('feuille exacte : aller-retour identique', () => {
     const url = encodeSheet({ refs, title: 'Révisions dérivées', showSolutions: false, inputs: true });
@@ -93,7 +93,7 @@ describe('partage par URL', () => {
     expect(decoded.title).toBe('Révisions dérivées');
     expect(decoded.showSolutions).toBe(false);
     expect(decoded.skipped).toBe(0);
-    decoded.refs.forEach((r, i) => expect(exerciseFromRef(r.code, r.seed)!.statement).toBe(sheet[i].statement));
+    decoded.refs.forEach((r, i) => expect(exerciseFromRef(r.code, r.seed, r.parts)!.signature).toBe(sheet[i].signature));
     expect(url.length).toBeLessThan(250);
   });
 
@@ -115,5 +115,50 @@ describe('partage par URL', () => {
     ]);
     expect(d.order).toBe('shuffled');
     expect(decodeConfig(new URLSearchParams('v=1'))).toBeNull();
+  });
+});
+
+describe('exercices en plusieurs parties (a, b, c)', () => {
+  const t = TEMPLATES.find((t) => t.code === 'D11')!;
+
+  it('regroupe des énoncés différents du même type, avec des questions distinctes', () => {
+    for (let seed = 1; seed < 60; seed++) {
+      const ex = generateExercise(t, seed, 3);
+      expect(ex.parts.map((p) => p.label)).toEqual(['a', 'b', 'c']);
+      expect(new Set(ex.parts.map((p) => p.item)).size).toBe(3);
+      expect(ex.statement).toMatch(/chacune des fonctions/);
+      const ids = ex.questions.map((q) => q.id);
+      expect(new Set(ids).size).toBe(ids.length);
+      expect(ex.uid).toBe(`D11.${seed.toString(36)}.3`);
+    }
+  });
+
+  it('est reproductible et garde la partie a identique à l’exercice simple', () => {
+    const multi = generateExercise(t, 42, 3);
+    expect(generateExercise(t, 42, 3).signature).toBe(multi.signature);
+    expect(multi.parts[0].item).toBe(generateExercise(t, 42).item);
+    expect(exerciseFromUid(multi.uid)!.signature).toBe(multi.signature);
+    expect(parseUid('D11.16.9')).toBeNull();
+  });
+
+  it('fonctionne aussi pour les exercices à plusieurs questions (tableaux)', () => {
+    const v = TEMPLATES.find((t) => t.code === 'V05')!;
+    const ex = generateExercise(v, 7, 2);
+    expect(ex.parts).toHaveLength(2);
+    expect(ex.parts[0].questions.map((q) => q.id)).toEqual(['a-q1', 'a-q2', 'a-q3']);
+    expect(ex.meta).toHaveLength(2);
+  });
+
+  it('respecte le réglage de la composition et passe dans les liens', () => {
+    const base = only(DEFAULT_CONFIG, { derivee: 4, limite: 2 });
+    const config = { ...base, items: base.items.map((i) => ({ ...i, parts: i.theme === 'derivee' ? 3 : 1 })) };
+    const sheet = buildSheet(config, [], seeded(21));
+    expect(sheet.filter((e) => e.theme === 'derivee').every((e) => e.parts.length === 3)).toBe(true);
+    expect(sheet.filter((e) => e.theme === 'limite').every((e) => e.parts.length === 1)).toBe(true);
+    const refs = sheet.map((e) => ({ code: e.code, seed: e.seed, parts: e.parts.length }));
+    const d = decodeSheet(new URLSearchParams(encodeSheet({ refs, title: '', showSolutions: true, inputs: true }).split('?')[1]))!;
+    expect(d.refs.map((r) => r.parts ?? 1)).toEqual(sheet.map((e) => e.parts.length));
+    const c = decodeConfig(new URLSearchParams(encodeConfig(config).split('?')[1]))!;
+    expect(c.items.find((i) => i.theme === 'derivee')!.parts).toBe(3);
   });
 });

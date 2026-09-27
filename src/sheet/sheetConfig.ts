@@ -5,6 +5,8 @@ export interface SheetItem {
   enabled: boolean;
   count: number;
   difficulty: DifficultyChoice;
+  /** Questions a, b, c… regroupées dans chaque exercice (1 = exercice simple). */
+  parts: number;
   subtypes: string[]; // vide = tous les types
 }
 
@@ -18,9 +20,9 @@ export const MAX_TOTAL = 40;
 
 export const DEFAULT_CONFIG: SheetConfig = {
   items: [
-    { theme: 'derivee', enabled: true, count: 4, difficulty: 1, subtypes: [] },
-    { theme: 'limite', enabled: true, count: 3, difficulty: 1, subtypes: [] },
-    { theme: 'variation', enabled: true, count: 3, difficulty: 1, subtypes: [] },
+    { theme: 'derivee', enabled: true, count: 3, difficulty: 1, parts: 3, subtypes: [] },
+    { theme: 'limite', enabled: true, count: 3, difficulty: 1, parts: 2, subtypes: [] },
+    { theme: 'variation', enabled: true, count: 3, difficulty: 1, parts: 1, subtypes: [] },
   ],
   order: 'grouped',
 };

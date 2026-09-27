@@ -36,7 +36,7 @@ function configFromSheet(exercises: Exercise[], base: SheetConfig): SheetConfig 
     const mine = exercises.filter((e) => e.theme === item.theme);
     const levels = new Set(mine.map((e) => e.difficulty));
     const difficulty: DifficultyChoice = levels.size === 1 ? [...levels][0] : 'mixte';
-    return { ...item, enabled: mine.length > 0, count: Math.max(1, mine.length), difficulty, subtypes: [] };
+    return { ...item, enabled: mine.length > 0, count: Math.max(1, mine.length), difficulty, parts: Math.max(1, ...mine.map((e) => e.parts.length)), subtypes: [] };
   });
   return { ...base, items };
 }
@@ -48,7 +48,7 @@ export default function Exercises() {
   const [builderOpen, setBuilderOpen] = useState(!sheet);
   const [sharing, setSharing] = useState(false);
 
-  const exercises = useMemo(() => (sheet?.refs ?? []).map((r) => exerciseFromRef(r.code, r.seed)).filter((e): e is Exercise => !!e), [sheet?.refs]);
+  const exercises = useMemo(() => (sheet?.refs ?? []).map((r) => exerciseFromRef(r.code, r.seed, r.parts)).filter((e): e is Exercise => !!e), [sheet?.refs]);
 
   const generate = (c: SheetConfig = config) => {
     const exs = buildSheet(c, pastExercises(useStore.getState().history));

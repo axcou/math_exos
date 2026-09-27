@@ -29,7 +29,17 @@ function Feedback({ r, attempts }: { r?: CheckResult; attempts: number }) {
   );
 }
 
-function QuestionBlock({ ex, q, index, total }: { ex: Exercise; q: Question; index: number; total: number }) {
+interface QuestionBlockProps {
+  ex: Exercise;
+  q: Question;
+  /** Repère affiché devant la consigne (« a. », « 1) »), vide sinon. */
+  marker: string;
+  /** Afficher la consigne (inutile pour une partie à question unique). */
+  showPrompt: boolean;
+  inputs: boolean;
+}
+
+function QuestionBlock({ ex, q, marker, showPrompt, inputs }: QuestionBlockProps) {
   const progress = useStore((s) => s.progress[ex.uid]) ?? emptyProgress();
   const setInput = useStore((s) => s.setInput);
   const submit = useStore((s) => s.submit);
@@ -51,10 +61,14 @@ function QuestionBlock({ ex, q, index, total }: { ex: Exercise; q: Question; ind
 
   return (
     <div className="space-y-2">
-      <p>
-        {total > 1 && <span className="mr-1.5 font-sans font-bold text-chap">{String.fromCharCode(97 + index)}.</span>}
-        <MathText text={q.prompt} />
-      </p>
+      {showPrompt && (
+        <p>
+          {marker && <span className="mr-1.5 font-sans font-bold text-chap">{marker}</span>}
+          <MathText text={q.prompt} />
+        </p>
+      )}
+      {inputs && (
+        <div className="space-y-2 print:hidden">
       {q.type === 'expression' && <ExpressionInput value={text} onChange={onText} onSubmit={check} label={q.label} />}
       {q.type === 'value' && <ValueInput value={text} onChange={onText} onSubmit={check} label={q.label} />}
       {q.type === 'roots' && <RootsInput value={text} onChange={onText} onSubmit={check} />}
@@ -77,6 +91,8 @@ function QuestionBlock({ ex, q, index, total }: { ex: Exercise; q: Question; ind
           <Feedback r={result} attempts={progress.attempts[q.id] ?? 0} />
         </div>
       </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -111,6 +127,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
   const resetProgress = useStore((s) => s.resetProgress);
   const [solutionOpen, setSolutionOpen] = useState(false);
   const result = exerciseResult(ex, progress);
+  const multi = ex.parts.length > 1;
 
   const toggleSolution = () => {
     if (!solutionOpen) openSolution(ex);
@@ -134,10 +151,26 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
         <MathText text={ex.statement} />
       </p>
 
-      {inputsEnabled && (
-        <div className="mb-5 space-y-6 print:hidden">
+      {multi ? (
+        <ol className="mb-5 space-y-5">
+          {ex.parts.map((p) => (
+            <li key={p.label} className="grid grid-cols-[1.4rem_1fr] gap-x-1">
+              <span className="font-sans font-bold text-chap">{p.label}.</span>
+              <div className="min-w-0 space-y-2">
+                <p>
+                  <MathText text={p.item} />
+                </p>
+                {p.questions.map((q, i) => (
+                  <QuestionBlock key={q.id} ex={ex} q={q} marker={p.questions.length > 1 ? `${i + 1})` : ''} showPrompt={p.questions.length > 1} inputs={inputsEnabled} />
+                ))}
+              </div>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <div className="mb-5 space-y-6">
           {ex.questions.map((q, i) => (
-            <QuestionBlock key={q.id} ex={ex} q={q} index={i} total={ex.questions.length} />
+            <QuestionBlock key={q.id} ex={ex} q={q} marker={ex.questions.length > 1 ? `${String.fromCharCode(97 + i)}.` : ''} showPrompt inputs={inputsEnabled} />
           ))}
         </div>
       )}
@@ -145,15 +178,20 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       {progress?.hint && !solutionOpen && ex.steps[0] && (
         <div className="box dashed mb-5 mt-4">
           <span className="box-tab">Coup de pouce</span>
+          {multi ? (
+            <p className="mb-2 font-sans text-sm text-ink-soft">
+              Même méthode pour chaque question. Pour la question <b>a.</b> :
+            </p>
+          ) : null}
           <ol>
-            <StepItem step={ex.steps[0]} index={0} />
+            <StepItem step={ex.parts[0].steps[0]} index={0} />
           </ol>
         </div>
       )}
 
       {solutionOpen && (
         <div className="mb-5 mt-4">
-          <Solution steps={ex.steps} />
+          <Solution sections={ex.parts.map((p) => ({ label: p.label, item: multi ? p.item : undefined, steps: p.steps }))} />
         </div>
       )}
 

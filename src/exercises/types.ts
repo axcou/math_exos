@@ -107,21 +107,39 @@ export type ExerciseMeta =
   | { kind: 'limit'; f: Expr; at: number | '+inf' | '-inf'; side?: 1 | -1 }
   | { kind: 'table'; f: Expr; df?: Expr };
 
-export interface Exercise {
-  uid: string; // code.graine(base 36)
-  code: string;
-  seed: number;
-  theme: Theme;
-  difficulty: Difficulty;
-  title: string;
+/** Ce que produit un générateur (les champs communs sont ajoutés par le registre). */
+export interface ExerciseDraft {
   statement: string; // texte avec $…$
   questions: Question[];
   steps: Step[];
   meta: ExerciseMeta[];
+  /** Consigne commune quand plusieurs parties sont regroupées (« Calculer la dérivée de chaque fonction. »). */
+  lead?: string;
+  /** Donnée propre à une partie (« $f(x) = \ln(2x+1)$ sur … »). */
+  item?: string;
 }
 
-/** Ce que produit un générateur (les champs communs sont ajoutés par le registre). */
-export type ExerciseDraft = Omit<Exercise, 'uid' | 'code' | 'seed' | 'theme' | 'difficulty' | 'title'>;
+/** Partie a, b, c… d'un exercice. */
+export interface ExercisePart {
+  label: string; // 'a', 'b'… ; vide pour un exercice sans parties
+  item: string;
+  questions: Question[];
+  steps: Step[];
+}
+
+export interface Exercise extends ExerciseDraft {
+  uid: string; // code.graine(base 36)[.nombre de parties]
+  code: string;
+  seed: number;
+  parts: ExercisePart[];
+  theme: Theme;
+  difficulty: Difficulty;
+  title: string;
+  /** Empreinte du contenu (énoncé + données des parties), pour l'anti-répétition. */
+  signature: string;
+}
+
+export const MAX_PARTS = 4;
 
 export interface Template {
   code: string; // code court STABLE, utilisé dans les liens de partage

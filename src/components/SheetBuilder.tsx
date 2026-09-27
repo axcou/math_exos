@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { SUBTYPE_LABELS, subtypesOf, templatesFor } from '../exercises/registry';
-import { DIFFICULTY_LABELS, type DifficultyChoice, THEME_LABELS } from '../exercises/types';
+import { DIFFICULTY_LABELS, type DifficultyChoice, MAX_PARTS, THEME_LABELS } from '../exercises/types';
 import { MAX_PER_THEME, MAX_TOTAL, PRESETS, type SheetConfig, type SheetItem, totalCount } from '../sheet/sheetConfig';
 
 interface Props {
@@ -42,6 +42,22 @@ function ItemRow({ item, onChange }: { item: SheetItem; onChange: (i: SheetItem)
             aria-label={`Nombre d’exercices de ${THEME_LABELS[item.theme]}`}
           />
           exercices
+        </label>
+        <label className="flex items-baseline gap-2 font-sans text-sm">
+          de
+          <select
+            value={item.parts ?? 1}
+            disabled={!item.enabled}
+            onChange={(e) => onChange({ ...item, parts: Number(e.target.value) })}
+            className="field font-sans"
+            aria-label={`Questions par exercice de ${THEME_LABELS[item.theme]}`}
+          >
+            {Array.from({ length: MAX_PARTS }, (_, k) => k + 1).map((k) => (
+              <option key={k} value={k}>
+                {k === 1 ? '1 question' : `${k} questions (a${k > 2 ? ', b' : ''}${k > 3 ? ', c' : ''}, ${'abcd'[k - 1]})`}
+              </option>
+            ))}
+          </select>
         </label>
         <div className="flex items-baseline gap-3 font-sans text-sm" role="radiogroup" aria-label="Niveau">
           {DIFFS.map((d) => (

@@ -52,8 +52,11 @@ function limit(s: LimitSpec): ExerciseDraft {
       ? `Soit $f$ la fonction${domain} par $f(x) = ${fl}$. Déterminer ${lims[0]}.`
       : `Soit $f$ la fonction${domain} par $f(x) = ${fl}$. Déterminer ${lims.slice(0, -1).join(', ')} et ${lims[lims.length - 1]}.`;
   const conclusion = s.limits.map((q) => `${limLatex(q.at, q.side)} f(x) = ${valueLatex(q.answer)}`).join(' \\qquad ');
+  const all = lims.length === 1 ? lims[0] : `${lims.slice(0, -1).join(', ')} et ${lims[lims.length - 1]}`;
   return {
     statement,
+    lead: 'Déterminer les limites suivantes.',
+    item: `$f(x) = ${fl}$${s.domainText ? ` ${s.domainText}` : ''} : ${all}.`,
     questions: s.limits.map((q, i) => ({
       id: `q${i + 1}`,
       type: 'value',

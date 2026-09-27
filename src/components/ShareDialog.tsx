@@ -2,6 +2,7 @@ import QRCode from 'qrcode';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Exercise } from '../exercises/types';
+import { refOf } from '../history/store';
 import { absoluteUrl, encodeConfig, encodeSheet } from '../share/share';
 import type { SheetConfig } from '../sheet/sheetConfig';
 
@@ -22,7 +23,7 @@ export function ShareDialog({ exercises, config, initialTitle, onClose }: Props)
   const [bigQr, setBigQr] = useState(false);
 
   const url = absoluteUrl(
-    mode === 'sheet' ? encodeSheet({ refs: exercises.map((e) => ({ code: e.code, seed: e.seed })), title, showSolutions, inputs }) : encodeConfig(config),
+    mode === 'sheet' ? encodeSheet({ refs: exercises.map(refOf), title, showSolutions, inputs }) : encodeConfig(config),
   );
 
   useEffect(() => {
