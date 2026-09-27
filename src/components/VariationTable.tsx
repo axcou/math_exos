@@ -27,7 +27,7 @@ function ArrowSvg({ dir }: { dir: Arrow }) {
   const p1 = [x2 - h * Math.cos(ang - 0.45), y2 - h * Math.sin(ang - 0.45)];
   const p2 = [x2 - h * Math.cos(ang + 0.45), y2 - h * Math.sin(ang + 0.45)];
   return (
-    <svg viewBox="0 0 60 60" className="h-full w-full max-w-16 p-2" aria-label={dir === 'up' ? 'croissante' : 'décroissante'}>
+    <svg viewBox="0 0 60 60" className="h-full w-full max-w-14 p-2" aria-label={dir === 'up' ? 'croissante' : 'décroissante'}>
       <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
       <polygon points={`${x2},${y2} ${p1.join(',')} ${p2.join(',')}`} fill="currentColor" />
     </svg>
@@ -39,7 +39,7 @@ function MarkView({ mark, tall }: { mark: Mark; tall?: boolean }) {
   return (
     <div className="relative flex h-full items-center justify-center">
       <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-current opacity-40" />
-      {mark === '0' && <span className="relative z-10 bg-white px-0.5 font-semibold dark:bg-slate-900">0</span>}
+      {mark === '0' && <span className="relative z-10 bg-sheet px-0.5 font-semibold">0</span>}
     </div>
   );
 }
@@ -53,8 +53,8 @@ function Cell({ children, wrong, onClick, onKey, disabled, label, className = ''
       onKeyDown={onKey}
       disabled={disabled}
       aria-label={label}
-      className={`m-0.5 flex items-center justify-center rounded-md border-2 border-dashed transition-colors ${
-        wrong ? 'border-rose-500 bg-rose-50 dark:bg-rose-950/40' : 'border-slate-300 hover:border-indigo-400 hover:bg-indigo-50 dark:border-slate-600 dark:hover:bg-indigo-950/40'
+      className={`m-0.5 flex items-center justify-center border border-dashed ${
+        wrong ? 'border-pen border-solid bg-pen-soft' : 'border-rule-strong hover:border-solid hover:border-blue hover:bg-blue-soft'
       } ${className}`}
     >
       {children}
@@ -81,17 +81,17 @@ export function VariationTable({ table, answer, onChange, wrongCells = [], disab
     }
   };
 
-  const rowBorder = 'border-t border-slate-300 dark:border-slate-600';
+  const rowBorder = 'border-t border-ink/70';
 
   return (
     <div className="overflow-x-auto">
-      <div className="inline-grid min-w-full rounded-lg border border-slate-300 text-sm dark:border-slate-600" style={{ gridTemplateColumns: cols }}>
+      <div className="inline-grid min-w-full border border-ink/70 bg-sheet" style={{ gridTemplateColumns: cols }}>
         {/* Ligne des x */}
-        <div className="flex items-center justify-center border-r border-slate-300 bg-slate-50 px-2 py-2 dark:border-slate-600 dark:bg-slate-800">
+        <div className="flex items-center justify-center border-r border-ink/70 px-2 py-1.5">
           <Tex math="x" />
         </div>
         {Array.from({ length: 2 * n - 1 }, (_, c) => (
-          <div key={c} className="flex items-center justify-center bg-slate-50 px-1 py-2 dark:bg-slate-800">
+          <div key={c} className="flex items-center justify-center px-1 py-1.5">
             {c % 2 === 0 && <Tex math={table.xs[c / 2]} />}
           </div>
         ))}
@@ -101,7 +101,7 @@ export function VariationTable({ table, answer, onChange, wrongCells = [], disab
           const tall = row.kind === 'variation';
           const h = tall ? 'h-24' : 'h-10';
           return [
-            <div key={`l${i}`} className={`flex items-center justify-center border-r border-slate-300 px-2 dark:border-slate-600 ${rowBorder} ${h}`}>
+            <div key={`l${i}`} className={`flex items-center justify-center border-r border-ink/70 px-2 ${rowBorder} ${h}`}>
               <Tex math={row.label} />
             </div>,
             ...Array.from({ length: 2 * n - 1 }, (_, c) => {

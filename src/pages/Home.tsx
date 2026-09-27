@@ -1,60 +1,73 @@
 import { Link } from 'react-router';
 import { Tex } from '../components/Math';
-import { templatesFor } from '../exercises/registry';
+import { SUBTYPE_LABELS, subtypesOf, templatesFor } from '../exercises/registry';
 import { THEME_LABELS, type Theme } from '../exercises/types';
 
-const THEMES: { theme: Theme; desc: string; example: string; color: string }[] = [
-  { theme: 'derivee', desc: 'Polynômes, produits, quotients, exponentielle, logarithme, fonctions composées.', example: "\\left(\\frac{u}{v}\\right)' = \\frac{u'v - uv'}{v^2}", color: 'from-sky-500 to-indigo-500' },
-  { theme: 'limite', desc: 'Limites en l’infini, formes indéterminées, valeurs interdites, croissances comparées.', example: '\\lim_{x\\to+\\infty} \\frac{\\mathrm{e}^x}{x^n} = +\\infty', color: 'from-violet-500 to-fuchsia-500' },
-  { theme: 'variation', desc: 'Tableaux de signes, discriminant, tableaux de variations avec extremums et limites.', example: "f' > 0 \\Rightarrow f \\nearrow", color: 'from-emerald-500 to-teal-500' },
-];
-
-const FEATURES = [
-  ['🎲', 'Exercices aléatoires', 'Des milliers de variantes, jamais deux fois le même énoncé d’affilée.'],
-  ['✅', 'Vérification automatique', 'Tape ta réponse : toutes les écritures équivalentes sont acceptées, et les erreurs classiques sont repérées.'],
-  ['📘', 'Corrections détaillées', 'Étape par étape, avec les explications et le rappel des formules utilisées.'],
-  ['🔗', 'Partage par lien', 'Envoie exactement la même feuille à quelqu’un, avec ou sans corrections, ou affiche un QR code.'],
+const CHAPTERS: { theme: Theme; example: string }[] = [
+  { theme: 'derivee', example: "\\left(\\frac{u}{v}\\right)' = \\frac{u'v - uv'}{v^2}" },
+  { theme: 'limite', example: '\\lim_{x\\to+\\infty} \\frac{\\mathrm{e}^x}{x^n} = +\\infty' },
+  { theme: 'variation', example: '\\Delta = b^2 - 4ac' },
 ];
 
 export default function Home() {
   return (
-    <div className="space-y-10">
-      <section className="py-6 text-center">
-        <h1 className="mb-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
-          Entraîne-toi en <span className="bg-gradient-to-r from-indigo-600 to-fuchsia-600 bg-clip-text text-transparent">analyse</span>
+    <div className="space-y-12">
+      <section className="max-w-2xl pt-4">
+        <p className="label mb-3">Analyse · Première et Terminale</p>
+        <h1 className="mb-4 font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+          Des exercices qui ne se répètent pas, <em className="font-normal">et leur corrigé.</em>
         </h1>
-        <p className="mx-auto mb-6 max-w-2xl text-lg text-slate-600 dark:text-slate-300">
-          Dérivées, limites, tableaux de signes et de variations : des exercices générés à la volée, du niveau facile au difficile, avec vérification et corrigés.
+        <p className="mb-6 text-lg text-ink-soft">
+          Choisis un chapitre et un niveau : les énoncés sont tirés au hasard, tu écris ta réponse, elle est vérifiée, et la correction détaille chaque étape avec la formule utilisée.
         </p>
-        <Link to="/exercices" className="inline-block rounded-xl bg-indigo-600 px-6 py-3 text-lg font-semibold text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700">
+        <Link to="/exercices" className="btn btn-primary px-4 py-2 text-[0.95rem]">
           Composer une feuille
         </Link>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {THEMES.map((t) => (
-          <Link key={t.theme} to={`/exercices?theme=${t.theme}`} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-            <div className={`bg-gradient-to-r ${t.color} px-5 py-4 text-white`}>
-              <h2 className="text-xl font-bold">{THEME_LABELS[t.theme]}</h2>
-              <p className="text-sm opacity-90">{templatesFor(t.theme).length} types d’exercices · 3 niveaux</p>
-            </div>
-            <div className="space-y-3 p-5">
-              <p className="text-sm text-slate-600 dark:text-slate-300">{t.desc}</p>
-              <Tex math={t.example} display className="text-slate-800 dark:text-slate-100" />
-              <p className="text-sm font-semibold text-indigo-700 group-hover:underline dark:text-indigo-300">S’entraîner sur ce thème →</p>
-            </div>
-          </Link>
-        ))}
+      <section>
+        <h2 className="label mb-2 border-b border-rule pb-2">Sommaire</h2>
+        <ol>
+          {CHAPTERS.map((c, i) => (
+            <li key={c.theme} className="border-b border-rule">
+              <Link to={`/exercices?theme=${c.theme}`} className="group grid gap-x-6 gap-y-1 py-5 sm:grid-cols-[3rem_1fr_auto] sm:items-baseline">
+                <span className="font-serif text-3xl text-pen">{i + 1}</span>
+                <span>
+                  <span className="flex items-baseline gap-2">
+                    <span className="font-serif text-2xl font-semibold group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{THEME_LABELS[c.theme]}</span>
+                    <span aria-hidden className="mb-1 hidden flex-1 border-b border-dotted border-rule-strong sm:block" />
+                    <span className="font-sans text-sm text-ink-faint">{templatesFor(c.theme).length} types</span>
+                  </span>
+                  <span className="mt-1 block text-[0.95rem] text-ink-soft">
+                    {subtypesOf(c.theme)
+                      .map((s) => SUBTYPE_LABELS[s] ?? s)
+                      .join(' · ')}
+                  </span>
+                </span>
+                <span className="hidden text-ink-soft sm:block">
+                  <Tex math={c.example} />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURES.map(([icon, title, desc]) => (
-          <div key={title} className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-            <div className="mb-1 text-2xl">{icon}</div>
-            <h3 className="font-semibold">{title}</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">{desc}</p>
-          </div>
-        ))}
+      <section className="grid gap-8 text-[0.95rem] sm:grid-cols-3">
+        <div>
+          <h3 className="mb-1 font-semibold">Réponses vérifiées</h3>
+          <p className="text-ink-soft">
+            Tape <code className="font-mono text-sm">(2x+1)/(x-3)</code> comme tu l’écrirais : toute écriture équivalente est acceptée, et les erreurs courantes sont signalées.
+          </p>
+        </div>
+        <div>
+          <h3 className="mb-1 font-semibold">Jamais deux fois le même</h3>
+          <p className="text-ink-soft">Ton historique reste dans ce navigateur : les types d’exercices tournent, et un énoncé déjà vu ne revient pas.</p>
+        </div>
+        <div>
+          <h3 className="mb-1 font-semibold">À partager</h3>
+          <p className="text-ink-soft">Une feuille s’envoie par lien ou par QR code, avec ou sans le corrigé : tout le monde a exactement les mêmes énoncés.</p>
+        </div>
       </section>
     </div>
   );

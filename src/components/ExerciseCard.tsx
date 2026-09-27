@@ -7,30 +7,24 @@ import { MathText } from './Math';
 import { Solution, StepItem } from './Solution';
 import { VariationTable } from './VariationTable';
 
-const THEME_COLORS: Record<Exercise['theme'], string> = {
-  derivee: 'bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200',
-  limite: 'bg-violet-100 text-violet-800 dark:bg-violet-900/50 dark:text-violet-200',
-  variation: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200',
+const VERDICT: Record<CheckResult['status'], [string, string]> = {
+  correct: ['Juste', 'text-ok'],
+  partial: ['Presque', 'text-pen'],
+  incorrect: ['Faux', 'text-pen'],
+  invalid: ['Illisible', 'text-ink-soft'],
 };
 
-const LEVEL_DOTS = (d: number) => '●'.repeat(d) + '○'.repeat(3 - d);
-
+/** Annotation « au stylo » dans la marge de la réponse. */
 function Feedback({ r, attempts }: { r?: CheckResult; attempts: number }) {
   if (!r) return null;
-  const styles = {
-    correct: ['✔', 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200'],
-    partial: ['〜', 'border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200'],
-    incorrect: ['✘', 'border-rose-300 bg-rose-50 text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200'],
-    invalid: ['⚠', 'border-slate-300 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'],
-  } as const;
-  const [icon, cls] = styles[r.status];
+  const [word, color] = VERDICT[r.status];
   return (
-    <div className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-sm ${cls}`} role="status">
-      <span className="font-bold">{icon}</span>
-      <span className="flex-1">
+    <div className="flex items-baseline gap-3" role="status">
+      <span className={`hand shrink-0 text-2xl ${color}`}>{word}</span>
+      <span className="flex-1 text-[0.95rem] text-ink-soft">
         <MathText text={r.message ?? ''} />
       </span>
-      {attempts > 0 && <span className="shrink-0 text-xs opacity-70">{attempts} essai{attempts > 1 ? 's' : ''}</span>}
+      {attempts > 0 && <span className="shrink-0 font-sans text-xs text-ink-faint">{attempts} essai{attempts > 1 ? 's' : ''}</span>}
     </div>
   );
 }
@@ -57,8 +51,8 @@ function QuestionBlock({ ex, q, index, total }: { ex: Exercise; q: Question; ind
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
-        {total > 1 && <span className="mr-1.5 text-slate-400">{String.fromCharCode(97 + index)})</span>}
+      <p>
+        {total > 1 && <span className="mr-1.5 font-semibold">{String.fromCharCode(97 + index)})</span>}
         <MathText text={q.prompt} />
       </p>
       {q.type === 'expression' && <ExpressionInput value={text} onChange={onText} onSubmit={check} label={q.label} />}
@@ -66,9 +60,7 @@ function QuestionBlock({ ex, q, index, total }: { ex: Exercise; q: Question; ind
       {q.type === 'roots' && <RootsInput value={text} onChange={onText} onSubmit={check} />}
       {q.type === 'table' && (
         <>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Clique sur les cases pour faire défiler : signes <b>+ / −</b>, marques <b>0 / ||</b> (valeur interdite), flèches <b>↗ / ↘</b>. Au clavier : + − 0 | ↑ ↓.
-          </p>
+          <p className="font-sans text-xs text-ink-faint">Clique sur une case pour faire défiler + et −, 0 et || (valeur interdite), ↗ et ↘. Au clavier : + − 0 | ↑ ↓.</p>
           <VariationTable
             table={q.expected}
             answer={(raw as TableAnswer) ?? emptyTableAnswer(q.expected)}
@@ -77,8 +69,8 @@ function QuestionBlock({ ex, q, index, total }: { ex: Exercise; q: Question; ind
           />
         </>
       )}
-      <div className="flex flex-wrap items-start gap-2">
-        <button type="button" onClick={check} className="rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white">
+      <div className="flex flex-wrap items-baseline gap-4 pt-1">
+        <button type="button" onClick={check} className="btn">
           Vérifier
         </button>
         <div className="min-w-0 flex-1">
@@ -112,30 +104,24 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
     setSolutionOpen(!solutionOpen);
   };
 
-  const btn = 'rounded-lg px-3 py-1.5 text-sm font-medium transition-colors';
-
   return (
-    <article className="break-inside-avoid rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900" id={ex.uid}>
-      <header className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="text-lg font-bold text-slate-900 dark:text-white">Exercice {number}</span>
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${THEME_COLORS[ex.theme]}`}>{THEME_LABELS[ex.theme]}</span>
-        <span className="text-xs text-slate-500 dark:text-slate-400" title={DIFFICULTY_LABELS[ex.difficulty]}>
-          <span className="tracking-tighter text-amber-500">{LEVEL_DOTS(ex.difficulty)}</span> {DIFFICULTY_LABELS[ex.difficulty]}
+    <article className="copy break-inside-avoid" id={ex.uid}>
+      <header className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <h3 className="font-serif text-xl font-semibold">Exercice {number}</h3>
+        <span className="font-sans text-xs text-ink-faint">
+          {THEME_LABELS[ex.theme]} · {DIFFICULTY_LABELS[ex.difficulty].toLowerCase()} · {ex.title}
         </span>
-        <span className="text-xs text-slate-400">· {ex.title}</span>
         {result && (
-          <span className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${result === 'reussi' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200' : 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-200'}`}>
-            {result === 'reussi' ? '✔ Réussi' : '✘ À revoir'}
-          </span>
+          <span className={`hand ml-auto -rotate-3 text-2xl ${result === 'reussi' ? 'text-ok' : 'text-pen'}`}>{result === 'reussi' ? 'Réussi' : 'À revoir'}</span>
         )}
       </header>
 
-      <p className="mb-4 leading-relaxed text-slate-800 dark:text-slate-100">
+      <p className="mb-5">
         <MathText text={ex.statement} />
       </p>
 
       {inputsEnabled && (
-        <div className="mb-4 space-y-5 print:hidden">
+        <div className="mb-5 space-y-6 print:hidden">
           {ex.questions.map((q, i) => (
             <QuestionBlock key={q.id} ex={ex} q={q} index={i} total={ex.questions.length} />
           ))}
@@ -143,8 +129,8 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       )}
 
       {progress?.hint && !solutionOpen && ex.steps[0] && (
-        <div className="mb-4 rounded-xl border border-sky-200 bg-sky-50/60 p-3 dark:border-sky-900 dark:bg-sky-950/30">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sky-700 dark:text-sky-300">💡 Indice</p>
+        <div className="mb-5 border-l-2 border-blue bg-blue-soft py-2 pl-4 pr-2">
+          <p className="label mb-2 text-blue">Indice</p>
           <ol>
             <StepItem step={ex.steps[0]} index={0} />
           </ol>
@@ -152,48 +138,49 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       )}
 
       {solutionOpen && (
-        <div className="mb-4">
+        <div className="mb-5">
           <Solution steps={ex.steps} />
         </div>
       )}
 
-      <footer className="flex flex-wrap items-center gap-2 print:hidden">
+      <footer className="flex flex-wrap items-baseline gap-x-5 gap-y-2 border-t border-dashed border-rule pt-3 print:hidden">
         {allowSolutions && (
           <>
             {!progress?.hint && !solutionOpen && (
-              <button type="button" onClick={() => showHint(ex.uid)} className={`${btn} text-sky-700 hover:bg-sky-50 dark:text-sky-300 dark:hover:bg-sky-950/40`}>
-                💡 Indice
+              <button type="button" onClick={() => showHint(ex.uid)} className="btn-link">
+                Un indice
               </button>
             )}
-            <button type="button" onClick={toggleSolution} className={`${btn} ${solutionOpen ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-100' : 'text-indigo-700 hover:bg-indigo-50 dark:text-indigo-300 dark:hover:bg-indigo-950/40'}`}>
+            <button type="button" onClick={toggleSolution} className="btn-link pen">
               {solutionOpen ? 'Masquer la correction' : 'Voir la correction'}
             </button>
           </>
         )}
         {!inputsEnabled && (
-          <>
-            <button type="button" onClick={() => setManual(ex, progress?.manual === 'reussi' ? undefined : 'reussi')} className={`${btn} ${progress?.manual === 'reussi' ? 'bg-emerald-600 text-white' : 'text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40'}`}>
-              ✔ Réussi
+          <span className="flex items-baseline gap-3 font-sans text-sm">
+            <span className="text-ink-faint">Sur papier :</span>
+            <button type="button" onClick={() => setManual(ex, progress?.manual === 'reussi' ? undefined : 'reussi')} className={`btn-link ${progress?.manual === 'reussi' ? 'font-semibold !text-ok' : ''}`}>
+              réussi
             </button>
-            <button type="button" onClick={() => setManual(ex, progress?.manual === 'rate' ? undefined : 'rate')} className={`${btn} ${progress?.manual === 'rate' ? 'bg-rose-600 text-white' : 'text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-950/40'}`}>
-              ✘ Raté
+            <button type="button" onClick={() => setManual(ex, progress?.manual === 'rate' ? undefined : 'rate')} className={`btn-link ${progress?.manual === 'rate' ? 'font-semibold !text-pen' : ''}`}>
+              raté
             </button>
-          </>
+          </span>
         )}
         <span className="flex-1" />
         {progress && (
-          <button type="button" onClick={() => resetProgress(ex.uid)} className={`${btn} text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800`} title="Effacer mes réponses">
+          <button type="button" onClick={() => resetProgress(ex.uid)} className="btn-link" title="Effacer mes réponses">
             Recommencer
           </button>
         )}
         {onAddSimilar && (
-          <button type="button" onClick={onAddSimilar} className={`${btn} text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800`} title="Ajouter un exercice du même thème et du même niveau">
-            ＋ Similaire
+          <button type="button" onClick={onAddSimilar} className="btn-link" title="Ajouter un exercice du même thème et du même niveau">
+            Un autre du même genre
           </button>
         )}
         {onRegenerate && (
-          <button type="button" onClick={onRegenerate} className={`${btn} text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800`} title="Remplacer par un autre exercice">
-            🎲 Autre exercice
+          <button type="button" onClick={onRegenerate} className="btn-link" title="Remplacer par un autre exercice">
+            Changer d’énoncé
           </button>
         )}
       </footer>

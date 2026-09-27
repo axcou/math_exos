@@ -29,12 +29,12 @@ export default function SharedLink({ kind }: { kind: 'sheet' | 'config' }) {
     navigate('/exercices', { replace: true });
   }, [kind, params, navigate]);
 
-  if (!error) return <p className="py-10 text-center text-slate-500">Chargement de la feuille…</p>;
+  if (!error) return <p className="py-10 text-center text-ink-soft">Chargement de la feuille…</p>;
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center dark:border-rose-900 dark:bg-rose-950/40">
-      <p className="mb-2 text-lg font-semibold">Lien invalide</p>
-      <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">Ce lien de partage est incomplet, corrompu, ou vient d’une version plus récente du site.</p>
-      <Link to="/exercices" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+    <div className="copy mx-auto max-w-md">
+      <p className="hand mb-2 text-3xl text-pen">Lien illisible</p>
+      <p className="mb-5 text-ink-soft">Ce lien de partage est incomplet ou abîmé, ou il vient d’une version plus récente du site.</p>
+      <Link to="/exercices" className="btn btn-primary">
         Générer une nouvelle feuille
       </Link>
     </div>

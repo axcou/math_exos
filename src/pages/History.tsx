@@ -4,22 +4,10 @@ import { exerciseFromRef, TEMPLATE_BY_CODE } from '../exercises/registry';
 import { DIFFICULTY_LABELS, type Difficulty, type Exercise, THEME_LABELS, THEMES } from '../exercises/types';
 import { type HistoryEntry, useStore } from '../history/store';
 
-function Stat({ entries }: { entries: HistoryEntry[] }) {
+function counts(entries: HistoryEntry[]) {
   const ok = entries.filter((e) => e.result === 'reussi').length;
   const ko = entries.filter((e) => e.result === 'rate').length;
-  const done = ok + ko;
-  return (
-    <div className="text-sm">
-      <div className="mb-1 flex h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
-        <div className="bg-emerald-500" style={{ width: `${entries.length ? (ok / entries.length) * 100 : 0}%` }} />
-        <div className="bg-rose-400" style={{ width: `${entries.length ? (ko / entries.length) * 100 : 0}%` }} />
-      </div>
-      <span className="text-slate-600 dark:text-slate-300">
-        {entries.length} vu{entries.length > 1 ? 's' : ''} · {ok} réussi{ok > 1 ? 's' : ''} · {ko} à revoir
-        {done ? ` · ${Math.round((ok / done) * 100)} %` : ''}
-      </span>
-    </div>
-  );
+  return { ok, ko, seen: entries.length, rate: ok + ko ? Math.round((ok / (ok + ko)) * 100) : null };
 }
 
 export default function History() {
@@ -36,79 +24,92 @@ export default function History() {
   const toReview = [...history].reverse().filter((h) => h.result === 'rate').slice(0, 10);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold">Historique</h1>
-        <span className="text-sm text-slate-500">Enregistré uniquement dans ce navigateur.</span>
+    <div className="space-y-10">
+      <div className="flex flex-wrap items-end gap-x-5 gap-y-2 border-b border-rule pb-4">
+        <h1 className="font-serif text-3xl font-semibold">Historique</h1>
+        <span className="pb-1 font-sans text-xs text-ink-faint">gardé dans ce navigateur uniquement</span>
         <span className="flex-1" />
         {toReview.length > 0 && (
-          <button type="button" onClick={() => reopen(toReview)} className="rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-rose-700">
+          <button type="button" onClick={() => reopen(toReview)} className="btn btn-primary">
             Refaire les {toReview.length} derniers ratés
           </button>
         )}
         {history.length > 0 &&
           (confirm ? (
-            <span className="flex items-center gap-2 text-sm">
+            <span className="flex items-baseline gap-3 font-sans text-sm">
               Tout effacer ?
-              <button type="button" onClick={() => (clearHistory(), setConfirm(false))} className="rounded-lg bg-rose-600 px-3 py-1 text-white">
-                Oui
+              <button type="button" onClick={() => (clearHistory(), setConfirm(false))} className="btn-link pen">
+                oui, effacer
               </button>
-              <button type="button" onClick={() => setConfirm(false)} className="rounded-lg px-3 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
-                Non
+              <button type="button" onClick={() => setConfirm(false)} className="btn-link">
+                annuler
               </button>
             </span>
           ) : (
-            <button type="button" onClick={() => setConfirm(true)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800">
-              Effacer l’historique
+            <button type="button" onClick={() => setConfirm(true)} className="btn-link">
+              effacer l’historique
             </button>
           ))}
       </div>
 
       {history.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500 dark:border-slate-700">Aucun exercice pour l’instant.</p>
+        <p className="py-10 text-center text-ink-soft">Aucun exercice pour l’instant.</p>
       ) : (
         <>
-          <section className="grid gap-4 md:grid-cols-3">
-            {THEMES.map((t) => {
-              const mine = history.filter((h) => h.theme === t);
-              return (
-                <div key={t} className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-                  <h2 className="mb-2 font-bold">{THEME_LABELS[t]}</h2>
-                  <Stat entries={mine} />
-                  <div className="mt-3 space-y-2">
-                    {([1, 2, 3] as Difficulty[]).map((d) => {
-                      const lvl = mine.filter((h) => h.difficulty === d);
-                      return lvl.length ? (
-                        <div key={d}>
-                          <p className="text-xs font-semibold text-slate-500">{DIFFICULTY_LABELS[d]}</p>
-                          <Stat entries={lvl} />
-                        </div>
-                      ) : null;
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+          <section className="overflow-x-auto">
+            <table className="w-full border-collapse text-left">
+              <thead>
+                <tr className="border-b border-ink/70 font-sans text-xs uppercase tracking-wider text-ink-faint">
+                  <th className="py-2 pr-4 font-semibold">Chapitre</th>
+                  <th className="py-2 pr-4 font-semibold">Niveau</th>
+                  <th className="py-2 pr-4 text-right font-semibold">Vus</th>
+                  <th className="py-2 pr-4 text-right font-semibold">Réussis</th>
+                  <th className="py-2 pr-4 text-right font-semibold">À revoir</th>
+                  <th className="py-2 text-right font-semibold">Taux</th>
+                </tr>
+              </thead>
+              <tbody>
+                {THEMES.flatMap((t) => {
+                  const mine = history.filter((h) => h.theme === t);
+                  if (!mine.length) return [];
+                  const levels = ([1, 2, 3] as Difficulty[]).filter((d) => mine.some((h) => h.difficulty === d));
+                  const row = (label: string, level: string, c: ReturnType<typeof counts>, strong: boolean, key: string) => (
+                    <tr key={key} className={strong ? 'border-t border-rule' : ''}>
+                      <td className={`py-1.5 pr-4 ${strong ? 'font-semibold' : ''}`}>{label}</td>
+                      <td className="py-1.5 pr-4 text-ink-soft">{level}</td>
+                      <td className="py-1.5 pr-4 text-right tabular-nums">{c.seen}</td>
+                      <td className="py-1.5 pr-4 text-right tabular-nums text-ok">{c.ok}</td>
+                      <td className="py-1.5 pr-4 text-right tabular-nums text-pen">{c.ko}</td>
+                      <td className="py-1.5 text-right tabular-nums">{c.rate === null ? '—' : `${c.rate} %`}</td>
+                    </tr>
+                  );
+                  return [
+                    row(THEME_LABELS[t], 'tous', counts(mine), true, t),
+                    ...levels.map((d) => row('', DIFFICULTY_LABELS[d].toLowerCase(), counts(mine.filter((h) => h.difficulty === d)), false, `${t}${d}`)),
+                  ];
+                })}
+              </tbody>
+            </table>
           </section>
 
           <section>
-            <h2 className="mb-2 font-bold">Derniers exercices</h2>
-            <ul className="divide-y divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
+            <h2 className="label mb-1">Derniers exercices</h2>
+            <ul className="divide-y divide-rule border-y border-rule">
               {recent.map((h) => (
-                <li key={h.uid + h.date} className="flex flex-wrap items-center gap-3 px-4 py-2 text-sm">
-                  <span className={`w-20 shrink-0 font-semibold ${h.result === 'reussi' ? 'text-emerald-600' : h.result === 'rate' ? 'text-rose-600' : 'text-slate-400'}`}>
-                    {h.result === 'reussi' ? '✔ Réussi' : h.result === 'rate' ? '✘ À revoir' : '· Non fait'}
+                <li key={h.uid + h.date} className="flex flex-wrap items-baseline gap-x-4 gap-y-0.5 py-2">
+                  <span className={`hand w-24 shrink-0 text-xl ${h.result === 'reussi' ? 'text-ok' : h.result === 'rate' ? 'text-pen' : 'text-ink-faint'}`}>
+                    {h.result === 'reussi' ? 'réussi' : h.result === 'rate' ? 'à revoir' : 'pas fait'}
                   </span>
                   <span className="min-w-0 flex-1">
                     {TEMPLATE_BY_CODE.get(h.code)?.title ?? h.code}
-                    <span className="ml-2 text-xs text-slate-400">
-                      {THEME_LABELS[h.theme]} · {DIFFICULTY_LABELS[h.difficulty]}
+                    <span className="ml-2 font-sans text-xs text-ink-faint">
+                      {THEME_LABELS[h.theme]} · {DIFFICULTY_LABELS[h.difficulty].toLowerCase()}
                       {h.source === 'shared' ? ' · partagé' : ''}
                     </span>
                   </span>
-                  <span className="text-xs text-slate-400">{new Date(h.date).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}</span>
-                  <button type="button" onClick={() => reopen([h])} className="rounded-md px-2 py-0.5 text-indigo-700 hover:bg-indigo-50 dark:text-indigo-300 dark:hover:bg-indigo-950">
-                    Rouvrir
+                  <span className="font-sans text-xs text-ink-faint">{new Date(h.date).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                  <button type="button" onClick={() => reopen([h])} className="btn-link">
+                    rouvrir
                   </button>
                 </li>
               ))}

@@ -24,14 +24,13 @@ function ItemRow({ item, onChange }: { item: SheetItem; onChange: (i: SheetItem)
   const isOn = (s: string) => item.subtypes.length === 0 || item.subtypes.includes(s);
 
   return (
-    <div className={`rounded-xl border p-3 transition-colors ${item.enabled ? 'border-indigo-200 bg-white dark:border-indigo-900 dark:bg-slate-900' : 'border-slate-200 bg-slate-50 opacity-70 dark:border-slate-800 dark:bg-slate-900/40'}`}>
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="flex min-w-44 cursor-pointer items-center gap-2 font-semibold">
-          <input type="checkbox" checked={item.enabled} onChange={(e) => onChange({ ...item, enabled: e.target.checked })} className="h-4 w-4 accent-indigo-600" />
+    <div className={`border-b border-rule py-3 ${item.enabled ? '' : 'text-ink-faint'}`}>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <label className="flex min-w-48 cursor-pointer items-center gap-2.5 font-serif text-lg font-semibold">
+          <input type="checkbox" checked={item.enabled} onChange={(e) => onChange({ ...item, enabled: e.target.checked })} className="h-4 w-4 accent-[var(--ink)]" />
           {THEME_LABELS[item.theme]}
         </label>
-        <label className="flex items-center gap-1.5 text-sm">
-          Nombre
+        <label className="flex items-baseline gap-2 font-sans text-sm">
           <input
             type="number"
             min={1}
@@ -39,10 +38,12 @@ function ItemRow({ item, onChange }: { item: SheetItem; onChange: (i: SheetItem)
             value={item.count}
             disabled={!item.enabled}
             onChange={(e) => onChange({ ...item, count: Math.max(1, Math.min(MAX_PER_THEME, Number(e.target.value) || 1)) })}
-            className="w-16 rounded-md border border-slate-300 bg-white px-2 py-1 dark:border-slate-600 dark:bg-slate-800"
+            className="field w-14 text-center"
+            aria-label={`Nombre d’exercices de ${THEME_LABELS[item.theme]}`}
           />
+          exercices
         </label>
-        <div className="flex overflow-hidden rounded-lg border border-slate-300 text-sm dark:border-slate-600" role="radiogroup" aria-label="Niveau">
+        <div className="flex items-baseline gap-3 font-sans text-sm" role="radiogroup" aria-label="Niveau">
           {DIFFS.map((d) => (
             <button
               key={d}
@@ -51,29 +52,23 @@ function ItemRow({ item, onChange }: { item: SheetItem; onChange: (i: SheetItem)
               role="radio"
               aria-checked={item.difficulty === d}
               onClick={() => onChange({ ...item, difficulty: d })}
-              className={`px-2.5 py-1 ${item.difficulty === d ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+              className={`underline-offset-[5px] disabled:opacity-50 ${item.difficulty === d ? 'text-ink underline decoration-pen decoration-2' : 'text-ink-soft hover:text-ink'}`}
             >
-              {d === 'mixte' ? 'Mélangé' : DIFFICULTY_LABELS[d]}
+              {d === 'mixte' ? 'mélangé' : DIFFICULTY_LABELS[d].toLowerCase()}
             </button>
           ))}
         </div>
-        <button type="button" disabled={!item.enabled} onClick={() => setShowTypes(!showTypes)} className="text-sm text-indigo-700 hover:underline disabled:opacity-50 dark:text-indigo-300">
-          ⚙ Types{item.subtypes.length ? ` (${item.subtypes.length})` : ''}
+        <button type="button" disabled={!item.enabled} onClick={() => setShowTypes(!showTypes)} className="btn-link ml-auto disabled:opacity-50" aria-expanded={showTypes}>
+          {item.subtypes.length ? `${item.subtypes.length} type${item.subtypes.length > 1 ? 's' : ''} choisi${item.subtypes.length > 1 ? 's' : ''}` : 'tous les types'}
         </button>
       </div>
       {showTypes && item.enabled && (
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 pl-7 font-sans text-sm">
           {subtypes.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => toggleSub(s)}
-              title={available.has(s) ? undefined : 'Aucun exercice de ce type à ce niveau'}
-              className={`rounded-full border px-2.5 py-0.5 text-xs ${isOn(s) ? 'border-indigo-300 bg-indigo-50 text-indigo-800 dark:border-indigo-700 dark:bg-indigo-950 dark:text-indigo-200' : 'border-slate-200 text-slate-500 dark:border-slate-700'} ${available.has(s) ? '' : 'opacity-50'}`}
-            >
-              {isOn(s) ? '✓ ' : ''}
+            <label key={s} className={`flex cursor-pointer items-center gap-1.5 ${available.has(s) ? '' : 'text-ink-faint'}`} title={available.has(s) ? undefined : 'Aucun exercice de ce type à ce niveau'}>
+              <input type="checkbox" checked={isOn(s)} onChange={() => toggleSub(s)} className="accent-[var(--ink)]" />
               {SUBTYPE_LABELS[s] ?? s}
-            </button>
+            </label>
           ))}
         </div>
       )}
@@ -85,11 +80,12 @@ export function SheetBuilder({ config, onChange, onGenerate }: Props) {
   const total = totalCount(config);
   const tooMany = total > MAX_TOTAL;
   return (
-    <section className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-900/40">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 className="mr-2 text-lg font-bold">Composer ma feuille</h2>
+    <section className="panel px-5 py-4">
+      <div className="mb-1 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <h2 className="font-serif text-xl font-semibold">Composer la feuille</h2>
+        <span className="font-sans text-xs text-ink-faint">Raccourcis :</span>
         {PRESETS.map((p) => (
-          <button key={p.label} type="button" onClick={() => onChange(p.config(config))} className="rounded-full border border-slate-300 bg-white px-3 py-0.5 text-xs hover:border-indigo-400 hover:text-indigo-700 dark:border-slate-600 dark:bg-slate-800">
+          <button key={p.label} type="button" onClick={() => onChange(p.config(config))} className="btn-link text-xs">
             {p.label}
           </button>
         ))}
@@ -97,28 +93,21 @@ export function SheetBuilder({ config, onChange, onGenerate }: Props) {
       {config.items.map((item, i) => (
         <ItemRow key={item.theme} item={item} onChange={(it) => onChange({ ...config, items: config.items.map((x, k) => (k === i ? it : x)) })} />
       ))}
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-3 text-sm">
-          Ordre :
-          <label className="flex items-center gap-1">
-            <input type="radio" checked={config.order === 'grouped'} onChange={() => onChange({ ...config, order: 'grouped' })} className="accent-indigo-600" /> regroupé par thème
-          </label>
-          <label className="flex items-center gap-1">
-            <input type="radio" checked={config.order === 'shuffled'} onChange={() => onChange({ ...config, order: 'shuffled' })} className="accent-indigo-600" /> mélangé
-          </label>
-        </div>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-4 font-sans text-sm">
+        <span className="text-ink-soft">Ordre</span>
+        <label className="flex items-center gap-1.5">
+          <input type="radio" checked={config.order === 'grouped'} onChange={() => onChange({ ...config, order: 'grouped' })} className="accent-[var(--ink)]" /> par chapitre
+        </label>
+        <label className="flex items-center gap-1.5">
+          <input type="radio" checked={config.order === 'shuffled'} onChange={() => onChange({ ...config, order: 'shuffled' })} className="accent-[var(--ink)]" /> mélangé
+        </label>
         <span className="flex-1" />
-        <span className={`text-sm ${tooMany ? 'text-rose-600' : 'text-slate-500'}`}>
+        <span className={tooMany ? 'text-pen' : 'text-ink-faint'}>
           {total} exercice{total > 1 ? 's' : ''}
-          {tooMany ? ` (max ${MAX_TOTAL})` : ''}
+          {tooMany ? `, maximum ${MAX_TOTAL}` : ''}
         </span>
-        <button
-          type="button"
-          onClick={onGenerate}
-          disabled={total === 0 || tooMany}
-          className="rounded-xl bg-indigo-600 px-5 py-2 font-semibold text-white shadow hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Générer 🎲
+        <button type="button" onClick={onGenerate} disabled={total === 0 || tooMany} className="btn btn-primary">
+          Générer la feuille
         </button>
       </div>
     </section>

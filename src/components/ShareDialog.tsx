@@ -1,5 +1,6 @@
 import QRCode from 'qrcode';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Exercise } from '../exercises/types';
 import { absoluteUrl, encodeConfig, encodeSheet } from '../share/share';
 import type { SheetConfig } from '../sheet/sheetConfig';
@@ -50,66 +51,69 @@ export function ShareDialog({ exercises, config, initialTitle, onClose }: Props)
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div role="dialog" aria-modal="true" aria-labelledby="share-title" className="max-h-full w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5 shadow-xl dark:bg-slate-900" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 id="share-title" className="text-lg font-bold">
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" onClick={onClose}>
+      <div role="dialog" aria-modal="true" aria-labelledby="share-title" className="panel max-h-full w-full max-w-lg overflow-y-auto p-6 shadow-[6px_6px_0_var(--rule)]" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-4 flex items-baseline justify-between">
+          <h2 id="share-title" className="font-serif text-xl font-semibold">
             Partager
           </h2>
-          <button type="button" onClick={onClose} className="rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Fermer">
-            ✕
+          <button type="button" onClick={onClose} className="btn-link" aria-label="Fermer">
+            fermer
           </button>
         </div>
 
-        <div className="mb-4 grid grid-cols-2 gap-2">
+        <fieldset className="mb-5 space-y-2">
+          <legend className="label mb-2">Que partager ?</legend>
           {(['sheet', 'config'] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setMode(m)}
-              className={`rounded-xl border p-3 text-left text-sm ${mode === m ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/50' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800'}`}
-            >
-              <span className="block font-semibold">{m === 'sheet' ? 'Cette feuille' : 'Cette composition'}</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                {m === 'sheet' ? `Les mêmes ${exercises.length} exercices, à l’identique.` : 'Une nouvelle feuille aléatoire à chaque ouverture, avec les mêmes réglages.'}
+            <label key={m} className="flex cursor-pointer gap-2.5">
+              <input type="radio" checked={mode === m} onChange={() => setMode(m)} className="mt-1.5 accent-[var(--ink)]" />
+              <span>
+                <span className="font-semibold">{m === 'sheet' ? 'Cette feuille' : 'Cette composition'}</span>
+                <span className="block text-sm text-ink-soft">
+                  {m === 'sheet' ? `Les mêmes ${exercises.length} énoncés, à l’identique.` : 'Une nouvelle feuille tirée au hasard à chaque ouverture, avec les mêmes réglages.'}
+                </span>
               </span>
-            </button>
+            </label>
           ))}
-        </div>
+        </fieldset>
 
         {mode === 'sheet' && (
-          <div className="mb-4 space-y-2 text-sm">
+          <div className="mb-5 space-y-3 font-sans text-sm">
             <label className="block">
-              Titre (optionnel)
-              <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} placeholder="ex. Révisions dérivées" className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 dark:border-slate-600 dark:bg-slate-800" />
+              <span className="label">Titre</span>
+              <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} placeholder="Révisions dérivées (facultatif)" className="field mt-1 block w-full font-sans" />
+            </label>
+            <label className="flex items-start gap-2">
+              <input type="checkbox" checked={showSolutions} onChange={(e) => setShowSolutions(e.target.checked)} className="mt-0.5 accent-[var(--ink)]" />
+              <span>
+                Corrigé disponible
+                <span className="block text-xs text-ink-faint">Décoché : mode devoir, seule la vérification des réponses reste.</span>
+              </span>
             </label>
             <label className="flex items-center gap-2">
-              <input type="checkbox" checked={showSolutions} onChange={(e) => setShowSolutions(e.target.checked)} className="accent-indigo-600" />
-              Corrections disponibles
-              <span className="text-xs text-slate-500">(décoché : mode « devoir », seule la vérification des réponses reste)</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={inputs} onChange={(e) => setInputs(e.target.checked)} className="accent-indigo-600" />
+              <input type="checkbox" checked={inputs} onChange={(e) => setInputs(e.target.checked)} className="accent-[var(--ink)]" />
               Saisie des réponses
             </label>
           </div>
         )}
 
-        <div className="flex gap-2">
-          <input id="share-url" readOnly value={url} onFocus={(e) => e.target.select()} className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-xs dark:border-slate-600 dark:bg-slate-800" />
-          <button type="button" onClick={copy} className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-            {copied ? 'Copié ✓' : 'Copier'}
+        <div className="flex items-end gap-3">
+          <input id="share-url" readOnly value={url} onFocus={(e) => e.target.select()} className="field min-w-0 flex-1 text-xs" aria-label="Lien de partage" />
+          <button type="button" onClick={copy} className="btn btn-primary shrink-0">
+            {copied ? 'Copié' : 'Copier le lien'}
           </button>
         </div>
-        <p className="mt-1 text-xs text-slate-500">{url.length} caractères</p>
+        <p className="mt-1 font-sans text-xs text-ink-faint">{url.length} caractères</p>
 
         {qr && (
-          <div className="mt-4 flex flex-col items-center gap-2">
+          <div className="mt-5 flex items-center gap-4">
             <button type="button" onClick={() => setBigQr(true)} title="Afficher en grand">
-              <img src={qr} alt="QR code du lien" className="h-40 w-40 rounded-lg border border-slate-200 bg-white p-1" />
+              <img src={qr} alt="QR code du lien" className="h-28 w-28 border border-rule bg-white p-1" />
             </button>
-            <span className="text-xs text-slate-500">Clique sur le QR code pour l’afficher en plein écran</span>
+            <p className="text-sm text-ink-soft">
+              Pour une classe : <button type="button" className="btn-link" onClick={() => setBigQr(true)}>afficher le QR code en plein écran</button>.
+            </p>
           </div>
         )}
       </div>
@@ -118,6 +122,7 @@ export function ShareDialog({ exercises, config, initialTitle, onClose }: Props)
           <img src={qr} alt="QR code du lien" className="max-h-full max-w-full" style={{ imageRendering: 'pixelated' }} />
         </div>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 }

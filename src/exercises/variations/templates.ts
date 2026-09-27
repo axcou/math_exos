@@ -304,10 +304,10 @@ const V07: Template = {
       `Étudier les variations de $f(x) = ${L(f)}$ sur $\\mathbb{R}$, limites comprises.`,
       [derivQ('q1', df, [-3, 3]), tableQ('q2', table, 'Complète le tableau de variations.'), extremumQ('q3', kind, ext)],
       [
-        { title: 'Dérivée', text: 'Formule du produit, puis factorisation par $\\mathrm{e}^x$ :', math: `f'(x) = ${a}\\,\\mathrm{e}^{x} + (${u.toLatex()})\\mathrm{e}^{x} = ${L(df)}`, formulas: ['d.prod', 'd.exp'] },
+        { title: 'Dérivée', text: 'Formule du produit, puis factorisation par $\\mathrm{e}^x$ :', math: `f'(x) = ${L(mul(num(a), exp(X)))} + (${u.toLatex()})\\mathrm{e}^{x} = ${L(df)}`, formulas: ['d.prod', 'd.exp'] },
         { title: "Signe de f'", text: `$\\mathrm{e}^x > 0$, donc $f'(x)$ est du signe de $${g.toLatex()}$, qui s'annule en $${x0}$.`, formulas: ['v.exp', 'v.affine'] },
         { title: 'Limites', math: `\\lim_{x \\to -\\infty} f(x) = 0 \\qquad \\lim_{x \\to +\\infty} f(x) = ${a > 0 ? '+' : '-'}\\infty`, text: 'En $-\\infty$ : croissances comparées ($x\\,\\mathrm{e}^x \\to 0$ et $\\mathrm{e}^x \\to 0$). En $+\\infty$ : produit de limites.', formulas: ['l.cc'] },
-        { title: `Valeur du ${kind}`, math: `f(${x0}) = (${a * x0 + b})\\mathrm{e}^{${x0}} = ${L(ext)}` },
+        { title: `Valeur du ${kind}`, math: x0 === 0 ? `f(0) = ${pn(b)} \\times \\mathrm{e}^{0} = ${L(ext)}` : `f(${x0}) = ${pn(a * x0 + b)}\\,\\mathrm{e}^{${x0}} = ${L(ext)}` },
         { title: 'Tableau de variations', table, formulas: ['v.var'] },
       ],
       f,

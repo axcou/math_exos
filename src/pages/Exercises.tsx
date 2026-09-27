@@ -16,13 +16,15 @@ function ScoreBar({ exercises }: { exercises: Exercise[] }) {
   const ko = results.filter((r) => r === 'rate').length;
   const n = exercises.length || 1;
   return (
-    <div className="flex min-w-56 flex-1 items-center gap-3">
-      <div className="flex h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800" aria-label={`${ok} réussis, ${ko} à revoir sur ${exercises.length}`}>
-        <div className="bg-emerald-500 transition-all" style={{ width: `${(ok / n) * 100}%` }} />
-        <div className="bg-rose-400 transition-all" style={{ width: `${(ko / n) * 100}%` }} />
-      </div>
-      <span className="shrink-0 text-sm font-medium">
-        {ok}/{exercises.length} réussi{ok > 1 ? 's' : ''}
+    <div className="flex items-baseline gap-3" aria-label={`${ok} réussis, ${ko} à revoir sur ${exercises.length}`}>
+      <span className="hand text-3xl text-pen">
+        {ok}
+        <span className="text-2xl">/{exercises.length}</span>
+      </span>
+      <span className="font-sans text-xs text-ink-faint">
+        réussi{ok > 1 ? 's' : ''}
+        {ko ? `, ${ko} à revoir` : ''}
+        {n - ok - ko > 0 ? `, ${n - ok - ko} à faire` : ''}
       </span>
     </div>
   );
@@ -82,45 +84,60 @@ export default function Exercises() {
   const grouped = groups.length === new Set(exercises.map((e) => e.theme)).size && groups.length > 1;
   let number = 0;
 
-  const btn = 'rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800';
+  const chapterOf = (t: Theme) => THEMES.indexOf(t) + 1;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {sheet?.source === 'shared' && (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm dark:border-sky-900 dark:bg-sky-950/40 print:hidden">
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 border-y border-rule py-3 text-[0.95rem] print:hidden">
           <span>
-            🔗 Feuille partagée{sheet.title ? <> : <b>{sheet.title}</b></> : ''}
-            {!sheet.showSolutions && ' — corrections désactivées'}
-            {sheet.skipped ? ` — ${sheet.skipped} exercice${sheet.skipped > 1 ? 's' : ''} n’ont pas pu être chargés (lien d’une ancienne version ?)` : ''}
+            <span className="label mr-2">Feuille partagée</span>
+            {sheet.title && <b>{sheet.title}</b>}
+            {!sheet.showSolutions && <span className="text-ink-soft"> · sans corrigé</span>}
+            {sheet.skipped ? (
+              <span className="text-pen">
+                {' '}
+                · {sheet.skipped} exercice{sheet.skipped > 1 ? 's' : ''} n’ont pas pu être chargés (lien d’une ancienne version ?)
+              </span>
+            ) : null}
           </span>
           <span className="flex-1" />
-          <button type="button" className={btn} onClick={() => { const c = configFromSheet(exercises, config); setConfig(c); generate(c); }}>
-            Générer une feuille similaire
+          <button
+            type="button"
+            className="btn-link"
+            onClick={() => {
+              const c = configFromSheet(exercises, config);
+              setConfig(c);
+              generate(c);
+            }}
+          >
+            générer une feuille du même genre
           </button>
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-2 print:hidden">
-        <button type="button" className={btn} onClick={() => setBuilderOpen(!builderOpen)} aria-expanded={builderOpen}>
-          {builderOpen ? '▾' : '▸'} Composer
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-3 print:hidden">
+        <button type="button" className="btn" onClick={() => setBuilderOpen(!builderOpen)} aria-expanded={builderOpen}>
+          {builderOpen ? 'Fermer les réglages' : 'Réglages de la feuille'}
         </button>
-        <button type="button" className={btn} onClick={() => generate()} title="Nouvelle feuille avec la composition actuelle">
-          🎲 Nouvelle feuille
+        <button type="button" className="btn btn-primary" onClick={() => generate()} title="Nouvelle feuille avec les mêmes réglages">
+          Nouvelle feuille
         </button>
         {exercises.length > 0 && (
           <>
-            <button type="button" className={btn} onClick={() => setSharing(true)}>
-              🔗 Partager
+            <button type="button" className="btn-link" onClick={() => setSharing(true)}>
+              partager
             </button>
-            <button type="button" className={btn} onClick={() => window.print()}>
-              🖨 Imprimer
+            <button type="button" className="btn-link" onClick={() => window.print()}>
+              imprimer
             </button>
           </>
         )}
-        <label className="ml-1 flex items-center gap-1.5 text-sm">
-          <input type="checkbox" checked={inputsEnabled} onChange={(e) => setInputsEnabled(e.target.checked)} className="accent-indigo-600" />
-          Saisie des réponses
+        <label className="flex items-center gap-1.5 font-sans text-sm text-ink-soft">
+          <input type="checkbox" checked={inputsEnabled} onChange={(e) => setInputsEnabled(e.target.checked)} className="accent-[var(--ink)]" />
+          répondre à l’écran
         </label>
+        <span className="flex-1" />
         {exercises.length > 0 && <ScoreBar exercises={exercises} />}
       </div>
 
@@ -130,23 +147,26 @@ export default function Exercises() {
         </div>
       )}
 
-      {sheet?.title && <h1 className="text-2xl font-bold">{sheet.title}</h1>}
+      {sheet?.title && <h1 className="font-serif text-3xl font-semibold">{sheet.title}</h1>}
 
       {exercises.length === 0 && !builderOpen && (
-        <div className="rounded-2xl border border-dashed border-slate-300 p-10 text-center dark:border-slate-700">
-          <p className="mb-3 text-slate-600 dark:text-slate-300">Aucune feuille pour l’instant.</p>
-          <button type="button" onClick={() => generate()} className="rounded-xl bg-indigo-600 px-5 py-2 font-semibold text-white hover:bg-indigo-700">
+        <div className="py-16 text-center">
+          <p className="mb-4 text-ink-soft">Pas encore de feuille.</p>
+          <button type="button" onClick={() => generate()} className="btn btn-primary">
             Générer une feuille
           </button>
         </div>
       )}
 
       {groups.map((g, gi) => (
-        <section key={gi} className="space-y-4">
+        <section key={gi} className="space-y-5">
           {grouped && (
-            <h2 className="flex items-center gap-2 pt-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              {THEME_LABELS[g.theme]} <span className="font-normal">({g.items.length})</span>
-              <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+            <h2 className="flex items-baseline gap-3 pt-4">
+              <span className="font-serif text-2xl text-pen">{chapterOf(g.theme)}</span>
+              <span className="font-serif text-2xl font-semibold">{THEME_LABELS[g.theme]}</span>
+              <span className="font-sans text-sm text-ink-faint">
+                {g.items.length} exercice{g.items.length > 1 ? 's' : ''}
+              </span>
             </h2>
           )}
           {g.items.map((ex) => (
@@ -164,9 +184,9 @@ export default function Exercises() {
 
       {sharing && <ShareDialog exercises={exercises} config={config} initialTitle={sheet?.title ?? ''} onClose={() => setSharing(false)} />}
       {exercises.length > 0 && (
-        <p className="pt-4 text-center text-xs text-slate-400 print:hidden">
-          <button type="button" className="hover:underline" onClick={() => navigate('/historique')}>
-            Voir mon historique et mes statistiques →
+        <p className="pt-2 text-center print:hidden">
+          <button type="button" className="btn-link" onClick={() => navigate('/historique')}>
+            voir mon historique
           </button>
         </p>
       )}
