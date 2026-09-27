@@ -58,3 +58,27 @@ export const niceLatex = (v: number) => {
   const n = nice(v);
   return n.exact ? n.latex : `\\approx ${n.latex}`;
 };
+
+/** Expression exacte correspondant à nice(v), ou null. */
+export function niceExpr(v: number): import('../core/expr/ast').Expr | null {
+  if (!Number.isFinite(v)) return null;
+  const numE = (r: Q.Rational) => ({ type: 'num', value: r }) as const;
+  const r = asRational(v);
+  if (r) return numE(r);
+  const sign = v < 0 ? -1 : 1;
+  const r2 = asRational(v * v, 400);
+  if (r2 && r2.n > 0) {
+    const s = { type: 'fn', name: 'sqrt', arg: numE(r2) } as const;
+    return sign < 0 ? { type: 'mul', factors: [numE(Q.rat(-1)), s] } : s;
+  }
+  if (v > 0) {
+    const l = asRational(Math.log(v), 12);
+    if (l && !Q.isZero(l)) return { type: 'fn', name: 'exp', arg: numE(l) };
+  }
+  const lr = asRational(Math.exp(Math.abs(v)), 12);
+  if (lr && lr.n < 10000 && !Q.eq(lr, Q.ONE)) {
+    const l = { type: 'fn', name: 'ln', arg: numE(lr) } as const;
+    return sign < 0 ? { type: 'mul', factors: [numE(Q.rat(-1)), l] } : l;
+  }
+  return null;
+}

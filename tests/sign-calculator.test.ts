@@ -108,3 +108,17 @@ describe('calculateur de variations', () => {
     expect(JSON.stringify(r.sections)).toMatch(/minimum local/);
   });
 });
+
+describe('valeurs exactes des extremums', () => {
+  it.each([
+    ['(x+1)e^x', '-\\mathrm{e}^{-2}'],
+    ['e^x - 2x', '2 - 2\\ln(2)'],
+    ['ln(x)/x', '\\frac{1}{\\mathrm{e}}'],
+    ['x - ln(x)', '1'],
+  ])('extremum de %s', (f, v) => {
+    const r = solveVariations(parse(f));
+    const row = r.table!.rows.at(-1)!;
+    if (row.kind !== 'variation') throw new Error();
+    expect(row.values[1]).toBe(v);
+  });
+});

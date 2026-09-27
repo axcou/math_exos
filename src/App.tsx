@@ -8,7 +8,7 @@ import SharedLink from './pages/SharedLink';
 
 const LINKS = [
   ['/exercices', 'Exercices'],
-  ['/calcul', 'Calculateur'],
+  ['/calcul', 'Calculateurs'],
   ['/formulaire', 'Formulaire'],
   ['/historique', 'Historique'],
 ] as const;

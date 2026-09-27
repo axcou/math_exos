@@ -25,6 +25,17 @@ export interface DerivativeReport {
 const L = toLatex;
 const paren = (e: Expr) => (e.type === 'add' ? `\\left(${L(e)}\\right)` : L(e));
 
+/** Produit affiché : on omet un facteur 1, on écrit × à côté d'un nombre ou d'une fraction. */
+function times(a: Expr, b: Expr): string {
+  if (isNum(a) && Q.eq(a.value, Q.ONE)) return L(b);
+  if (isNum(b) && Q.eq(b.value, Q.ONE)) return L(a);
+  const juxtapose = a.type === 'add' && b.type === 'add';
+  return `${paren(a)}${juxtapose ? '' : ' \\times '}${paren(b)}`;
+}
+
+/** (e)' avec des parenthèses à la bonne taille. */
+const prime = (e: Expr) => `\\left(${L(e)}\\right)'`;
+
 /** Dérivée « immédiate » (sans étape dédiée) : constantes, ax+b, x^n, e^x, ln x, √x, 1/x. */
 function immediate(e: Expr): boolean {
   if (!hasVar(e)) return true;
@@ -59,7 +70,7 @@ function D(e: Expr, c: Ctx, name?: string): Expr {
     c.steps.push({
       title,
       text: 'Polynôme : on dérive terme à terme.',
-      math: terms.length > 1 ? `${terms.join(' \\qquad ')} \\qquad \\Longrightarrow \\qquad (${L(e)})' = ${L(d)}` : `(${L(e)})' = ${L(d)}`,
+      math: terms.length > 1 ? `${terms.join(' \\qquad ')} \\qquad \\Longrightarrow \\qquad ${prime(e)} = ${L(d)}` : `${prime(e)} = ${L(d)}`,
       formulas: ['d.sum', 'd.xn', 'd.const'],
     });
     return d;
@@ -91,7 +102,7 @@ function D(e: Expr, c: Ctx, name?: string): Expr {
         c.steps.push({
           title,
           text: `$f = k \\times u$ avec $k = ${L(k)}$ et $u(x) = ${L(u)}$ : on multiplie la dérivée de $u$ par $k$.`,
-          math: `(${L(e)})' = ${L(k)} \\times ${paren(du)} = ${L(res)}`,
+          math: `${prime(e)} = ${L(k)} \\times ${paren(du)} = ${L(res)}`,
           formulas: ['d.scal'],
         });
         return res;
@@ -105,7 +116,7 @@ function D(e: Expr, c: Ctx, name?: string): Expr {
       c.steps.push({
         title,
         text: `Produit $u \\times v$ avec $u(x) = ${L(u)}$ et $v(x) = ${L(v)}$, donc $u'(x) = ${L(du)}$ et $v'(x) = ${L(dv)}$.`,
-        math: `(${L(e)})' = u'v + uv' = ${paren(du)}${paren(v)} + ${paren(u)}${paren(dv)} = ${L(res)}`,
+        math: `${prime(e)} = u'v + uv' = ${times(du, v)} + ${times(u, dv)} = ${L(res)}`,
         formulas: ['d.prod'],
       });
       return res;
@@ -119,7 +130,7 @@ function D(e: Expr, c: Ctx, name?: string): Expr {
         c.steps.push({
           title,
           text: `$f = \\dfrac{k}{v}$ avec $k = ${L(u)}$ et $v(x) = ${L(v)}$, donc $v'(x) = ${L(dv)}$.`,
-          math: `(${L(e)})' = -\\frac{k\\,v'}{v^2} = -\\frac{${L(u)} \\times ${paren(dv)}}{${paren(v)}^{2}} = ${L(res)}`,
+          math: `${prime(e)} = -\\frac{k\\,v'}{v^2} = -\\frac{${L(u)} \\times ${paren(dv)}}{${paren(v)}^{2}} = ${L(res)}`,
           formulas: ['d.invu'],
         });
         return res;
@@ -130,7 +141,7 @@ function D(e: Expr, c: Ctx, name?: string): Expr {
       c.steps.push({
         title,
         text: `Quotient $\\dfrac{u}{v}$ avec $u(x) = ${L(u)}$ et $v(x) = ${L(v)}$, donc $u'(x) = ${L(du)}$ et $v'(x) = ${L(dv)}$.`,
-        math: `(${L(e)})' = \\frac{u'v - uv'}{v^2} = \\frac{${paren(du)}${paren(v)} - ${paren(u)}${paren(dv)}}{${paren(v)}^{2}} = ${L(res)}`,
+        math: `${prime(e)} = \\frac{u'v - uv'}{v^2} = \\frac{${times(du, v)} - ${times(u, dv)}}{${paren(v)}^{2}} = ${L(res)}`,
         formulas: ['d.quot'],
       });
       return res;
@@ -148,7 +159,7 @@ function D(e: Expr, c: Ctx, name?: string): Expr {
       c.steps.push({
         title,
         text: `$f = u^{${L(n)}}$ avec $u(x) = ${L(u)}$ et $u'(x) = ${L(du)}$.`,
-        math: `(${L(e)})' = ${L(n)}\\,u'\\,u^{${L(tidy(add(n, num(-1))))}} = ${L(res)}`,
+        math: `${prime(e)} = ${L(n)}\\,u'\\,u^{${L(tidy(add(n, num(-1))))}} = ${L(res)}`,
         formulas: ['d.un'],
       });
       return res;
@@ -161,7 +172,7 @@ function D(e: Expr, c: Ctx, name?: string): Expr {
         c.steps.push({
           title,
           text: `$f = \\mathrm{e}^{u}$ avec $u(x) = ${L(u)}$ et $u'(x) = ${L(du)}$.`,
-          math: `(${L(e)})' = u'\\,\\mathrm{e}^{u} = ${L(res)}`,
+          math: `${prime(e)} = u'\\,\\mathrm{e}^{u} = ${L(res)}`,
           formulas: ['d.expu'],
         });
         return res;
@@ -171,7 +182,7 @@ function D(e: Expr, c: Ctx, name?: string): Expr {
         c.steps.push({
           title,
           text: `$f = \\ln(u)$ avec $u(x) = ${L(u)}$ et $u'(x) = ${L(du)}$ (là où $u > 0$).`,
-          math: `(${L(e)})' = \\frac{u'}{u} = ${L(res)}`,
+          math: `${prime(e)} = \\frac{u'}{u} = ${L(res)}`,
           formulas: ['d.lnu'],
         });
         return res;
@@ -180,7 +191,7 @@ function D(e: Expr, c: Ctx, name?: string): Expr {
       c.steps.push({
         title,
         text: `$f = \\sqrt{u}$ avec $u(x) = ${L(u)}$ et $u'(x) = ${L(du)}$ (là où $u > 0$).`,
-        math: `(${L(e)})' = \\frac{u'}{2\\sqrt{u}} = ${L(res)}`,
+        math: `${prime(e)} = \\frac{u'}{2\\sqrt{u}} = ${L(res)}`,
         formulas: ['d.sqrtu'],
       });
       return res;
@@ -196,7 +207,7 @@ function referenceStep(e: Expr, d: Expr): Step {
   if (e.type === 'fn') ids.push(e.name === 'exp' ? 'd.exp' : e.name === 'ln' ? 'd.ln' : 'd.sqrt');
   else if (e.type === 'div') ids.push('d.inv');
   else ids.push('d.xn', 'd.scal', 'd.const');
-  return { title: 'Dérivée de référence', math: `(${L(e)})' = ${L(d)}`, formulas: ids };
+  return { title: 'Dérivée de référence', math: `${prime(e)} = ${L(d)}`, formulas: ids };
 }
 
 export function solveDerivative(f: Expr): DerivativeReport {

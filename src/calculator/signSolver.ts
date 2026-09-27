@@ -510,7 +510,12 @@ export function domainOf(e: Expr): { interval: Interval; holes: number[] } | nul
 }
 
 export function intervalLatex(i: Interval): string {
-  return `${i.loIn ? '[' : ']'}${i.loLatex}\\,;\\,${i.hiLatex}${i.hiIn ? ']' : '['}`;
+  return bracket(i.loIn, i.loLatex, i.hiLatex, i.hiIn);
+}
+
+/** Intervalle bien espacé : \left] a ; b \right[ (les crochets ne sont pas pris pour des opérateurs). */
+export function bracket(closedA: boolean, a: string, b: string, closedB: boolean): string {
+  return `\\left${closedA ? '[' : ']'}${a}\\,;\\,${b}\\right${closedB ? ']' : '['}`;
 }
 
 function domainLatex(d: { interval: Interval; holes: number[] }): string {
@@ -614,7 +619,7 @@ export function solveSign(f: Expr, opts: SignOptions = {}): SignReport {
     const b = xs[i + 1];
     const closedA = i === 0 ? I.loIn && Math.abs(evalSafe(f, a.v)) > 1e-12 : false;
     const closedB = i === xs.length - 2 ? I.hiIn && Math.abs(evalSafe(f, b.v)) > 1e-12 : false;
-    return `${closedA ? '[' : ']'}${a.latex}\\,;\\,${b.latex}${closedB ? ']' : '['}`;
+    return bracket(closedA, a.latex, b.latex, closedB);
   };
   const pos = signs.map((s, i) => (s === '+' ? ivl(i) : null)).filter(Boolean);
   const neg = signs.map((s, i) => (s === '-' ? ivl(i) : null)).filter(Boolean);

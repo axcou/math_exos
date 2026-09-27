@@ -285,7 +285,49 @@ export function tidy(e: Expr): Expr {
       if (t.base.type === 'pow' && isNum(t.exp) && isNum(t.base.exp)) return pow(t.base.base, num(Q.mul(t.base.exp.value, t.exp.value)));
       return t;
     }
+    case 'fn': {
+      // e^{ln a} = a, ln(e^a) = a, e^0 = 1, ln 1 = 0, √(a²) pour a rationnel positif
+      if (t.name === 'exp' && t.arg.type === 'fn' && t.arg.name === 'ln') return t.arg.arg;
+      if (t.name === 'ln' && t.arg.type === 'fn' && t.arg.name === 'exp') return t.arg.arg;
+      if (t.name === 'exp' && isNum(t.arg) && Q.isZero(t.arg.value)) return num(1);
+      if (t.name === 'exp' && isNum(t.arg) && Q.eq(t.arg.value, Q.ONE)) return { type: 'const', name: 'e' };
+      if (t.name === 'ln' && t.arg.type === 'const' && t.arg.name === 'e') return num(1);
+      if (t.name === 'ln' && isNum(t.arg) && Q.eq(t.arg.value, Q.ONE)) return num(0);
+      if (t.name === 'sqrt' && isNum(t.arg) && Q.sign(t.arg.value) >= 0) {
+        const n = Math.round(Math.sqrt(t.arg.value.n));
+        const d = Math.round(Math.sqrt(t.arg.value.d));
+        if (n * n === t.arg.value.n && d * d === t.arg.value.d) return num(n, d);
+      }
+      // e^{k ln a} = a^k (k entier)
+      if (t.name === 'exp' && t.arg.type === 'mul' && t.arg.factors.length === 2 && isNum(t.arg.factors[0]) && Q.isInt(t.arg.factors[0].value)) {
+        const inner = t.arg.factors[1];
+        if (inner.type === 'fn' && inner.name === 'ln' && isNum(inner.arg)) return num(Q.pow(inner.arg.value, t.arg.factors[0].value.n));
+      }
+      return t;
+    }
     default:
       return t;
+  }
+}
+
+/** Remplace x par une expression (sans simplifier). */
+export function substituteVar(e: Expr, v: Expr): Expr {
+  switch (e.type) {
+    case 'var':
+      return v;
+    case 'add':
+      return { type: 'add', terms: e.terms.map((t) => substituteVar(t, v)) };
+    case 'mul':
+      return { type: 'mul', factors: e.factors.map((t) => substituteVar(t, v)) };
+    case 'div':
+      return { type: 'div', num: substituteVar(e.num, v), den: substituteVar(e.den, v) };
+    case 'pow':
+      return { type: 'pow', base: substituteVar(e.base, v), exp: substituteVar(e.exp, v) };
+    case 'neg':
+      return { type: 'neg', arg: substituteVar(e.arg, v) };
+    case 'fn':
+      return { type: 'fn', name: e.name, arg: substituteVar(e.arg, v) };
+    default:
+      return e;
   }
 }
