@@ -52,7 +52,7 @@ function QuestionBlock({ ex, q, index, total }: { ex: Exercise; q: Question; ind
   return (
     <div className="space-y-2">
       <p>
-        {total > 1 && <span className="mr-1.5 font-semibold">{String.fromCharCode(97 + index)})</span>}
+        {total > 1 && <span className="mr-1.5 font-sans font-bold text-chap">{String.fromCharCode(97 + index)}.</span>}
         <MathText text={q.prompt} />
       </p>
       {q.type === 'expression' && <ExpressionInput value={text} onChange={onText} onSubmit={check} label={q.label} />}
@@ -87,9 +87,22 @@ export interface ExerciseCardProps {
   allowSolutions: boolean;
   onRegenerate?: () => void;
   onAddSimilar?: () => void;
+  /** Rappeler le chapitre (feuille mélangée, sans bandeau par chapitre). */
+  showTheme?: boolean;
 }
 
-export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSimilar }: ExerciseCardProps) {
+/** Pastilles de difficulté, comme dans les manuels. */
+function Level({ d }: { d: number }) {
+  return (
+    <span className="inline-flex items-center gap-1" title={`Niveau ${DIFFICULTY_LABELS[d as 1 | 2 | 3].toLowerCase()}`} aria-label={`Niveau ${DIFFICULTY_LABELS[d as 1 | 2 | 3].toLowerCase()}`}>
+      {[1, 2, 3].map((i) => (
+        <span key={i} className={`h-2 w-2 rounded-full border border-chap ${i <= d ? 'bg-chap' : ''}`} />
+      ))}
+    </span>
+  );
+}
+
+export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSimilar, showTheme }: ExerciseCardProps) {
   const inputsEnabled = useStore((s) => s.inputsEnabled);
   const progress = useStore((s) => s.progress[ex.uid]);
   const openSolution = useStore((s) => s.openSolution);
@@ -105,18 +118,19 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
   };
 
   return (
-    <article className="copy break-inside-avoid" id={ex.uid}>
-      <header className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h3 className="font-serif text-xl font-semibold">Exercice {number}</h3>
-        <span className="font-sans text-xs text-ink-faint">
-          {THEME_LABELS[ex.theme]} · {DIFFICULTY_LABELS[ex.difficulty].toLowerCase()} · {ex.title}
-        </span>
+    <article className={`chap-${ex.theme} break-inside-avoid border-t border-rule py-6 [&:nth-child(2)]:border-t-0 [&:nth-child(2)]:pt-3`} id={ex.uid} aria-label={`Exercice ${number}`}>
+      <header className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="ex-num">{number}</span>
+        <h3 className="font-sans text-[0.95rem] font-bold text-chap">{ex.title}</h3>
+        <Level d={ex.difficulty} />
+        {showTheme && <span className="font-sans text-[0.7rem] font-semibold uppercase tracking-wider text-ink-faint">{THEME_LABELS[ex.theme]}</span>}
         {result && (
           <span className={`hand ml-auto -rotate-3 text-2xl ${result === 'reussi' ? 'text-ok' : 'text-pen'}`}>{result === 'reussi' ? 'Réussi' : 'À revoir'}</span>
         )}
       </header>
 
-      <p className="mb-5">
+      <div className="sm:pl-[2.85rem]">
+      <p className="mb-4">
         <MathText text={ex.statement} />
       </p>
 
@@ -129,8 +143,8 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       )}
 
       {progress?.hint && !solutionOpen && ex.steps[0] && (
-        <div className="mb-5 border-l-2 border-blue bg-blue-soft py-2 pl-4 pr-2">
-          <p className="label mb-2 text-blue">Indice</p>
+        <div className="box dashed mb-5 mt-4">
+          <span className="box-tab">Coup de pouce</span>
           <ol>
             <StepItem step={ex.steps[0]} index={0} />
           </ol>
@@ -138,20 +152,20 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       )}
 
       {solutionOpen && (
-        <div className="mb-5">
+        <div className="mb-5 mt-4">
           <Solution steps={ex.steps} />
         </div>
       )}
 
-      <footer className="flex flex-wrap items-baseline gap-x-5 gap-y-2 border-t border-dashed border-rule pt-3 print:hidden">
+      <footer className="flex flex-wrap items-baseline gap-x-5 gap-y-2 pt-1 print:hidden">
         {allowSolutions && (
           <>
             {!progress?.hint && !solutionOpen && (
               <button type="button" onClick={() => showHint(ex.uid)} className="btn-link">
-                Un indice
+                Coup de pouce
               </button>
             )}
-            <button type="button" onClick={toggleSolution} className="btn-link pen">
+            <button type="button" onClick={toggleSolution} className="btn-link font-semibold !text-chap !decoration-chap">
               {solutionOpen ? 'Masquer la correction' : 'Voir la correction'}
             </button>
           </>
@@ -184,6 +198,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
           </button>
         )}
       </footer>
+      </div>
     </article>
   );
 }

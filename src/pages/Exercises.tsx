@@ -81,7 +81,8 @@ export default function Exercises() {
     if (last && last.theme === e.theme) last.items.push(e);
     else groups.push({ theme: e.theme, items: [e] });
   }
-  const grouped = groups.length === new Set(exercises.map((e) => e.theme)).size && groups.length > 1;
+  // Un bandeau par chapitre si les thèmes sont regroupés, sinon une seule page « mélangée »
+  const byChapter = groups.length === new Set(exercises.map((e) => e.theme)).size;
   let number = 0;
 
   const chapterOf = (t: Theme) => THEMES.indexOf(t) + 1;
@@ -158,22 +159,21 @@ export default function Exercises() {
         </div>
       )}
 
-      {groups.map((g, gi) => (
-        <section key={gi} className="space-y-5">
-          {grouped && (
-            <h2 className="flex items-baseline gap-3 pt-4">
-              <span className="font-serif text-2xl text-pen">{chapterOf(g.theme)}</span>
-              <span className="font-serif text-2xl font-semibold">{THEME_LABELS[g.theme]}</span>
-              <span className="font-sans text-sm text-ink-faint">
-                {g.items.length} exercice{g.items.length > 1 ? 's' : ''}
-              </span>
-            </h2>
-          )}
+      {(byChapter ? groups : exercises.length ? [{ theme: null, items: exercises }] : []).map((g, gi) => (
+        <section key={gi} className={`page ${g.theme ? `chap-${g.theme}` : ''}`}>
+          <div className="chap-band mb-2">
+            <span className="chap-tab">{g.theme ? `Chapitre ${chapterOf(g.theme)}` : 'Exercices'}</span>
+            <span className="self-center px-3 font-semibold text-chap">{g.theme ? THEME_LABELS[g.theme] : 'Feuille mélangée'}</span>
+            <span className="ml-auto self-end pb-1 text-[0.7rem] font-semibold uppercase tracking-widest text-ink-faint">
+              {g.items.length} exercice{g.items.length > 1 ? 's' : ''}
+            </span>
+          </div>
           {g.items.map((ex) => (
             <ExerciseCard
               key={ex.uid}
               ex={ex}
               number={++number}
+              showTheme={!g.theme}
               allowSolutions={sheet?.showSolutions ?? true}
               onRegenerate={sheet?.source === 'shared' ? undefined : () => regenerate(ex)}
               onAddSimilar={sheet?.source === 'shared' ? undefined : () => addSimilar(ex)}

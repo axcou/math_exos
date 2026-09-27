@@ -1,20 +1,20 @@
 @import 'tailwindcss';
 
 /*
- * Direction visuelle : cahier à petits carreaux (clair) / tableau noir (sombre).
- * Encre bleu-noir, stylo rouge pour les corrections, typo de manuel scolaire.
- * Les couleurs basculent via les variables : pas besoin de variantes dark:.
+ * Direction visuelle : manuel de mathématiques.
+ * Page blanche, une couleur par chapitre, numéros d'exercices en carré plein,
+ * encadrés « Rappel », « Coup de pouce » et « Corrigé ».
+ * En sombre : tableau noir. Les couleurs basculent via les variables.
  */
 
 :root {
-  --paper: #f6f3ea;
-  --sheet: #fffdf8;
+  --paper: #efece4;
+  --sheet: #ffffff;
   --ink: #1c2230;
-  --ink-soft: #596070;
-  --ink-faint: #8d919b;
-  --rule: #d8d2c2;
-  --rule-strong: #b9b09a;
-  --grid: rgb(64 104 170 / 0.09);
+  --ink-soft: #545b6a;
+  --ink-faint: #8a8f99;
+  --rule: #dcd8ce;
+  --rule-strong: #b7b09f;
   --pen: #c23b2e;
   --pen-soft: rgb(194 59 46 / 0.08);
   --blue: #1f4a8f;
@@ -22,20 +22,26 @@
   --ok: #2e7a4b;
   --ok-soft: rgb(46 122 75 / 0.08);
   --hl: #fbeea0;
+  /* couleurs de chapitre */
+  --c-derivee: #1c62a8;
+  --c-derivee-soft: #e8f0f9;
+  --c-limite: #c2561a;
+  --c-limite-soft: #fbeee5;
+  --c-variation: #23845a;
+  --c-variation-soft: #e6f3ec;
   --chalk-shadow: none;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #1e2a25;
+    --paper: #1a2420;
     --sheet: #22302a;
     --ink: #ecebe2;
     --ink-soft: #b4b9ae;
     --ink-faint: #818a80;
     --rule: #3c4b43;
     --rule-strong: #56675d;
-    --grid: rgb(255 255 255 / 0.035);
     --pen: #ff8f7e;
     --pen-soft: rgb(255 143 126 / 0.1);
     --blue: #f1d77c;
@@ -43,9 +49,29 @@
     --ok: #93d3a3;
     --ok-soft: rgb(147 211 163 / 0.1);
     --hl: rgb(241 215 124 / 0.22);
+    --c-derivee: #8ec2f5;
+    --c-derivee-soft: rgb(142 194 245 / 0.1);
+    --c-limite: #f5b07e;
+    --c-limite-soft: rgb(245 176 126 / 0.1);
+    --c-variation: #8ed8b0;
+    --c-variation-soft: rgb(142 216 176 / 0.1);
     --chalk-shadow: 0 0 0.6px rgb(255 255 255 / 0.5);
     color-scheme: dark;
   }
+}
+
+/* Couleur du chapitre courant, posée sur un conteneur */
+.chap-derivee {
+  --chap: var(--c-derivee);
+  --chap-soft: var(--c-derivee-soft);
+}
+.chap-limite {
+  --chap: var(--c-limite);
+  --chap-soft: var(--c-limite-soft);
+}
+.chap-variation {
+  --chap: var(--c-variation);
+  --chap-soft: var(--c-variation-soft);
 }
 
 @theme inline {
@@ -63,6 +89,8 @@
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
   --color-hl: var(--hl);
+  --color-chap: var(--chap, var(--ink));
+  --color-chap-soft: var(--chap-soft, var(--paper));
   --font-serif: 'Source Serif 4 Variable', 'Source Serif Pro', Georgia, 'Times New Roman', serif;
   --font-sans: 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   --font-hand: 'Caveat', 'Segoe Print', cursive;
@@ -79,9 +107,6 @@ body {
   font-size: 17px;
   line-height: 1.55;
   background-color: var(--paper);
-  /* quadrillage 5 mm */
-  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 22px 22px;
   text-shadow: var(--chalk-shadow);
   -webkit-font-smoothing: antialiased;
 }
@@ -105,6 +130,81 @@ body {
 }
 
 @layer components {
+  /* Page de manuel */
+  .page {
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    box-shadow: 0 1px 0 var(--rule), 0 12px 24px -18px rgb(0 0 0 / 0.25);
+    padding: 1.75rem 2rem 2rem;
+  }
+  @media (max-width: 640px) {
+    .page {
+      padding: 1.1rem 0.9rem 1.4rem;
+      margin-inline: -0.5rem;
+    }
+  }
+
+  /* Bandeau de chapitre : onglet coloré + filet épais */
+  .chap-band {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 3px solid var(--chap);
+    font-family: var(--font-sans);
+  }
+  .chap-tab {
+    background: var(--chap);
+    color: var(--sheet);
+    text-shadow: none;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.8rem;
+  }
+
+  /* Numéro d'exercice en carré plein */
+  .ex-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.85rem;
+    height: 1.85rem;
+    padding: 0 0.3rem;
+    background: var(--chap);
+    color: var(--sheet);
+    text-shadow: none;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  /* Encadré avec onglet de titre (Rappel, Coup de pouce, Corrigé) */
+  .box {
+    position: relative;
+    border: 1.5px solid var(--chap);
+    background: var(--chap-soft);
+    padding: 1.1rem 1rem 0.8rem;
+    margin-top: 0.7rem;
+  }
+  .box.dashed {
+    border-style: dashed;
+    background: transparent;
+  }
+  .box-tab {
+    position: absolute;
+    top: -0.72rem;
+    left: 0.8rem;
+    background: var(--chap);
+    color: var(--sheet);
+    text-shadow: none;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.12rem 0.55rem;
+  }
+
   /* Feuille de papier avec marge rouge, comme une copie */
   .copy {
     position: relative;

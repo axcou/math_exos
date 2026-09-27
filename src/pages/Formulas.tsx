@@ -19,10 +19,10 @@ export default function Formulas() {
         if (!list.length) return null;
         const groups = [...new Set(list.map((f) => f.group))];
         return (
-          <section key={theme}>
+          <section key={theme} className={`chap-${theme}`}>
             <h2 className="mb-4 flex items-baseline gap-3">
-              <span className="font-serif text-2xl text-pen">{ti + 1}</span>
-              <span className="font-serif text-2xl font-semibold">{THEME_LABELS[theme]}</span>
+              <span className="ex-num">{ti + 1}</span>
+              <span className="font-serif text-2xl font-semibold text-chap">{THEME_LABELS[theme]}</span>
             </h2>
             <div className="space-y-6">
               {groups.map((g) => (

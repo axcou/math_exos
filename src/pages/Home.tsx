@@ -29,12 +29,12 @@ export default function Home() {
         <h2 className="label mb-2 border-b border-rule pb-2">Sommaire</h2>
         <ol>
           {CHAPTERS.map((c, i) => (
-            <li key={c.theme} className="border-b border-rule">
+            <li key={c.theme} className={`chap-${c.theme} border-b border-rule`}>
               <Link to={`/exercices?theme=${c.theme}`} className="group grid gap-x-6 gap-y-1 py-5 sm:grid-cols-[3rem_1fr_auto] sm:items-baseline">
-                <span className="font-serif text-3xl text-pen">{i + 1}</span>
+                <span className="ex-num h-9 min-w-9 justify-self-start text-lg">{i + 1}</span>
                 <span>
                   <span className="flex items-baseline gap-2">
-                    <span className="font-serif text-2xl font-semibold group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{THEME_LABELS[c.theme]}</span>
+                    <span className="font-serif text-2xl font-semibold text-chap group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{THEME_LABELS[c.theme]}</span>
                     <span aria-hidden className="mb-1 hidden flex-1 border-b border-dotted border-rule-strong sm:block" />
                     <span className="font-sans text-sm text-ink-faint">{templatesFor(c.theme).length} types</span>
                   </span>
