@@ -43,7 +43,7 @@ test.describe('partage', () => {
   test('lien de composition : une nouvelle feuille à chaque ouverture', async ({ page }) => {
     await page.goto('#/g?v=1&d=3.2.2&s=2.1&o=g');
     await expect(page.locator('article')).toHaveCount(5);
-    expect(await page.locator('.chap-tab').allInnerTexts()).toEqual(['CHAPITRE 1', 'CHAPITRE 3']);
+    expect(await page.locator('.chap-tab').allInnerTexts()).toEqual(['DÉRIVÉES', 'SIGNES & VARIATIONS']);
     const first = await page.locator('article').first().getAttribute('id');
     expect(first).toMatch(/^D\d+\.[0-9a-z]+\.2$/);
     await page.goto('#/g?v=1&d=3.2.2&s=2.1&o=g');

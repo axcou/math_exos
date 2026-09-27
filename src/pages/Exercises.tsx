@@ -85,7 +85,6 @@ export default function Exercises() {
   const byChapter = !sheet?.mixed && groups.length === new Set(exercises.map((e) => e.theme)).size;
   let number = 0;
 
-  const chapterOf = (t: Theme) => THEMES.indexOf(t) + 1;
 
   return (
     <div className="space-y-6">
@@ -164,8 +163,7 @@ export default function Exercises() {
       {(byChapter ? groups : exercises.length ? [{ theme: null, items: exercises }] : []).map((g, gi) => (
         <section key={gi} className={`page ${g.theme ? `chap-${g.theme}` : ''}`}>
           <div className="chap-band mb-2">
-            <span className="chap-tab">{g.theme ? `Chapitre ${chapterOf(g.theme)}` : 'Exercices'}</span>
-            <span className="self-center px-3 font-semibold text-chap">{g.theme ? THEME_LABELS[g.theme] : 'Feuille mélangée'}</span>
+            <span className="chap-tab">{g.theme ? THEME_LABELS[g.theme] : 'Exercices'}</span>
             <span className="ml-auto self-end pb-1 text-[0.7rem] font-semibold uppercase tracking-widest text-ink-faint">
               {g.items.length} exercice{g.items.length > 1 ? 's' : ''}
             </span>

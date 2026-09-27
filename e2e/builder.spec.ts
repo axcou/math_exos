@@ -22,7 +22,7 @@ test.describe('composer une feuille', () => {
     await page.getByRole('button', { name: 'Générer la feuille' }).click();
 
     await expect(page.locator('article')).toHaveCount(4);
-    expect(await page.locator('.chap-tab').allInnerTexts()).toEqual(['CHAPITRE 2']);
+    expect(await page.locator('.chap-tab').allInnerTexts()).toEqual(['LIMITES']);
     for (const art of await page.locator('article').all()) {
       await expect(art.getByLabel('Niveau moyen')).toBeVisible();
       await expect(art.getByText('b.', { exact: true })).toBeVisible();
@@ -34,7 +34,7 @@ test.describe('composer une feuille', () => {
     await page.getByRole('button', { name: 'Tout (3 × 3)' }).click();
     await page.getByRole('button', { name: 'Générer la feuille' }).click();
     await expect(page.locator('article')).toHaveCount(9);
-    expect(await page.locator('.chap-tab').allInnerTexts()).toEqual(['CHAPITRE 1', 'CHAPITRE 2', 'CHAPITRE 3']);
+    expect(await page.locator('.chap-tab').allInnerTexts()).toEqual(['DÉRIVÉES', 'LIMITES', 'SIGNES & VARIATIONS']);
     // numérotation continue
     const nums = await page.locator('article .ex-num').allInnerTexts();
     expect(nums).toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9']);
@@ -84,7 +84,7 @@ test.describe('composer une feuille', () => {
     await expect(page.locator('article')).toHaveCount(6);
     await page.getByRole('button', { name: 'Nouvelle feuille' }).click();
     await expect(page.locator('article')).toHaveCount(6);
-    expect(await page.locator('.chap-tab').allInnerTexts()).toEqual(['CHAPITRE 3']);
+    expect(await page.locator('.chap-tab').allInnerTexts()).toEqual(['SIGNES & VARIATIONS']);
   });
 
   test('deux feuilles de suite ne donnent pas les mêmes énoncés', async ({ page }) => {

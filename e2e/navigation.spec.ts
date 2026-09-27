@@ -41,7 +41,7 @@ test.describe('navigation', () => {
     await expect(page).toHaveURL(/#\/exercices$/);
     await expect(page.locator('article').first()).toBeVisible();
     const chapters = await page.locator('.chap-tab').allInnerTexts();
-    expect(chapters).toEqual(['CHAPITRE 2']);
+    expect(chapters).toEqual(['LIMITES']);
     expect(await page.locator('article').count()).toBeGreaterThanOrEqual(5);
   });
 });
