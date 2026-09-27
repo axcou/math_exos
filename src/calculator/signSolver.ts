@@ -165,7 +165,7 @@ function quadRoots(p: Poly): { delta: Q.Rational; roots: Root[] } {
     return { delta, roots: [{ v: Q.toNumber(r), latex: Q.toLatex(r) }] };
   }
   const sq = Math.sqrt(dn);
-  const vals = [(-B - sq) / (2 * A), (-B + sq) / (2 * A)].sort((u, v) => u - v);
+  const vals = [(-B - sq) / (2 * A), (-B + sq) / (2 * A)].map((v) => v || 0).sort((u, v) => u - v);
   const rq = asRational(sq, 1);
   if (rq || (delta.d === 1 && Number.isInteger(Math.sqrt(delta.n)))) {
     return { delta, roots: vals.map((v) => ({ v, latex: nice(v).latex })) };
@@ -410,7 +410,7 @@ function rootsOf(u: Expr, domain: [number, number]): { roots: Root[]; approximat
 
 function dedupe(rs: Root[]): Root[] {
   const out: Root[] = [];
-  for (const r of rs.sort((a, b) => a.v - b.v)) if (!out.some((o) => Math.abs(o.v - r.v) < 1e-9)) out.push(r);
+  for (const r of rs.sort((a, b) => a.v - b.v)) if (!out.some((o) => Math.abs(o.v - r.v) < 1e-9)) out.push({ ...r, v: r.v || 0 }); // pas de « −0 »
   return out;
 }
 
