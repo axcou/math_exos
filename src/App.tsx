@@ -36,7 +36,19 @@ export default function App() {
           ))}
         </nav>
       </header>
-      <main className="mx-auto max-w-4xl px-4 py-8 print:max-w-none print:p-0">
+      <main className="mx-auto max-w-4xl px-4 py-8 print:max-w-none">
+        {/* À l'impression : bandes haute et basse répétées sur chaque page (marges) */}
+        <table className="print-frame" role="presentation">
+          <thead>
+            <tr>
+              <td>
+                <div className="spacer-top" />
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/exercices" element={<Exercises />} />
@@ -48,6 +60,17 @@ export default function App() {
           <Route path="/g" element={<SharedLink kind="config" />} />
           <Route path="*" element={<Home />} />
         </Routes>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>
+                <div className="spacer-bottom" />
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </main>
       <footer className="mx-auto max-w-4xl px-4 pb-8 pt-4 font-sans text-xs text-ink-faint print:hidden">
         Les exercices sont générés dans ton navigateur ; rien n’est envoyé sur Internet.

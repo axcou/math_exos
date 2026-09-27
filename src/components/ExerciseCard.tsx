@@ -41,8 +41,9 @@ function PrintAnswerSpace({ q }: { q: Question }) {
       </div>
     );
   }
-  // Une expression déjà écrite en grand dans l'énoncé n'est pas recopiée
-  const label = q.type === 'roots' ? 'x \\in' : q.hideLabel ? undefined : q.label;
+  // Limite déjà écrite en grand (série façon TD) : on répond après le « = », sans ligne en plus
+  if (q.hideLabel) return null;
+  const label = q.type === 'roots' ? 'x \\in' : q.label;
   return <p className="answer-line hidden print:flex">{label && <Tex math={label} />}</p>;
 }
 
@@ -159,6 +160,8 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
   const [solutionOpen, setSolutionOpen] = useState(false);
   const result = exerciseResult(ex, progress);
   const multi = ex.parts.length > 1;
+  // Série de limites « comme en TD » : la limite est l'énoncé, on écrit « = » à côté à l'impression
+  const tdSeries = multi && ex.questions.every((q) => q.hideLabel);
   const methodId = METHOD_FOR_SUBTYPE[TEMPLATE_BY_CODE.get(ex.code)?.subtype ?? ''];
 
   const toggleSolution = () => {
@@ -184,13 +187,14 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       </p>
 
       {multi ? (
-        <ol className="mb-5 space-y-5">
+        <ol className={`mb-5 space-y-5 ${tdSeries ? 'print:space-y-1' : ''}`}>
           {ex.parts.map((p) => (
             <li key={p.label} className="grid grid-cols-[1.4rem_1fr] gap-x-1">
               <span className="font-sans font-bold text-chap">{p.label}.</span>
-              <div className="min-w-0 space-y-2">
+              <div className="min-w-0 space-y-2 print:space-y-0">
                 <p>
                   <MathText text={p.item} />
+                  {tdSeries && <Tex math="=" className="ml-1.5 hidden print:inline" />}
                 </p>
                 {p.questions.map((q, i) => (
                   <QuestionBlock key={q.id} ex={ex} q={q} marker={p.questions.length > 1 ? `${i + 1})` : ''} showPrompt={p.questions.length > 1} inputs={inputsEnabled} singleAttempt={singleAttempt} />

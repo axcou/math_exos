@@ -13,6 +13,8 @@ import { only, type SheetConfig } from '../sheet/sheetConfig';
 /** Menu « imprimer » : sujet seul, avec les réponses, ou avec le corrigé détaillé. */
 function PrintMenu({ onPrint }: { onPrint: (m: PrintMode) => void }) {
   const [open, setOpen] = useState(false);
+  const columns = useStore((s) => s.printColumns);
+  const setColumns = useStore((s) => s.setPrintColumns);
   return (
     <span className="relative">
       <button type="button" className="btn-link" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)}>
@@ -20,6 +22,10 @@ function PrintMenu({ onPrint }: { onPrint: (m: PrintMode) => void }) {
       </button>
       {open && (
         <span role="menu" className="panel absolute left-0 top-full z-30 mt-1 flex w-72 flex-col p-1 shadow-[4px_4px_0_var(--rule)]">
+          <label className="flex items-center gap-2 border-b border-rule px-3 py-2 font-sans text-sm">
+            <input type="checkbox" checked={columns === 2} onChange={(e) => setColumns(e.target.checked ? 2 : 1)} className="accent-[var(--ink)]" />
+            Deux colonnes
+          </label>
           {PRINT_MODES.map((m) => (
             <button
               key={m.id}
@@ -74,7 +80,7 @@ function configFromSheet(exercises: Exercise[], base: SheetConfig): SheetConfig 
 }
 
 export default function Exercises() {
-  const { config, sheet, history, inputsEnabled, setConfig, setSheet, replaceInSheet, appendToSheet, setInputsEnabled } = useStore();
+  const { config, sheet, history, inputsEnabled, printColumns, setConfig, setSheet, replaceInSheet, appendToSheet, setInputsEnabled } = useStore();
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const [builderOpen, setBuilderOpen] = useState(!sheet);
@@ -132,7 +138,7 @@ export default function Exercises() {
 
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${printColumns === 2 ? 'print-cols-2' : ''}`}>
       {sheet?.source === 'shared' && (
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 border-y border-rule py-3 text-[0.95rem] print:hidden">
           <span>

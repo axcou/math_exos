@@ -71,7 +71,8 @@ export function VariationTable({ table, answer, onChange, wrongCells = [], disab
   const editable = !!answer && !!onChange;
   // Cases vides : saisie, ou tableau à compléter sur papier
   const empty = editable || !!blank;
-  const cols = `minmax(4.5rem, auto) ${Array.from({ length: 2 * n - 1 }, (_, i) => (i % 2 === 0 ? 'minmax(2.5rem, auto)' : 'minmax(3rem, 1fr)')).join(' ')}`;
+  // Largeurs en em : le tableau rétrécit avec sa police (impression sur deux colonnes)
+  const cols = `minmax(5.1em, auto) ${Array.from({ length: 2 * n - 1 }, (_, i) => (i % 2 === 0 ? 'minmax(2.85em, auto)' : 'minmax(3.4em, 1fr)')).join(' ')}`;
   const wrong = (id: string) => wrongCells.includes(id);
 
   const update = (i: number, fn: (row: TableAnswer[number]) => TableAnswer[number]) => {

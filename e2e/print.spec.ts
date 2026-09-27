@@ -28,7 +28,8 @@ test.describe('impression et PDF', () => {
     await expect(page.getByText('Classe', { exact: true })).toBeVisible();
     // lignes de réponse
     await expect(page.locator('.answer-line').first()).toBeVisible();
-    expect(await page.locator('.answer-line:visible').count()).toBeGreaterThanOrEqual(6);
+    // (les séries de limites n'en ont pas : on répond après le « = »)
+    expect(await page.locator('.answer-line:visible').count()).toBeGreaterThanOrEqual(4);
     // tableau à compléter : structure visible, aucune case à cliquer
     await expect(page.locator('[data-cell]:visible')).toHaveCount(0);
     await expect(page.locator('.inline-grid:visible').first()).toBeVisible();
@@ -104,12 +105,65 @@ test.describe('impression et PDF', () => {
     await page.emulateMedia({ media: 'print' });
     const after = await page.locator('.answer-line').first().evaluate((el) => getComputedStyle(el, '::after').content);
     expect(after === 'none' || after === 'normal').toBe(true);
+    // la limite n'est pas recopiée sous l'énoncé
     const art = page.locator(`article[id="${ex.uid}"]`);
-    for (const q of ex.questions) {
-      const line = art.locator(`[data-question="${q.id}"] .answer-line`);
-      await expect(line).toBeVisible();
-      await expect(line).not.toContainText('lim');
+    for (const q of ex.questions) await expect(art.locator(`[data-question="${q.id}"]`)).not.toContainText('lim');
+  });
+
+  test('série de limites : « = » après chaque limite, lignes serrées', async ({ page }) => {
+    const ex = exercise('L12', 40, 4);
+    await openSheet(page, [ex]);
+    await page.emulateMedia({ media: 'print' });
+    const art = page.locator(`article[id="${ex.uid}"]`);
+    const items = art.locator('ol > li');
+    await expect(items).toHaveCount(4);
+    for (const li of await items.all()) {
+      await expect(li.locator('p').first().locator('.katex').last()).toHaveText(/=/);
     }
+    // pas d'espace de réponse sous les limites : les lignes se suivent
+    await expect(art.locator('.answer-line')).toHaveCount(0);
+    const boxes = await items.evaluateAll((els) => els.map((e) => e.getBoundingClientRect()));
+    for (let i = 1; i < boxes.length; i++) expect(boxes[i].top - boxes[i - 1].bottom).toBeLessThan(12);
+  });
+
+  test('pas de date ni de titre ajoutés par le navigateur : marge de page nulle, marges recréées', async ({ page }) => {
+    await openSheet(page, SHEET);
+    await page.emulateMedia({ media: 'print' });
+    // la bande haute du cadre d'impression est répétée sur chaque page (en-tête de tableau)
+    await expect(page.locator('.print-frame > thead .spacer-top')).toBeVisible();
+    const display = await page.locator('.print-frame > thead').evaluate((el) => getComputedStyle(el).display);
+    expect(display).toBe('table-header-group');
+    // à l'écran, le cadre n'ajoute rien
+    await page.emulateMedia({ media: 'screen' });
+    await expect(page.locator('.print-frame > thead')).toBeHidden();
+  });
+
+  test('option deux colonnes, mémorisée', async ({ page }) => {
+    await openSheet(page, SHEET);
+    await page.getByRole('button', { name: 'imprimer / PDF' }).click();
+    await page.getByLabel('Deux colonnes').check();
+    await page.keyboard.press('Escape');
+    await page.emulateMedia({ media: 'print' });
+    const cols = await page.locator('section.page').first().evaluate((el) => getComputedStyle(el).columnCount);
+    expect(cols).toBe('2');
+    await page.reload();
+    await page.emulateMedia({ media: 'print' });
+    expect(await page.locator('section.page').first().evaluate((el) => getComputedStyle(el).columnCount)).toBe('2');
+    // et on peut revenir à une colonne
+    await page.emulateMedia({ media: 'screen' });
+    await page.getByRole('button', { name: 'imprimer / PDF' }).click();
+    await page.getByLabel('Deux colonnes').uncheck();
+    await page.emulateMedia({ media: 'print' });
+    expect(await page.locator('section.page').first().evaluate((el) => getComputedStyle(el).columnCount)).toBe('auto');
+  });
+
+  test('feuille mélangée : l’onglet « Exercices » est visible', async ({ page }) => {
+    await openSheet(page, [exercise('L01', 1), exercise('D01', 2), exercise('L02', 3)]);
+    const tab = page.locator('.chap-tab').first();
+    await expect(tab).toHaveText(/Exercices/i);
+    const [bg, fg] = await tab.evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color]);
+    expect(bg).not.toBe('rgba(0, 0, 0, 0)');
+    expect(bg).not.toBe(fg);
   });
 
   test('une correction ouverte à l’écran n’est pas imprimée en double', async ({ page }) => {

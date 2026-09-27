@@ -148,11 +148,11 @@ body {
   .chap-band {
     display: flex;
     align-items: stretch;
-    border-bottom: 3px solid var(--chap);
+    border-bottom: 3px solid var(--chap, var(--ink));
     font-family: var(--font-sans);
   }
   .chap-tab {
-    background: var(--chap);
+    background: var(--chap, var(--ink));
     color: var(--sheet);
     text-shadow: none;
     font-weight: 700;
@@ -170,7 +170,7 @@ body {
     min-width: 1.85rem;
     height: 1.85rem;
     padding: 0 0.3rem;
-    background: var(--chap);
+    background: var(--chap, var(--ink));
     color: var(--sheet);
     text-shadow: none;
     font-family: var(--font-sans);
@@ -181,8 +181,8 @@ body {
   /* Encadré avec onglet de titre (Rappel, Coup de pouce, Corrigé) */
   .box {
     position: relative;
-    border: 1.5px solid var(--chap);
-    background: var(--chap-soft);
+    border: 1.5px solid var(--chap, var(--ink));
+    background: var(--chap-soft, var(--paper));
     padding: 1.1rem 1rem 0.8rem;
     margin-top: 1.1rem;
   }
@@ -194,7 +194,7 @@ body {
     position: absolute;
     top: -0.72rem;
     left: 0.8rem;
-    background: var(--chap);
+    background: var(--chap, var(--ink));
     color: var(--sheet);
     text-shadow: none;
     font-family: var(--font-sans);
@@ -368,15 +368,26 @@ body {
 
 /* ——————————————————————————————————— Impression / PDF */
 
+/*
+ * Marge d'impression nulle : le navigateur n'a plus de place pour ajouter
+ * date, titre et adresse. Les marges sont recréées par .print-frame
+ * (bandes haute et basse répétées sur chaque page) et le padding latéral.
+ */
 @page {
   size: A4;
-  margin: 14mm 15mm 16mm;
-  @bottom-center {
-    content: counter(page) ' / ' counter(pages);
-    font-family: 'IBM Plex Sans', system-ui, sans-serif;
-    font-size: 8pt;
-    color: #8a8f99;
-  }
+  margin: 0;
+}
+
+/* Cadre d'impression : transparent à l'écran */
+.print-frame,
+.print-frame > tbody,
+.print-frame > tbody > tr,
+.print-frame > tbody > tr > td {
+  display: block;
+}
+.print-frame > thead,
+.print-frame > tfoot {
+  display: none;
 }
 
 @media print {
@@ -416,8 +427,54 @@ body {
   }
   main {
     max-width: none !important;
-    padding: 0 !important;
+    padding: 0 15mm !important;
   }
+  .print-frame {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .print-frame > thead {
+    display: table-header-group;
+  }
+  .print-frame > tfoot {
+    display: table-footer-group;
+  }
+  .print-frame > tbody {
+    display: table-row-group;
+  }
+  .print-frame > tbody > tr {
+    display: table-row;
+  }
+  .print-frame > tbody > tr > td {
+    display: table-cell;
+    padding: 0;
+  }
+  .print-frame .spacer-top {
+    height: 13mm;
+  }
+  .print-frame .spacer-bottom {
+    height: 14mm;
+  }
+
+  /* Deux colonnes (option du menu d'impression) */
+  .print-cols-2 section.page,
+  .print-cols-2 .print-appendix {
+    column-count: 2;
+    column-gap: 9mm;
+    column-rule: 0.5pt solid var(--rule);
+  }
+  .print-cols-2 .chap-band {
+    column-span: all;
+  }
+  .print-cols-2 .inline-grid {
+    font-size: 7.5pt;
+  }
+  .print-cols-2 article {
+    padding-top: 2.5mm !important;
+    padding-bottom: 2.5mm !important;
+  }
+
   a {
     color: inherit;
     text-decoration: none;

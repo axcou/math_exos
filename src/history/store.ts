@@ -52,6 +52,9 @@ interface State {
   history: HistoryEntry[];
   progress: Record<string, Progress>;
   inputsEnabled: boolean;
+  /** Impression sur une ou deux colonnes. */
+  printColumns: 1 | 2;
+  setPrintColumns(n: 1 | 2): void;
 
   setConfig(c: SheetConfig): void;
   setSheet(exercises: Exercise[], opts?: Partial<Omit<CurrentSheet, 'refs'>>): void;
@@ -125,6 +128,8 @@ export const useStore = create<State>()(
         history: [],
         progress: {},
         inputsEnabled: true,
+        printColumns: 1,
+        setPrintColumns: (printColumns) => set({ printColumns }),
 
         setConfig: (config) => set({ config }),
         setSheet: (exercises, opts) => {
