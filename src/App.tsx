@@ -1,4 +1,5 @@
 import { NavLink, Route, Routes } from 'react-router';
+import Calculator from './pages/Calculator';
 import Exercises from './pages/Exercises';
 import Formulas from './pages/Formulas';
 import History from './pages/History';
@@ -7,6 +8,7 @@ import SharedLink from './pages/SharedLink';
 
 const LINKS = [
   ['/exercices', 'Exercices'],
+  ['/calcul', 'Calculateur'],
   ['/formulaire', 'Formulaire'],
   ['/historique', 'Historique'],
 ] as const;
@@ -36,6 +38,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/exercices" element={<Exercises />} />
+          <Route path="/calcul" element={<Calculator />} />
           <Route path="/formulaire" element={<Formulas />} />
           <Route path="/historique" element={<History />} />
           <Route path="/f" element={<SharedLink kind="sheet" />} />

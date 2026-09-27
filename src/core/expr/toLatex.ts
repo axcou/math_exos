@@ -80,6 +80,19 @@ function mulLatex(factors: Expr[]): string {
   return rest[0]?.type === 'div' ? `${c} \\times ${out}` : `${c}${out}`;
 }
 
+let varName = 'x';
+
+/** Même rendu, avec un autre nom de variable (changement de variable X = −x…). */
+export function toLatexVar(e: Expr, name: string): string {
+  const prev = varName;
+  varName = name;
+  try {
+    return toLatex(e);
+  } finally {
+    varName = prev;
+  }
+}
+
 export function toLatex(e: Expr): string {
   switch (e.type) {
     case 'num':
@@ -87,7 +100,7 @@ export function toLatex(e: Expr): string {
     case 'const':
       return e.name === 'e' ? '\\mathrm{e}' : '\\pi';
     case 'var':
-      return 'x';
+      return varName;
     case 'add':
       return e.terms
         .map((t, i) => {
