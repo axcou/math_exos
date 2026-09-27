@@ -40,16 +40,20 @@ interface QuestionBlockProps {
   /** Afficher la consigne (inutile pour une partie à question unique). */
   showPrompt: boolean;
   inputs: boolean;
+  /** Une seule vérification : la question se verrouille après la première réponse lisible. */
+  singleAttempt: boolean;
 }
 
-function QuestionBlock({ ex, q, marker, showPrompt, inputs }: QuestionBlockProps) {
+function QuestionBlock({ ex, q, marker, showPrompt, inputs, singleAttempt }: QuestionBlockProps) {
   const progress = useStore((s) => s.progress[ex.uid]) ?? emptyProgress();
   const setInput = useStore((s) => s.setInput);
   const submit = useStore((s) => s.submit);
   const raw = progress.inputs[q.id];
   const result = progress.results[q.id];
+  const locked = singleAttempt && (progress.attempts[q.id] ?? 0) > 0;
 
   const check = () => {
+    if (locked) return;
     let r: CheckResult;
     if (q.type === 'table') r = checkTable((raw as TableAnswer) ?? emptyTableAnswer(q.expected), q);
     else {
@@ -72,9 +76,9 @@ function QuestionBlock({ ex, q, marker, showPrompt, inputs }: QuestionBlockProps
       )}
       {inputs && (
         <div className="space-y-2 print:hidden">
-      {q.type === 'expression' && <ExpressionInput value={text} onChange={onText} onSubmit={check} label={q.label} />}
-      {q.type === 'value' && <ValueInput value={text} onChange={onText} onSubmit={check} label={q.label} />}
-      {q.type === 'roots' && <RootsInput value={text} onChange={onText} onSubmit={check} />}
+      {q.type === 'expression' && <ExpressionInput value={text} onChange={onText} onSubmit={check} label={q.label} disabled={locked} />}
+      {q.type === 'value' && <ValueInput value={text} onChange={onText} onSubmit={check} label={q.label} disabled={locked} />}
+      {q.type === 'roots' && <RootsInput value={text} onChange={onText} onSubmit={check} disabled={locked} />}
       {q.type === 'table' && (
         <>
           <p className="font-sans text-xs text-ink-faint">Clique sur une case pour faire défiler + et −, 0 et || (valeur interdite), ↗ et ↘. Au clavier : + − 0 | ↑ ↓.</p>
@@ -83,13 +87,18 @@ function QuestionBlock({ ex, q, marker, showPrompt, inputs }: QuestionBlockProps
             answer={(raw as TableAnswer) ?? emptyTableAnswer(q.expected)}
             onChange={(a) => setInput(ex.uid, q.id, a)}
             wrongCells={result?.status !== 'correct' ? result?.wrongCells : undefined}
+            disabled={locked}
           />
         </>
       )}
       <div className="flex flex-wrap items-baseline gap-4 pt-1">
-        <button type="button" onClick={check} className="btn">
-          Vérifier
-        </button>
+        {locked ? (
+          <span className="font-sans text-xs text-ink-faint">Réponse enregistrée (une seule vérification).</span>
+        ) : (
+          <button type="button" onClick={check} className="btn">
+            Vérifier
+          </button>
+        )}
         <div className="min-w-0 flex-1">
           <Feedback r={result} attempts={progress.attempts[q.id] ?? 0} />
         </div>
@@ -108,6 +117,10 @@ export interface ExerciseCardProps {
   onAddSimilar?: () => void;
   /** Rappeler le chapitre (feuille mélangée, sans bandeau par chapitre). */
   showTheme?: boolean;
+  /** Bouton « Recommencer » (désactivable dans une feuille partagée). */
+  allowRetry?: boolean;
+  /** Une seule vérification par question. */
+  singleAttempt?: boolean;
 }
 
 /** Pastilles de difficulté, comme dans les manuels. */
@@ -121,11 +134,11 @@ function Level({ d }: { d: number }) {
   );
 }
 
-export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSimilar, showTheme }: ExerciseCardProps) {
+export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSimilar, showTheme, allowRetry = true, singleAttempt = false }: ExerciseCardProps) {
   const inputsEnabled = useStore((s) => s.inputsEnabled);
   const progress = useStore((s) => s.progress[ex.uid]);
   const openSolution = useStore((s) => s.openSolution);
-  const showHint = useStore((s) => s.showHint);
+  const setHint = useStore((s) => s.setHint);
   const setManual = useStore((s) => s.setManual);
   const resetProgress = useStore((s) => s.resetProgress);
   const [solutionOpen, setSolutionOpen] = useState(false);
@@ -165,7 +178,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
                   <MathText text={p.item} />
                 </p>
                 {p.questions.map((q, i) => (
-                  <QuestionBlock key={q.id} ex={ex} q={q} marker={p.questions.length > 1 ? `${i + 1})` : ''} showPrompt={p.questions.length > 1} inputs={inputsEnabled} />
+                  <QuestionBlock key={q.id} ex={ex} q={q} marker={p.questions.length > 1 ? `${i + 1})` : ''} showPrompt={p.questions.length > 1} inputs={inputsEnabled} singleAttempt={singleAttempt} />
                 ))}
               </div>
             </li>
@@ -174,7 +187,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       ) : (
         <div className="mb-5 space-y-6">
           {ex.questions.map((q, i) => (
-            <QuestionBlock key={q.id} ex={ex} q={q} marker={ex.questions.length > 1 ? `${String.fromCharCode(97 + i)}.` : ''} showPrompt inputs={inputsEnabled} />
+            <QuestionBlock key={q.id} ex={ex} q={q} marker={ex.questions.length > 1 ? `${String.fromCharCode(97 + i)}.` : ''} showPrompt inputs={inputsEnabled} singleAttempt={singleAttempt} />
           ))}
         </div>
       )}
@@ -182,6 +195,9 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       {progress?.hint && !solutionOpen && ex.steps[0] && (
         <div className="box dashed mb-5 mt-4">
           <span className="box-tab">Coup de pouce</span>
+          <button type="button" onClick={() => setHint(ex.uid, false)} className="btn-link absolute right-3 top-1 text-xs" aria-label="Fermer le coup de pouce">
+            fermer
+          </button>
           {multi ? (
             <p className="mb-2 font-sans text-sm text-ink-soft">
               Même méthode pour chaque question. Pour la question <b>a.</b> :
@@ -202,9 +218,9 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       <footer className="flex flex-wrap items-baseline gap-x-5 gap-y-2 pt-1 print:hidden">
         {allowSolutions && (
           <>
-            {!progress?.hint && !solutionOpen && (
-              <button type="button" onClick={() => showHint(ex.uid)} className="btn-link">
-                Coup de pouce
+            {!solutionOpen && (
+              <button type="button" onClick={() => setHint(ex.uid, !progress?.hint)} className="btn-link" aria-expanded={!!progress?.hint}>
+                {progress?.hint ? 'Masquer le coup de pouce' : 'Coup de pouce'}
               </button>
             )}
             <button type="button" onClick={toggleSolution} className="btn-link font-semibold !text-chap !decoration-chap">
@@ -229,8 +245,16 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
           </span>
         )}
         <span className="flex-1" />
-        {progress && (
-          <button type="button" onClick={() => resetProgress(ex.uid)} className="btn-link" title="Effacer mes réponses">
+        {progress && allowRetry && (
+          <button
+            type="button"
+            onClick={() => {
+              resetProgress(ex.uid);
+              setSolutionOpen(false);
+            }}
+            className="btn-link"
+            title="Effacer mes réponses"
+          >
             Recommencer
           </button>
         )}

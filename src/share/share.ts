@@ -5,7 +5,8 @@ import { DEFAULT_CONFIG, MAX_PER_THEME, MAX_TOTAL, type SheetConfig } from '../s
 
 /*
  * Liens de partage (routes du HashRouter) :
- *   feuille exacte   #/f?v=1&e=D07.1k3f9a~L05.9zz01&t=Titre&c=1&s=1
+ *   feuille exacte   #/f?v=1&e=D07.1k3f9a~L05.9zz01&t=Titre&c=1&s=1&r=0&u=1
+ *     c : corrigé, s : saisie, r=0 : sans « Recommencer », u=1 : une seule vérification
  *   configuration    #/g?v=1&d=6.2&l=4.m&s=3.1&o=g
  * Un exercice en plusieurs parties (a, b, c) ajoute leur nombre : D11.1k3f9a.3,
  * et côté configuration d=4.2.3 (4 exercices de niveau 2, 3 parties chacun).
@@ -25,6 +26,10 @@ export interface SharedSheet {
   title: string;
   showSolutions: boolean;
   inputs: boolean;
+  /** « Recommencer » autorisé (défaut : oui). */
+  allowRetry?: boolean;
+  /** Une seule vérification par question (défaut : non). */
+  singleAttempt?: boolean;
 }
 
 export interface DecodedSheet extends SharedSheet {
@@ -39,6 +44,8 @@ export function encodeSheet(s: SharedSheet): string {
   if (s.title.trim()) p.set('t', s.title.trim());
   p.set('c', s.showSolutions ? '1' : '0');
   p.set('s', s.inputs ? '1' : '0');
+  if (s.allowRetry === false) p.set('r', '0');
+  if (s.singleAttempt) p.set('u', '1');
   return `f?${p.toString()}`;
 }
 
@@ -63,6 +70,8 @@ export function decodeSheet(params: URLSearchParams): DecodedSheet | null {
     skipped,
     title: (params.get('t') ?? '').slice(0, 80),
     showSolutions: params.get('c') !== '0',
+    allowRetry: params.get('r') !== '0',
+    singleAttempt: params.get('u') === '1',
     inputs: params.get('s') !== '0',
   };
 }

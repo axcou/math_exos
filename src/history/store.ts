@@ -37,6 +37,12 @@ export interface CurrentSheet {
   title: string;
   source: 'generated' | 'shared';
   showSolutions: boolean;
+  /** Bouton « Recommencer » disponible. */
+  allowRetry: boolean;
+  /** Une seule vérification par question (mode contrôle). */
+  singleAttempt: boolean;
+  /** Feuille générée en ordre mélangé : pas de bandeaux par chapitre. */
+  mixed?: boolean;
   skipped?: number;
 }
 
@@ -55,7 +61,7 @@ interface State {
   setInput(uid: string, qid: string, v: AnswerValue): void;
   submit(ex: Exercise, qid: string, r: CheckResult): void;
   openSolution(ex: Exercise): void;
-  showHint(uid: string): void;
+  setHint(uid: string, open: boolean): void;
   setManual(ex: Exercise, r: Result | undefined): void;
   resetProgress(uid: string): void;
   clearHistory(): void;
@@ -129,6 +135,9 @@ export const useStore = create<State>()(
               title: opts?.title ?? '',
               source,
               showSolutions: opts?.showSolutions ?? true,
+              allowRetry: opts?.allowRetry ?? true,
+              singleAttempt: opts?.singleAttempt ?? false,
+              mixed: opts?.mixed,
               skipped: opts?.skipped,
             },
           });
@@ -170,7 +179,7 @@ export const useStore = create<State>()(
           });
           syncResult(ex);
         },
-        showHint: (uid) => updateProgress(uid, (p) => ({ ...p, hint: true })),
+        setHint: (uid, open) => updateProgress(uid, (p) => ({ ...p, hint: open })),
         setManual: (ex, r) => {
           updateProgress(ex.uid, (p) => ({ ...p, manual: r }));
           syncResult(ex);

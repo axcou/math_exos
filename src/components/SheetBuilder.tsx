@@ -49,7 +49,7 @@ function ItemRow({ item, onChange }: { item: SheetItem; onChange: (i: SheetItem)
             value={item.parts ?? 1}
             disabled={!item.enabled}
             onChange={(e) => onChange({ ...item, parts: Number(e.target.value) })}
-            className="field font-sans"
+            className="select"
             aria-label={`Questions par exercice de ${THEME_LABELS[item.theme]}`}
           >
             {Array.from({ length: MAX_PARTS }, (_, k) => k + 1).map((k) => (

@@ -302,6 +302,39 @@ body {
     color: var(--ink-faint);
   }
 
+  /* Liste déroulante : couleurs pleines (la liste native ne gère pas les fonds transparents) */
+  .select {
+    appearance: none;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--ink);
+    background-color: var(--sheet);
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: calc(100% - 13px) 55%, calc(100% - 8px) 55%;
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+    border: 1px solid var(--rule-strong);
+    border-radius: 3px;
+    padding: 0.3rem 1.75rem 0.3rem 0.6rem;
+    text-shadow: none;
+    cursor: pointer;
+  }
+  .select:hover:not(:disabled) {
+    border-color: var(--ink-soft);
+  }
+  .select:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 1px;
+  }
+  .select:disabled {
+    cursor: not-allowed;
+    color: var(--ink-faint);
+  }
+  .select option {
+    background-color: var(--sheet);
+    color: var(--ink);
+  }
+
   .label {
     font-family: var(--font-sans);
     font-size: 0.72rem;

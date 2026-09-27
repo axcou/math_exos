@@ -10,20 +10,24 @@ interface Props {
   exercises: Exercise[];
   config: SheetConfig;
   initialTitle: string;
+  /** Réglages de la feuille courante, repris par défaut. */
+  initial?: { showSolutions?: boolean; allowRetry?: boolean; singleAttempt?: boolean };
   onClose: () => void;
 }
 
-export function ShareDialog({ exercises, config, initialTitle, onClose }: Props) {
+export function ShareDialog({ exercises, config, initialTitle, initial, onClose }: Props) {
   const [mode, setMode] = useState<'sheet' | 'config'>('sheet');
   const [title, setTitle] = useState(initialTitle);
-  const [showSolutions, setShowSolutions] = useState(true);
+  const [showSolutions, setShowSolutions] = useState(initial?.showSolutions ?? true);
+  const [allowRetry, setAllowRetry] = useState(initial?.allowRetry ?? true);
+  const [singleAttempt, setSingleAttempt] = useState(initial?.singleAttempt ?? false);
   const [inputs, setInputs] = useState(true);
   const [copied, setCopied] = useState(false);
   const [qr, setQr] = useState<string | null>(null);
   const [bigQr, setBigQr] = useState(false);
 
   const url = absoluteUrl(
-    mode === 'sheet' ? encodeSheet({ refs: exercises.map(refOf), title, showSolutions, inputs }) : encodeConfig(config),
+    mode === 'sheet' ? encodeSheet({ refs: exercises.map(refOf), title, showSolutions, inputs, allowRetry, singleAttempt }) : encodeConfig(config),
   );
 
   useEffect(() => {
@@ -95,6 +99,20 @@ export function ShareDialog({ exercises, config, initialTitle, onClose }: Props)
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={inputs} onChange={(e) => setInputs(e.target.checked)} className="accent-[var(--ink)]" />
               Saisie des réponses
+            </label>
+            <label className={`flex items-start gap-2 ${inputs ? '' : 'opacity-50'}`}>
+              <input type="checkbox" checked={singleAttempt} disabled={!inputs} onChange={(e) => setSingleAttempt(e.target.checked)} className="mt-0.5 accent-[var(--ink)]" />
+              <span>
+                Une seule vérification par question
+                <span className="block text-xs text-ink-faint">La réponse est verrouillée dès le premier essai (mode contrôle).</span>
+              </span>
+            </label>
+            <label className="flex items-start gap-2">
+              <input type="checkbox" checked={allowRetry} onChange={(e) => setAllowRetry(e.target.checked)} className="mt-0.5 accent-[var(--ink)]" />
+              <span>
+                Autoriser « Recommencer »
+                <span className="block text-xs text-ink-faint">Décoché : on ne peut pas effacer ses réponses pour refaire un exercice.</span>
+              </span>
             </label>
           </div>
         )}

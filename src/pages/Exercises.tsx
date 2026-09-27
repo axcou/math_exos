@@ -52,7 +52,7 @@ export default function Exercises() {
 
   const generate = (c: SheetConfig = config) => {
     const exs = buildSheet(c, pastExercises(useStore.getState().history));
-    setSheet(exs);
+    setSheet(exs, { mixed: c.order === 'shuffled' });
     setBuilderOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -82,7 +82,7 @@ export default function Exercises() {
     else groups.push({ theme: e.theme, items: [e] });
   }
   // Un bandeau par chapitre si les thèmes sont regroupés, sinon une seule page « mélangée »
-  const byChapter = groups.length === new Set(exercises.map((e) => e.theme)).size;
+  const byChapter = !sheet?.mixed && groups.length === new Set(exercises.map((e) => e.theme)).size;
   let number = 0;
 
   const chapterOf = (t: Theme) => THEMES.indexOf(t) + 1;
@@ -95,6 +95,8 @@ export default function Exercises() {
             <span className="label mr-2">Feuille partagée</span>
             {sheet.title && <b>{sheet.title}</b>}
             {!sheet.showSolutions && <span className="text-ink-soft"> · sans corrigé</span>}
+            {sheet.singleAttempt && <span className="text-ink-soft"> · une seule vérification par question</span>}
+            {sheet.allowRetry === false && <span className="text-ink-soft"> · pas de nouvel essai</span>}
             {sheet.skipped ? (
               <span className="text-pen">
                 {' '}
@@ -175,6 +177,8 @@ export default function Exercises() {
               number={++number}
               showTheme={!g.theme}
               allowSolutions={sheet?.showSolutions ?? true}
+              allowRetry={sheet?.allowRetry ?? true}
+              singleAttempt={sheet?.singleAttempt ?? false}
               onRegenerate={sheet?.source === 'shared' ? undefined : () => regenerate(ex)}
               onAddSimilar={sheet?.source === 'shared' ? undefined : () => addSimilar(ex)}
             />
@@ -182,7 +186,7 @@ export default function Exercises() {
         </section>
       ))}
 
-      {sharing && <ShareDialog exercises={exercises} config={config} initialTitle={sheet?.title ?? ''} onClose={() => setSharing(false)} />}
+      {sharing && <ShareDialog exercises={exercises} config={config} initialTitle={sheet?.title ?? ''} initial={sheet ?? undefined} onClose={() => setSharing(false)} />}
       {exercises.length > 0 && (
         <p className="pt-2 text-center print:hidden">
           <button type="button" className="btn-link" onClick={() => navigate('/historique')}>

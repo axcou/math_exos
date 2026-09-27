@@ -11,9 +11,9 @@ export function exercise(code: string, seed: number, parts = 1): Exercise {
   return ex;
 }
 
-export function sheetRoute(exs: Exercise[], opts: { title?: string; showSolutions?: boolean; inputs?: boolean } = {}): string {
+export function sheetRoute(exs: Exercise[], opts: { title?: string; showSolutions?: boolean; inputs?: boolean; allowRetry?: boolean; singleAttempt?: boolean } = {}): string {
   const refs: ExerciseRef[] = exs.map((e) => (e.parts.length > 1 ? { code: e.code, seed: e.seed, parts: e.parts.length } : { code: e.code, seed: e.seed }));
-  return `#/${encodeSheet({ refs, title: opts.title ?? '', showSolutions: opts.showSolutions ?? true, inputs: opts.inputs ?? true })}`;
+  return `#/${encodeSheet({ refs, title: opts.title ?? '', showSolutions: opts.showSolutions ?? true, inputs: opts.inputs ?? true, allowRetry: opts.allowRetry, singleAttempt: opts.singleAttempt })}`;
 }
 
 /** Ouvre une feuille précise (via un lien de partage) et attend son affichage. */
