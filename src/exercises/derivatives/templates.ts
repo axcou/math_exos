@@ -163,7 +163,7 @@ const D03: Template = {
         },
         {
           title: 'Dérivée de chaque terme',
-          math: `(${L(mono(b, 2))})' = ${L(mono(2 * b, 1))} \\qquad (${L(mul(num(a), sqrt(X)))})' = ${a} \\times \\frac{1}{2\\sqrt{x}} = ${L(sqrtTerm)}`,
+          math: `(${L(mono(b, 2))})' = ${L(mono(2 * b, 1))} \\qquad (${L(mul(num(a), sqrt(X)))})' = ${Math.abs(a) === 1 ? '' : `${a} \\times \\frac{1}{2\\sqrt{x}} = `}${L(sqrtTerm)}`,
         },
       ],
       mistakes: [
