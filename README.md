@@ -29,11 +29,10 @@ Chaque push sur `master` lance les tests et le build, puis publie `dist/` sur Gi
 
 ## Tests
 
-- **Unitaires** (, Vitest) : justesse mathématique de chaque type d’exercice sur 150 graines, vérification des réponses (la bonne réponse tapée est acceptée, chaque erreur classique est reconnue), tests par propriétés sur des centaines d’expressions aléatoires (simplification, dérivation, affichage), calculateurs, historique, liens de partage et « golden seeds ».
-- **De bout en bout** (, Playwright) : le site construit est piloté dans Chromium (ordinateur et téléphone) — répondre juste ou faux, remplir un tableau au clic ou au clavier, corrections, composition de feuille, partage dans un autre navigateur, historique, calculateurs, méthodes, mode sombre, impression, absence de débordement sur mobile.
+- **Unitaires** (`tests/`, Vitest) : justesse mathématique de chaque type d’exercice sur 150 graines, vérification des réponses (la bonne réponse tapée est acceptée, chaque erreur classique est reconnue), tests par propriétés sur des centaines d’expressions aléatoires (simplification, dérivation, affichage), calculateurs, historique, liens de partage et « golden seeds ».
+- **De bout en bout** (`e2e/`, Playwright) : le site construit est piloté dans Chromium (ordinateur et téléphone) — répondre juste ou faux, remplir un tableau au clic ou au clavier, corrections, composition de feuille, partage dans un autre navigateur, historique, calculateurs, méthodes, mode sombre, impression, absence de débordement sur mobile.
 
-Premier lancement des tests E2E : Failed to install browsers
-Error: Invalid installation targets: 'chromium'. Expecting one of: android, chrome, chrome-beta, chrome-for-testing, chromium, chromium-headless-shell, ffmpeg, firefox, msedge, msedge-beta, msedge-dev, webkit, webkit-wsl, winldd.
+Premier lancement des tests E2E : `npx playwright install chromium`.
 
 ## Organisation
 
