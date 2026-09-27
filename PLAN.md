@@ -544,7 +544,20 @@ Plus : ESLint + Prettier, CI GitHub Actions (tests + build à chaque push).
 
 ---
 
+### État d'avancement (2026-09-27)
+
+Les phases 1 à 10 sont implémentées : 35 templates (16 dérivées, 10 limites, 9 signes/variations), vérification des réponses, historique, anti-répétition, partage par lien et QR code, PWA, CI et déploiement GitHub Pages. 90 tests.
+
+Écarts avec le plan initial :
+- **MathLive non utilisé** : la saisie se fait dans un champ texte avec un clavier de raccourcis (x², fraction, √, eˣ, ln…) et un aperçu KaTeX en direct. C'est plus léger et suffisant ; MathLive pourra être ajouté plus tard.
+- **Tableaux en grille HTML/CSS** (flèches en SVG) plutôt qu'en SVG complet : cela facilite les cases cliquables et l'accessibilité au clavier.
+- Dans la saisie des tableaux, les valeurs de x sont fournies ; elles sont demandées séparément (question « Résous… »).
+- `requireSimplified` (exiger une forme factorisée) n'est pas encore implémenté.
+
 ## 13. Évolutions possibles
+
+- Exiger une forme simplifiée ou factorisée pour certaines réponses.
+- Saisie des valeurs des extremums directement dans le tableau.
 
 - Nouveaux thèmes : primitives, suites, équations exponentielles / logarithmiques.
 - Courbe interactive dans la correction.
