@@ -56,7 +56,7 @@ function limit(s: LimitSpec): ExerciseDraft {
       statement: `Déterminer $${expr}$.`,
       lead: 'Déterminer les limites suivantes.',
       item: `$\\displaystyle ${expr}$`,
-      questions: [{ id: 'q1', type: 'value', prompt: 'Donne la limite.', label: `${expr} =`, expected: q.answer, mistakes: q.mistakes }],
+      questions: [{ id: 'q1', type: 'value', prompt: 'Donne la limite.', label: `${expr} =`, hideLabel: true, expected: q.answer, mistakes: q.mistakes }],
       steps: [...s.steps, { title: 'Conclusion', math: `${expr} = ${valueLatex(q.answer)}`, text: s.asymptote, formulas: s.asymptote ? ['l.asym'] : undefined }],
       meta: [{ kind: 'limit', f: s.f, at: q.at, side: q.side }],
     };

@@ -41,8 +41,8 @@ function PrintAnswerSpace({ q }: { q: Question }) {
       </div>
     );
   }
-  // Une limite déjà écrite dans l'énoncé n'est pas recopiée sur la ligne de réponse
-  const label = q.type === 'roots' ? 'x \\in' : q.type === 'value' && q.label?.startsWith('\\lim') ? '\\text{Limite :}' : q.label;
+  // Une expression déjà écrite en grand dans l'énoncé n'est pas recopiée
+  const label = q.type === 'roots' ? 'x \\in' : q.hideLabel ? undefined : q.label;
   return <p className="answer-line hidden print:flex">{label && <Tex math={label} />}</p>;
 }
 
@@ -92,7 +92,7 @@ function QuestionBlock({ ex, q, marker, showPrompt, inputs, singleAttempt }: Que
       {inputs && (
         <div className="space-y-2 print:hidden">
       {q.type === 'expression' && <ExpressionInput value={text} onChange={onText} onSubmit={check} label={q.label} disabled={locked} />}
-      {q.type === 'value' && <ValueInput value={text} onChange={onText} onSubmit={check} label={q.label} disabled={locked} />}
+      {q.type === 'value' && <ValueInput value={text} onChange={onText} onSubmit={check} label={q.hideLabel ? undefined : q.label} disabled={locked} />}
       {q.type === 'roots' && <RootsInput value={text} onChange={onText} onSubmit={check} disabled={locked} />}
       {q.type === 'table' && (
         <>

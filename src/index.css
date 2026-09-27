@@ -465,12 +465,6 @@ body {
     gap: 0.5em;
     min-height: 9mm;
   }
-  .answer-line::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px dotted var(--ink-faint);
-    transform: translateY(-2px);
-  }
 
   /* Corrigé en fin de document */
   .print-appendix {

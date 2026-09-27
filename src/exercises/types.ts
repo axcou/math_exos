@@ -62,6 +62,8 @@ interface QuestionBase {
   id: string;
   prompt: string; // texte avec $…$
   label?: string; // LaTeX affiché devant le champ, ex. f'(x) =
+  /** La consigne affiche déjà l'expression en grand : ne pas la répéter devant le champ. */
+  hideLabel?: boolean;
   hint?: string;
 }
 

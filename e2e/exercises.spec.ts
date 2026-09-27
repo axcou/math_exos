@@ -56,6 +56,24 @@ test.describe('répondre aux exercices', () => {
     await expect(block.locator('input')).toHaveValue('ln(x)');
   });
 
+  test('série de limites : la limite n’est écrite qu’une fois, en grand', async ({ page }) => {
+    const ex = exercise('L12', 31, 3);
+    await openSheet(page, [ex]);
+    const art = card(page, ex);
+    for (const q of ex.questions) {
+      const block = questionBlock(art, q);
+      await expect(block.locator('input')).toBeVisible();
+      await expect(block).not.toContainText('lim');
+    }
+    // la limite reste affichée au-dessus, et la réponse se vérifie normalement
+    expect(await art.locator('li').first().innerText()).toContain('lim');
+    const q = ex.questions[0];
+    const block = questionBlock(art, q);
+    await block.locator('input').fill(typedAnswer(q));
+    await block.getByRole('button', { name: 'Vérifier' }).click();
+    await expect(block.getByRole('status')).toContainText('Juste');
+  });
+
   test('limite avec les boutons ±∞', async ({ page }) => {
     const ex = exercise('L01', 7);
     const q = ex.questions[0];

@@ -98,6 +98,20 @@ test.describe('impression et PDF', () => {
     await expect(page.locator('.print-appendix')).toHaveCount(0);
   });
 
+  test('pas de pointillés après « = », ni de limite recopiée', async ({ page }) => {
+    const ex = SHEET[1]; // série de 4 limites
+    await openSheet(page, [SHEET[0], ex]);
+    await page.emulateMedia({ media: 'print' });
+    const after = await page.locator('.answer-line').first().evaluate((el) => getComputedStyle(el, '::after').content);
+    expect(after === 'none' || after === 'normal').toBe(true);
+    const art = page.locator(`article[id="${ex.uid}"]`);
+    for (const q of ex.questions) {
+      const line = art.locator(`[data-question="${q.id}"] .answer-line`);
+      await expect(line).toBeVisible();
+      await expect(line).not.toContainText('lim');
+    }
+  });
+
   test('une correction ouverte à l’écran n’est pas imprimée en double', async ({ page }) => {
     const ex = SHEET[0];
     await openSheet(page, [ex]);
