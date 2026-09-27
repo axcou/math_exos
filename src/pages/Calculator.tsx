@@ -145,10 +145,10 @@ export default function Calculator() {
                 {xText && !point && <span className="font-sans text-xs text-pen">point non compris</span>}
               </div>
               <div className="flex flex-wrap items-center gap-1">
-                <button type="button" className="key" onClick={() => setXText('+inf')}>
+                <button type="button" className="key" onClick={() => setXText('+inf')} aria-label="plus l’infini">
                   <Tex math="+\infty" />
                 </button>
-                <button type="button" className="key" onClick={() => setXText('-inf')}>
+                <button type="button" className="key" onClick={() => setXText('-inf')} aria-label="moins l’infini">
                   <Tex math="-\infty" />
                 </button>
                 <span className="mx-2 font-sans text-xs text-ink-faint">côté :</span>
@@ -181,7 +181,7 @@ export default function Calculator() {
           </div>
         </form>
 
-        <div className="border-t border-rule pt-3 font-sans text-xs text-ink-faint">
+        <div className="border-t border-rule pt-3 font-sans text-xs text-ink-faint" data-testid="examples">
           Exemples :{' '}
           {EXAMPLES[mode].map(([f, x], i) => (
             <span key={f + x}>

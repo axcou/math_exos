@@ -115,10 +115,10 @@ export function ValueInput(p: TextProps) {
     <div className="space-y-1.5">
       <Field {...p} inputRef={ref} placeholder={p.placeholder ?? 'ex. 3, -1/2, e^2, +inf'} />
       <div className="flex flex-wrap gap-1">
-        <button type="button" disabled={p.disabled} className={keyBtn} onClick={() => p.onChange('+∞')}>
+        <button type="button" disabled={p.disabled} className={keyBtn} onClick={() => p.onChange('+∞')} aria-label="plus l’infini" title="plus l’infini">
           <Tex math="+\infty" />
         </button>
-        <button type="button" disabled={p.disabled} className={keyBtn} onClick={() => p.onChange('-∞')}>
+        <button type="button" disabled={p.disabled} className={keyBtn} onClick={() => p.onChange('-∞')} aria-label="moins l’infini" title="moins l’infini">
           <Tex math="-\infty" />
         </button>
         <button type="button" disabled={p.disabled} className={keyBtn} onClick={() => p.onChange("n'existe pas")}>

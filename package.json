@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test:all": "vitest run && playwright test"
   },
   "dependencies": {
     "@fontsource-variable/source-serif-4": "^5.3.0",

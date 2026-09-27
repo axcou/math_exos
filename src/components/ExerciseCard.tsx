@@ -63,7 +63,7 @@ function QuestionBlock({ ex, q, marker, showPrompt, inputs }: QuestionBlockProps
   const onText = (v: string) => setInput(ex.uid, q.id, v);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" data-question={q.id}>
       {showPrompt && (
         <p>
           {marker && <span className="mr-1.5 font-sans font-bold text-chap">{marker}</span>}

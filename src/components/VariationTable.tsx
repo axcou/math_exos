@@ -44,7 +44,7 @@ function MarkView({ mark, tall }: { mark: Mark; tall?: boolean }) {
   );
 }
 
-function Cell({ children, wrong, onClick, onKey, disabled, label, className = '' }: { children: ReactNode; wrong?: boolean; onClick?: () => void; onKey?: (e: KeyboardEvent) => void; disabled?: boolean; label?: string; className?: string }) {
+function Cell({ children, wrong, onClick, onKey, disabled, label, cell, className = "" }: { children: ReactNode; wrong?: boolean; cell?: string; onClick?: () => void; onKey?: (e: KeyboardEvent) => void; disabled?: boolean; label?: string; className?: string }) {
   if (!onClick) return <div className={`flex items-center justify-center ${className}`}>{children}</div>;
   return (
     <button
@@ -53,6 +53,8 @@ function Cell({ children, wrong, onClick, onKey, disabled, label, className = ''
       onKeyDown={onKey}
       disabled={disabled}
       aria-label={label}
+      data-cell={cell}
+      data-wrong={wrong ? "" : undefined}
       className={`m-0.5 flex items-center justify-center border border-dashed ${
         wrong ? 'border-pen border-solid bg-pen-soft' : 'border-rule-strong hover:border-solid hover:border-blue hover:bg-blue-soft'
       } ${className}`}
@@ -114,6 +116,7 @@ export function VariationTable({ table, answer, onChange, wrongCells = [], disab
                     <div key={key} className={`${rowBorder} ${h} flex`}>
                       <Cell
                         className="flex-1 text-base font-semibold"
+                        cell={`r${i}s${j}`}
                         wrong={wrong(`r${i}s${j}`)}
                         disabled={disabled}
                         label={`signe, intervalle ${j + 1}`}
@@ -133,6 +136,7 @@ export function VariationTable({ table, answer, onChange, wrongCells = [], disab
                     {editable ? (
                       <Cell
                         className="flex-1"
+                        cell={`r${i}m${j}`}
                         wrong={wrong(`r${i}m${j}`)}
                         disabled={disabled}
                         label={`marque en x = ${table.xs[j]}`}
@@ -156,6 +160,7 @@ export function VariationTable({ table, answer, onChange, wrongCells = [], disab
                   <div key={key} className={`${rowBorder} ${h} flex`}>
                     <Cell
                       className="flex-1"
+                      cell={`r${i}a${j}`}
                       wrong={wrong(`r${i}a${j}`)}
                       disabled={disabled}
                       label={`variation, intervalle ${j + 1}`}
