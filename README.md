@@ -7,6 +7,8 @@ Générateur d'exercices de maths aléatoires et corrigés : **dérivées**, **l
 - Plusieurs questions par exercice, comme dans un manuel (« Dériver les fonctions suivantes : a. … b. … c. … ») : de 1 à 4 parties du même type, chacune vérifiée et corrigée séparément.
 - Saisie des réponses et vérification automatique : comparaison numérique, formes équivalentes acceptées, erreurs classiques détectées. Les tableaux se remplissent par clics.
 - Corrections étape par étape, avec explications et rappel des formules.
+- Calculateurs expliqués : limite (y compris à gauche / à droite, x → 14⁺), dérivée, tableau de signes et tableau de variations. Chaque résultat est détaillé comme un corrigé et contrôlé numériquement.
+- Fiches méthodes : quand utiliser chaque méthode, les étapes, les erreurs fréquentes et des exemples résolus.
 - Historique dans le `localStorage`, et anti-répétition (le même type ne sort pas deux fois de suite, le même énoncé ne revient pas).
 - Partage d'une feuille par lien ou QR code. Le lien contient la liste des exercices (code du type + graine) ou seulement la composition de la feuille.
 

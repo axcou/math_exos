@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { type CheckResult, checkExpression, checkRoots, checkTable, checkValue, emptyTableAnswer, type TableAnswer } from '../checking/check';
 import { DIFFICULTY_LABELS, type Exercise, type Question, THEME_LABELS } from '../exercises/types';
+import { TEMPLATE_BY_CODE } from '../exercises/registry';
 import { emptyProgress, exerciseResult, useStore } from '../history/store';
+import { METHOD_FOR_SUBTYPE } from '../methods/methods';
 import { ExpressionInput, RootsInput, ValueInput } from './answers/AnswerInputs';
 import { MathText } from './Math';
 import { Solution, StepItem } from './Solution';
@@ -128,6 +131,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
   const [solutionOpen, setSolutionOpen] = useState(false);
   const result = exerciseResult(ex, progress);
   const multi = ex.parts.length > 1;
+  const methodId = METHOD_FOR_SUBTYPE[TEMPLATE_BY_CODE.get(ex.code)?.subtype ?? ''];
 
   const toggleSolution = () => {
     if (!solutionOpen) openSolution(ex);
@@ -207,6 +211,11 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
               {solutionOpen ? 'Masquer la correction' : 'Voir la correction'}
             </button>
           </>
+        )}
+        {methodId && (
+          <Link to={`/methodes?m=${methodId}`} className="btn-link" title="Fiche méthode avec exemples résolus">
+            La méthode
+          </Link>
         )}
         {!inputsEnabled && (
           <span className="flex items-baseline gap-3 font-sans text-sm">
