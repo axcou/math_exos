@@ -558,7 +558,7 @@ function leadingTerms(N: Expr, c: Ctx): Strategy {
       const k = a.degree - b.degree;
       const r = Q.div(a.lead, b.lead);
       const val = monoLimit(Q.toNumber(r), k, c.at);
-      const simplified = k === 0 ? Q.toLatex(r) : k > 0 ? L(mul(num(r), pow(X, k))) : L(div(num(r), pow(X, -k)));
+      const simplified = k === 0 ? Q.toLatex(r) : k > 0 ? L(mul(num(r), pow(X, k))) : L(div(num(r.n), mul(num(r.d), pow(X, -k))));
       return {
         value: val,
         steps: [

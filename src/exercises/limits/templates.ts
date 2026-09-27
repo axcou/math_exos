@@ -4,6 +4,7 @@ import { Poly } from '../../core/expr/poly';
 import * as Q from '../../core/expr/rational';
 import type { Rational } from '../../core/expr/rational';
 import type { Rng } from '../../core/random/prng';
+import { nice } from '../../calculator/nice';
 import { L, pn, R } from '../helpers';
 import type { ExerciseDraft, ExerciseMeta, Step, Template, ValueAnswer, ValueQuestion } from '../types';
 
@@ -12,7 +13,8 @@ type At = number | '+inf' | '-inf';
 export function atLatex(at: At, side?: 1 | -1): string {
   if (at === '+inf') return '+\\infty';
   if (at === '-inf') return '-\\infty';
-  return side ? `${at}^{${side > 0 ? '+' : '-'}}` : String(at);
+  const a = nice(at).latex;
+  return side ? `${a}^{${side > 0 ? '+' : '-'}}` : a;
 }
 
 export const limLatex = (at: At, side?: 1 | -1) => `\\lim_{x \\to ${atLatex(at, side)}}`;
@@ -41,10 +43,24 @@ interface LimitSpec {
   steps: Step[];
   /** Interprétation graphique ajoutée à la conclusion. */
   asymptote?: string;
+  /** Énoncé « comme en TD » : la limite est écrite directement, sans nommer f. */
+  inline?: boolean;
 }
 
 function limit(s: LimitSpec): ExerciseDraft {
   const fl = L(s.f);
+  if (s.inline) {
+    const q = s.limits[0];
+    const expr = `${limLatex(q.at, q.side)} ${fl}`;
+    return {
+      statement: `Déterminer $${expr}$.`,
+      lead: 'Déterminer les limites suivantes.',
+      item: `$\\displaystyle ${expr}$`,
+      questions: [{ id: 'q1', type: 'value', prompt: 'Donne la limite.', label: `${expr} =`, expected: q.answer, mistakes: q.mistakes }],
+      steps: [...s.steps, { title: 'Conclusion', math: `${expr} = ${valueLatex(q.answer)}`, text: s.asymptote, formulas: s.asymptote ? ['l.asym'] : undefined }],
+      meta: [{ kind: 'limit', f: s.f, at: q.at, side: q.side }],
+    };
+  }
   const lims = s.limits.map((q) => `$${limLatex(q.at, q.side)} f(x)$`);
   const domain = s.domainText ? ` définie ${s.domainText}` : '';
   const statement =
@@ -239,7 +255,7 @@ const L04: Template = {
     let asymptote: string | undefined;
     if (dp < dq) {
       ans = finiteQ(Q.ZERO);
-      calc = `${limLatex(at)} \\frac{${R(ratio)}}{${L(pow(X, dq - dp))}} = 0`;
+      calc = `${limLatex(at)} ${L(div(num(ratio.n), mul(num(ratio.d), pow(X, dq - dp))))} = 0`;
       asymptote = `La droite $y = 0$ est asymptote horizontale en $${atLatex(at)}$.`;
     } else if (dp === dq) {
       ans = finiteQ(ratio);
@@ -512,4 +528,149 @@ const L10: Template = {
   },
 };
 
-export const LIMIT_TEMPLATES: Template[] = [L01, L02, L03, L04, L05, L06, L07, L08, L09, L10];
+// ——————————————————————————————————— Format « TD »
+
+/** Coefficient au hasard : entier non nul, parfois une fraction (−23/5, 62/5…). */
+function coef(rng: Rng, fracProb = 0.25): Rational {
+  if (rng.bool(fracProb)) {
+    const q = rng.pick([2, 3, 5]);
+    let p = rng.nonZero(-70, 70);
+    if (p % q === 0) p += p > 0 ? 1 : -1;
+    return Q.rat(p, q);
+  }
+  return Q.rat(rng.nonZero(-9, 9));
+}
+
+/** Polynôme écrit « en vrac » : termes dans le désordre, parfois deux termes de même degré. */
+function scrambled(rng: Rng, p: Poly): Expr {
+  const terms: Expr[] = [];
+  for (let k = 0; k < p.c.length; k++) {
+    const c = p.coef(k);
+    if (Q.isZero(c)) continue;
+    if (k > 0 && Q.isInt(c) && rng.bool(0.3)) {
+      const c1 = rng.intExcept(-9, 9, [0, c.n]);
+      terms.push(mono(c1, k), mono(Q.sub(c, Q.rat(c1)), k));
+      continue;
+    }
+    terms.push(k === 0 ? num(c) : mono(c, k));
+  }
+  const mixed = rng.shuffle(terms);
+  return mixed.length === 1 ? mixed[0] : { type: 'add', terms: mixed };
+}
+
+function tdPoly(rng: Rng, d: number): Poly {
+  const c: Rational[] = [];
+  for (let k = 0; k < d; k++) c.push(rng.bool(0.3) ? Q.ZERO : coef(rng));
+  c.push(coef(rng, 0.1));
+  return new Poly(c);
+}
+
+const L11: Template = {
+  code: 'L11',
+  theme: 'limite',
+  difficulty: 1,
+  subtype: 'valeur-interdite',
+  title: 'Limite de k/(x − a) à gauche ou à droite',
+  generate(rng) {
+    const k = rng.nonZero(-15, 15);
+    const a = rng.bool(0.3) ? (() => {
+      const q = rng.pick([2, 3, 4, 5]);
+      let p = rng.nonZero(-70, 70);
+      if (p % q === 0) p += 1;
+      return Q.rat(p, q);
+    })() : Q.rat(rng.int(-20, 20));
+    const side = rng.sign();
+    const den = add(X, num(Q.neg(a)));
+    const f = div(num(k), den);
+    const ans = inf(k * side);
+    const al = R(a);
+    const zs = side > 0 ? '0^{+}' : '0^{-}';
+    return limit({
+      f,
+      inline: true,
+      limits: [
+        {
+          at: Q.toNumber(a),
+          side,
+          answer: ans,
+          mistakes: [{ answer: opposite(ans), message: `Regarde le signe du dénominateur : pour $x ${side > 0 ? '>' : '<'} ${al}$, $${L(den)}$ est ${side > 0 ? 'positif' : 'négatif'}.` }],
+        },
+      ],
+      steps: [
+        { title: 'Numérateur', text: `Le numérateur est la constante $${k}$ (${k > 0 ? 'positive' : 'négative'}).` },
+        {
+          title: 'Signe du dénominateur',
+          text: `Quand $x \\to ${al}^{${side > 0 ? '+' : '-'}}$, on a $x ${side > 0 ? '>' : '<'} ${al}$, donc $${L(den)}$ tend vers $0$ en restant ${side > 0 ? 'positif' : 'négatif'} : on note $${zs}$.`,
+        },
+        { title: 'Règle des signes', math: `\\frac{${k}}{${zs}} = ${valueLatex(ans)}`, formulas: ['l.opsok', 'l.inv'] },
+      ],
+      asymptote: `La droite d'équation $x = ${al}$ est asymptote verticale à la courbe.`,
+    });
+  },
+};
+
+const L12: Template = {
+  code: 'L12',
+  theme: 'limite',
+  difficulty: 2,
+  subtype: 'rationnelle',
+  title: 'Fraction rationnelle en l’infini (termes en vrac)',
+  generate(rng) {
+    const dn = rng.int(0, 4);
+    const dd = rng.int(1, 4);
+    const p = tdPoly(rng, dn);
+    const q = tdPoly(rng, dd);
+    const at = rng.bool(0.7) ? ('-inf' as const) : ('+inf' as const);
+    const N = scrambled(rng, p);
+    const D = scrambled(rng, q);
+    const f: Expr = { type: 'div', num: N, den: D };
+    const steps: Step[] = [];
+    if (L(N) !== p.toLatex() || L(D) !== q.toLatex()) {
+      steps.push({
+        title: 'Ranger et réduire',
+        text: 'On range les termes par degrés décroissants et on regroupe ceux de même degré :',
+        math: `\\frac{${L(N)}}{${L(D)}} = \\frac{${p.toLatex()}}{${q.toLatex()}}`,
+      });
+    }
+    let ans: ValueAnswer;
+    const leadN = L(mono(p.lead, Math.max(0, p.degree)));
+    const leadD = L(mono(q.lead, q.degree));
+    const denLim = inf(monoSign(Q.toNumber(q.lead), q.degree, at));
+    if (p.degree <= 0) {
+      ans = finiteQ(Q.ZERO);
+      steps.push({
+        title: 'Numérateur constant',
+        text: `Le numérateur vaut $${R(p.coef(0))}$ ; le dénominateur a la même limite que $${leadD}$, c’est-à-dire $${valueLatex(denLim)}$. Par quotient, la limite est $0$.`,
+        formulas: ['l.poly', 'l.opsok'],
+      });
+    } else {
+      const k = p.degree - q.degree;
+      const r = Q.div(p.lead, q.lead);
+      const simplified = k === 0 ? R(r) : k > 0 ? L(mono(r, k)) : L(div(num(r.n), mul(num(r.d), pow(X, -k))));
+      ans = k < 0 ? finiteQ(Q.ZERO) : k === 0 ? finiteQ(r) : inf(monoSign(Q.toNumber(r), k, at));
+      steps.push(
+        { title: 'Forme indéterminée', text: 'Numérateur et dénominateur tendent vers l’infini : forme $\\frac{\\infty}{\\infty}$. On garde les termes de plus haut degré.', formulas: ['l.ops', 'l.rat'] },
+        {
+          title: 'Termes de plus haut degré',
+          math: `${limLatex(at)} \\frac{${leadN}}{${leadD}} = ${limLatex(at)} ${simplified} = ${valueLatex(ans)}`,
+          text: k > 0 && at === '-inf' ? `En $-\\infty$, $x^{${k}}$ tend vers $${k % 2 ? '-' : '+'}\\infty$ (exposant ${k % 2 ? 'impair' : 'pair'}).` : undefined,
+          formulas: ['l.xn'],
+        },
+      );
+    }
+    const mistakes: ValueQuestion['mistakes'] = [];
+    if (ans.kind === 'infinity') mistakes.push({ answer: opposite(ans), message: 'Attention au signe : regarde le signe du quotient des coefficients dominants et la parité de l’exposant restant en $-\\infty$.' });
+    if (!Q.isZero(q.coef(0)) && p.degree > 0) {
+      mistakes.push({ answer: finiteQ(Q.div(p.coef(0), q.coef(0))), message: 'Ce sont les termes de **plus haut degré** qui comptent en l’infini, pas les constantes.' });
+    }
+    return limit({
+      f,
+      inline: true,
+      limits: [{ at, answer: ans, mistakes }],
+      steps,
+      asymptote: ans.kind === 'finite' ? `La droite $y = ${valueLatex(ans)}$ est asymptote horizontale en $${atLatex(at)}$.` : undefined,
+    });
+  },
+};
+
+export const LIMIT_TEMPLATES: Template[] = [L01, L02, L03, L04, L05, L06, L07, L08, L09, L10, L11, L12];
