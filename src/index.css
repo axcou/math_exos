@@ -366,10 +366,89 @@ body {
   }
 }
 
+/* ——————————————————————————————————— Impression / PDF */
+
+@page {
+  size: A4;
+  margin: 14mm 15mm 16mm;
+  @bottom-center {
+    content: counter(page) ' / ' counter(pages);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 8pt;
+    color: #8a8f99;
+  }
+}
+
 @media print {
+  /* Toujours la palette claire à l'impression, même en mode sombre */
+  :root {
+    --paper: #ffffff;
+    --sheet: #ffffff;
+    --ink: #111418;
+    --ink-soft: #3d4350;
+    --ink-faint: #6b717c;
+    --rule: #cfcac0;
+    --rule-strong: #9e978a;
+    --pen: #b0322a;
+    --ok: #256b41;
+    --hl: #fbeea0;
+    --c-derivee: #1c62a8;
+    --c-derivee-soft: #eaf1f9;
+    --c-limite: #b8501a;
+    --c-limite-soft: #fbefe7;
+    --c-variation: #1f7a52;
+    --c-variation-soft: #e8f3ed;
+    --chalk-shadow: none;
+    color-scheme: light;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  html,
   body {
-    background: white;
-    font-size: 12pt;
+    background: #fff !important;
+  }
+  body {
+    font-size: 10.5pt;
+    line-height: 1.45;
+    text-shadow: none;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Pages et exercices */
+  .page {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    margin: 0 0 5mm;
+  }
+  .chap-band {
+    break-after: avoid;
+    margin-bottom: 1mm;
+  }
+  article {
+    break-inside: avoid;
+    padding-top: 3.5mm !important;
+    padding-bottom: 3.5mm !important;
+  }
+  article header,
+  .box-tab {
+    break-after: avoid;
+  }
+  .box {
+    break-inside: avoid;
+    background: #fff;
+  }
+  .katex-display {
+    margin: 0.2em 0;
   }
   .copy {
     border: 0;
@@ -377,5 +456,24 @@ body {
   }
   .copy::before {
     display: none;
+  }
+
+  /* Réponses à compléter : ligne pointillée */
+  .answer-line {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+    min-height: 9mm;
+  }
+  .answer-line::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px dotted var(--ink-faint);
+    transform: translateY(-2px);
+  }
+
+  /* Corrigé en fin de document */
+  .print-appendix {
+    break-before: page;
   }
 }

@@ -6,7 +6,7 @@ import { TEMPLATE_BY_CODE } from '../exercises/registry';
 import { emptyProgress, exerciseResult, useStore } from '../history/store';
 import { METHOD_FOR_SUBTYPE } from '../methods/methods';
 import { ExpressionInput, RootsInput, ValueInput } from './answers/AnswerInputs';
-import { MathText } from './Math';
+import { MathText, Tex } from './Math';
 import { Solution, StepItem } from './Solution';
 import { VariationTable } from './VariationTable';
 
@@ -30,6 +30,20 @@ function Feedback({ r, attempts }: { r?: CheckResult; attempts: number }) {
       {attempts > 0 && <span className="shrink-0 font-sans text-xs text-ink-faint">{attempts} essai{attempts > 1 ? 's' : ''}</span>}
     </div>
   );
+}
+
+/** Place pour répondre sur la version imprimée : ligne pointillée ou tableau vide. */
+function PrintAnswerSpace({ q }: { q: Question }) {
+  if (q.type === 'table') {
+    return (
+      <div className="hidden print:block">
+        <VariationTable table={q.expected} blank />
+      </div>
+    );
+  }
+  // Une limite déjà écrite dans l'énoncé n'est pas recopiée sur la ligne de réponse
+  const label = q.type === 'roots' ? 'x \\in' : q.type === 'value' && q.label?.startsWith('\\lim') ? '\\text{Limite :}' : q.label;
+  return <p className="answer-line hidden print:flex">{label && <Tex math={label} />}</p>;
 }
 
 interface QuestionBlockProps {
@@ -74,6 +88,7 @@ function QuestionBlock({ ex, q, marker, showPrompt, inputs, singleAttempt }: Que
           <MathText text={q.prompt} />
         </p>
       )}
+      <PrintAnswerSpace q={q} />
       {inputs && (
         <div className="space-y-2 print:hidden">
       {q.type === 'expression' && <ExpressionInput value={text} onChange={onText} onSubmit={check} label={q.label} disabled={locked} />}
@@ -159,7 +174,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
         <Level d={ex.difficulty} />
         {showTheme && <span className="font-sans text-[0.7rem] font-semibold uppercase tracking-wider text-ink-faint">{THEME_LABELS[ex.theme]}</span>}
         {result && (
-          <span className={`hand ml-auto -rotate-3 text-2xl ${result === 'reussi' ? 'text-ok' : 'text-pen'}`}>{result === 'reussi' ? 'Réussi' : 'À revoir'}</span>
+          <span className={`hand ml-auto -rotate-3 text-2xl print:hidden ${result === 'reussi' ? 'text-ok' : 'text-pen'}`}>{result === 'reussi' ? 'Réussi' : 'À revoir'}</span>
         )}
       </header>
 
@@ -193,7 +208,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       )}
 
       {progress?.hint && !solutionOpen && ex.steps[0] && (
-        <div className="box dashed mb-5 mt-4">
+        <div className="box dashed mb-5 mt-4 print:hidden">
           <span className="box-tab">Coup de pouce</span>
           <button type="button" onClick={() => setHint(ex.uid, false)} className="btn-link absolute right-3 top-1 text-xs" aria-label="Fermer le coup de pouce">
             fermer
@@ -210,7 +225,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       )}
 
       {solutionOpen && (
-        <div className="mb-5 mt-4">
+        <div className="mb-5 mt-4 print:hidden">
           <Solution sections={ex.parts.map((p) => ({ label: p.label, item: multi ? p.item : undefined, steps: p.steps }))} />
         </div>
       )}

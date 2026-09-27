@@ -11,7 +11,7 @@ export function FormulaChips({ ids }: { ids: string[] }) {
   if (!formulas.length) return null;
   const current = open ? FORMULA_BY_ID.get(open) : null;
   return (
-    <div className="mt-1">
+    <div className="mt-1 print:hidden">
       <p className="font-sans text-xs text-ink-faint">
         <span className="font-semibold text-chap">Rappel</span>{' '}
         {formulas.map((f, i) => (

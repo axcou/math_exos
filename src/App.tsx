@@ -36,7 +36,7 @@ export default function App() {
           ))}
         </nav>
       </header>
-      <main className="mx-auto max-w-4xl px-4 py-8">
+      <main className="mx-auto max-w-4xl px-4 py-8 print:max-w-none print:p-0">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/exercices" element={<Exercises />} />

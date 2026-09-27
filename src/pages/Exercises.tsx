@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { ExerciseCard } from '../components/ExerciseCard';
+import { PRINT_MODES, PrintAppendix, PrintHeader, type PrintMode } from '../components/PrintSheet';
 import { SheetBuilder } from '../components/SheetBuilder';
 import { ShareDialog } from '../components/ShareDialog';
 import { exerciseFromRef } from '../exercises/registry';
@@ -8,6 +9,37 @@ import { type DifficultyChoice, type Exercise, THEME_LABELS, THEMES, type Theme 
 import { exerciseResult, pastExercises, useStore } from '../history/store';
 import { buildSheet, replacementFor } from '../sheet/buildSheet';
 import { only, type SheetConfig } from '../sheet/sheetConfig';
+
+/** Menu « imprimer » : sujet seul, avec les réponses, ou avec le corrigé détaillé. */
+function PrintMenu({ onPrint }: { onPrint: (m: PrintMode) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative">
+      <button type="button" className="btn-link" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)}>
+        imprimer / PDF
+      </button>
+      {open && (
+        <span role="menu" className="panel absolute left-0 top-full z-30 mt-1 flex w-72 flex-col p-1 shadow-[4px_4px_0_var(--rule)]">
+          {PRINT_MODES.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              role="menuitem"
+              className="rounded px-3 py-2 text-left hover:bg-paper"
+              onClick={() => {
+                setOpen(false);
+                onPrint(m.id);
+              }}
+            >
+              <span className="block font-sans text-sm font-semibold">{m.label}</span>
+              <span className="block font-sans text-xs text-ink-faint">{m.hint}</span>
+            </button>
+          ))}
+        </span>
+      )}
+    </span>
+  );
+}
 
 function ScoreBar({ exercises }: { exercises: Exercise[] }) {
   const progress = useStore((s) => s.progress);
@@ -47,6 +79,19 @@ export default function Exercises() {
   const navigate = useNavigate();
   const [builderOpen, setBuilderOpen] = useState(!sheet);
   const [sharing, setSharing] = useState(false);
+  const [printMode, setPrintMode] = useState<PrintMode>('sujet');
+
+  // Le corrigé imprimé n'existe que le temps de l'impression
+  useEffect(() => {
+    const reset = () => setPrintMode('sujet');
+    window.addEventListener('afterprint', reset);
+    return () => window.removeEventListener('afterprint', reset);
+  }, []);
+  const print = (m: PrintMode) => {
+    setPrintMode(m);
+    // laisser React afficher l'annexe avant d'ouvrir la boîte d'impression
+    setTimeout(() => window.print(), 60);
+  };
 
   const exercises = useMemo(() => (sheet?.refs ?? []).map((r) => exerciseFromRef(r.code, r.seed, r.parts)).filter((e): e is Exercise => !!e), [sheet?.refs]);
 
@@ -130,9 +175,7 @@ export default function Exercises() {
             <button type="button" className="btn-link" onClick={() => setSharing(true)}>
               partager
             </button>
-            <button type="button" className="btn-link" onClick={() => window.print()}>
-              imprimer
-            </button>
+            <PrintMenu onPrint={print} />
           </>
         )}
         <label className="flex items-center gap-1.5 font-sans text-sm text-ink-soft">
@@ -149,7 +192,8 @@ export default function Exercises() {
         </div>
       )}
 
-      {sheet?.title && <h1 className="font-serif text-3xl font-semibold">{sheet.title}</h1>}
+      {sheet?.title && <h1 className="font-serif text-3xl font-semibold print:hidden">{sheet.title}</h1>}
+      <PrintHeader title={sheet?.title ?? ''} count={exercises.length} />
 
       {exercises.length === 0 && !builderOpen && (
         <div className="py-16 text-center">
@@ -183,6 +227,8 @@ export default function Exercises() {
           ))}
         </section>
       ))}
+
+      <PrintAppendix exercises={exercises} mode={printMode} />
 
       {sharing && <ShareDialog exercises={exercises} config={config} initialTitle={sheet?.title ?? ''} initial={sheet ?? undefined} onClose={() => setSharing(false)} />}
       {exercises.length > 0 && (

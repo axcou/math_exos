@@ -10,6 +10,8 @@ interface Props {
   onChange?: (a: TableAnswer) => void;
   wrongCells?: string[];
   disabled?: boolean;
+  /** Tableau vide à compléter (impression) : structure et valeurs de x seulement. */
+  blank?: boolean;
 }
 
 const SIGN_CYCLE: (Sign | '')[] = ['', '+', '-'];
@@ -64,9 +66,11 @@ function Cell({ children, wrong, onClick, onKey, disabled, label, cell, classNam
   );
 }
 
-export function VariationTable({ table, answer, onChange, wrongCells = [], disabled }: Props) {
+export function VariationTable({ table, answer, onChange, wrongCells = [], disabled, blank }: Props) {
   const n = table.xs.length;
   const editable = !!answer && !!onChange;
+  // Cases vides : saisie, ou tableau à compléter sur papier
+  const empty = editable || !!blank;
   const cols = `minmax(4.5rem, auto) ${Array.from({ length: 2 * n - 1 }, (_, i) => (i % 2 === 0 ? 'minmax(2.5rem, auto)' : 'minmax(3rem, 1fr)')).join(' ')}`;
   const wrong = (id: string) => wrongCells.includes(id);
 
@@ -111,7 +115,7 @@ export function VariationTable({ table, answer, onChange, wrongCells = [], disab
               const key = `${i}-${c}`;
               if (row.kind === 'sign') {
                 if (c % 2 === 1) {
-                  const s = editable ? a?.signs?.[j] ?? '' : row.signs[j];
+                  const s = empty ? a?.signs?.[j] ?? '' : row.signs[j];
                   return (
                     <div key={key} className={`${rowBorder} ${h} flex`}>
                       <Cell
@@ -130,7 +134,7 @@ export function VariationTable({ table, answer, onChange, wrongCells = [], disab
                 }
                 const interior = j > 0 && j < n - 1;
                 if (!interior) return <div key={key} className={`${rowBorder} ${h}`} />;
-                const m = editable ? a?.marks?.[j] ?? '' : row.marks[j];
+                const m = empty ? a?.marks?.[j] ?? '' : row.marks[j];
                 return (
                   <div key={key} className={`${rowBorder} ${h} flex`}>
                     {editable ? (
@@ -155,7 +159,7 @@ export function VariationTable({ table, answer, onChange, wrongCells = [], disab
               }
               // Ligne de variations
               if (c % 2 === 1) {
-                const ar = editable ? a?.arrows?.[j] ?? '' : row.arrows[j];
+                const ar = empty ? a?.arrows?.[j] ?? '' : row.arrows[j];
                 return (
                   <div key={key} className={`${rowBorder} ${h} flex`}>
                     <Cell
@@ -179,7 +183,7 @@ export function VariationTable({ table, answer, onChange, wrongCells = [], disab
                   </div>
                 );
               }
-              const v = editable ? null : row.values[j];
+              const v = empty ? null : row.values[j];
               const left = row.arrows[j - 1];
               const right = row.arrows[j];
               const top = left === 'up' || (left === undefined && right === 'down');
