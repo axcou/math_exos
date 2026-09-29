@@ -1,7 +1,7 @@
 import katex from 'katex';
 import { describe, expect, it } from 'vitest';
 import { checkExpression, checkTable, checkValue, equivalent, testPoints } from '../src/checking/check';
-import { evalCurve, evalCurveDerivative } from '../src/core/curve';
+import { evalGraph, evalGraphDerivative } from '../src/core/curve';
 import { evaluate } from '../src/core/expr/evaluate';
 import { generateExercise, TEMPLATES } from '../src/exercises/registry';
 import type { Exercise, ExerciseMeta, TableData } from '../src/exercises/types';
@@ -79,8 +79,8 @@ function checkMeta(m: ExerciseMeta, ex: Exercise) {
   }
   if (m.kind === 'table' || m.kind === 'graph') {
     const tables = ex.questions.flatMap((q) => (q.type === 'table' ? [q.expected] : []));
-    const f = m.kind === 'graph' ? (x: number) => evalCurve(m.graph.knots, x) : (x: number) => evaluate(m.f, x);
-    const df = (x: number) => (m.kind === 'graph' ? evalCurveDerivative(m.graph.knots, x) : m.df ? evaluate(m.df, x) : numDeriv(f, x));
+    const f = m.kind === 'graph' ? (x: number) => evalGraph(m.graph, x) : (x: number) => evaluate(m.f, x);
+    const df = (x: number) => (m.kind === 'graph' ? evalGraphDerivative(m.graph, x) : m.df ? evaluate(m.df, x) : numDeriv(f, x));
     for (const t of tables) {
       const xv = t.xv;
       expect(xv.length, ctx).toBe(t.xs.length);

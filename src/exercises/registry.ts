@@ -103,7 +103,7 @@ function partSeed(seed: number, i: number): number {
 const LABELS = 'abcdefgh';
 
 /** Une courbe fait partie du contenu : deux graphiques différents donnent deux énoncés différents. */
-const graphKey = (g?: GraphData) => (g ? [g.knots.map((p) => p.join(',')).join(';')] : []);
+const graphKey = (g?: GraphData) => (g ? [g.knots.map((p) => p.join(',')).join(';') + (g.asymptote ? `|${Object.values(g.asymptote).join(',')}` : '')] : []);
 
 /**
  * Génère un exercice. Avec `parts` > 1, regroupe plusieurs énoncés du même

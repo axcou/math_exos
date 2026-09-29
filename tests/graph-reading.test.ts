@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { checkRoots, checkTable, checkValue } from '../src/checking/check';
-import { curveSlopes, evalCurve, evalCurveDerivative } from '../src/core/curve';
+import { curveSlopes, evalCurve, evalCurveDerivative, evalGraph } from '../src/core/curve';
 import { generateExercise, TEMPLATE_BY_CODE, templatesFor } from '../src/exercises/registry';
 import type { SignRow, TableQuestion, VariationRow } from '../src/exercises/types';
 
@@ -90,5 +90,23 @@ describe('dérivées : seulement les types des TD', () => {
     expect(drawn).toEqual(['D01', 'D09', 'D12', 'D13', 'D17', 'D18', 'D19', 'D20', 'D21', 'D22', 'D23']);
     expect(generateExercise(TEMPLATE_BY_CODE.get('D07')!, 1).code).toBe('D07');
     for (const level of [1, 2, 3] as const) expect(templatesFor('derivee', level).length).toBeGreaterThan(0);
+  });
+});
+
+describe('V14 : courbe avec valeur interdite', () => {
+  it('double barre en p dans les deux tableaux, f non définie en p', () => {
+    for (const seed of SEEDS) {
+      const ex = generateExercise(TEMPLATE_BY_CODE.get('V14')!, seed);
+      const g = ex.parts[0].graph!;
+      const p = g.asymptote!.p;
+      expect(Number.isFinite(evalGraph(g, p))).toBe(false);
+      for (const q of ex.questions.filter((x): x is TableQuestion => x.type === 'table')) {
+        const j = q.expected.xv.indexOf(p);
+        expect(j).toBeGreaterThan(0);
+        for (const r of q.expected.rows) expect(r.kind === 'sign' ? r.marks[j] : r.forbidden[j] ? '||' : '').toBe('||');
+      }
+      // Points lisibles : entiers
+      for (const [x, y] of g.knots) expect(Number.isInteger(x) && Number.isInteger(y) && evalGraph(g, x) === y).toBe(true);
+    }
   });
 });

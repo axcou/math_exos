@@ -1,4 +1,4 @@
-import { curveSlopes, evalCurve } from '../core/curve';
+import { curveSlopes, evalCurve, evalGraph } from '../core/curve';
 import type { GraphData } from '../exercises/types';
 
 /** Courbe représentative sur quadrillage (une unité par carreau), comme dans un manuel. */
@@ -9,8 +9,16 @@ export function FunctionGraph({ graph }: { graph: GraphData }) {
   const ys = k.map(([, y]) => y);
   const x0 = Math.min(a, 0) - 1;
   const x1 = Math.max(b, 0) + 1;
-  const y0 = Math.min(...ys, 0) - 1;
-  const y1 = Math.max(...ys, 0) + 1;
+  // Avec une asymptote, on laisse de la place pour voir les branches partir vers l'infini
+  const pad = graph.asymptote ? 3 : 1;
+  let y0 = Math.min(...ys, 0) - pad;
+  let y1 = Math.max(...ys, 0) + pad;
+  const minH = graph.asymptote ? 10 : 0;
+  if (y1 - y0 < minH) {
+    const extra = minH - (y1 - y0);
+    y0 -= Math.floor(extra / 2);
+    y1 += Math.ceil(extra / 2);
+  }
   const U = 26; // pixels par unité (coordonnées du viewBox)
   const px = (x: number) => (x - x0) * U;
   const py = (y: number) => (y1 - y) * U;
@@ -18,10 +26,27 @@ export function FunctionGraph({ graph }: { graph: GraphData }) {
   const H = (y1 - y0) * U;
 
   const N = 240;
-  const path = Array.from({ length: N + 1 }, (_, i) => {
-    const x = a + ((b - a) * i) / N;
-    return `${i ? 'L' : 'M'}${px(x).toFixed(1)},${py(evalCurve(k, x, slopes)).toFixed(1)}`;
-  }).join(' ');
+  const asym = graph.asymptote;
+  let path: string;
+  if (!asym) {
+    path = Array.from({ length: N + 1 }, (_, i) => {
+      const x = a + ((b - a) * i) / N;
+      return `${i ? 'L' : 'M'}${px(x).toFixed(1)},${py(evalCurve(k, x, slopes)).toFixed(1)}`;
+    }).join(' ');
+  } else {
+    // Deux branches, coupées au bord du quadrillage près de l'asymptote
+    const branch = (from: number, to: number) => {
+      const pts: string[] = [];
+      for (let i = 0; i <= N; i++) {
+        const x = from + ((to - from) * i) / N;
+        const y = evalGraph(graph, x);
+        if (y < y0 - 0.3 || y > y1 + 0.3) continue;
+        pts.push(`${pts.length ? 'L' : 'M'}${px(x).toFixed(1)},${py(y).toFixed(1)}`);
+      }
+      return pts.join(' ');
+    };
+    path = `${branch(a, asym.p - 1e-3)} ${branch(b, asym.p + 1e-3)}`;
+  }
 
   const xsGrid = Array.from({ length: x1 - x0 + 1 }, (_, i) => x0 + i);
   const ysGrid = Array.from({ length: y1 - y0 + 1 }, (_, i) => y0 + i);
@@ -67,6 +92,7 @@ export function FunctionGraph({ graph }: { graph: GraphData }) {
         <text x={px(0) - 4} y={py(0) + 12} textAnchor="end" {...font}>
           O
         </text>
+        {asym && <line x1={px(asym.p)} y1={0} x2={px(asym.p)} y2={H} stroke="var(--ink-soft)" strokeWidth={1.2} strokeDasharray="5 4" />}
         {/* Courbe */}
         <path d={path} fill="none" stroke="var(--chap, var(--ink))" strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" />
         {[k[0], k[k.length - 1]].map(([x, y]) => (

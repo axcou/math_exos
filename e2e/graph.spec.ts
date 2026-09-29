@@ -40,3 +40,17 @@ test.describe('étude complète (TD)', () => {
     expect(errors).toEqual([]);
   });
 });
+
+test.describe('courbe avec valeur interdite', () => {
+  for (const [seed, parts] of [[4, 1], [9, 2]] as const) {
+    test(`les tableaux avec double barre se complètent (${parts} partie${parts > 1 ? 's' : ''})`, async ({ page }) => {
+      const errors = trackErrors(page);
+      const ex = exercise('V14', seed, parts);
+      await openSheet(page, [ex]);
+      await expect(card(page, ex).getByRole('img', { name: /Courbe de f/ })).toHaveCount(parts);
+      await answerAll(page, ex);
+      await page.screenshot({ path: `test-results/asym-${parts}.png`, fullPage: true });
+      expect(errors).toEqual([]);
+    });
+  }
+});

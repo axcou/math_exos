@@ -1172,3 +1172,32 @@ exports[`golden seeds > V13 est stable 1`] = `
   },
 ]
 `;
+
+exports[`golden seeds > V14 est stable 1`] = `
+[
+  {
+    "answers": [
+      ""-1"",
+      "-++-,0,||,0,|down,up,up,down",
+      "+-,||,",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-5\\,;\\,3]$ sauf en une valeur.",
+  },
+  {
+    "answers": [
+      ""0"",
+      "-++-,0,||,0,|down,up,up,down",
+      "+-,||,",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-4\\,;\\,4]$ sauf en une valeur.",
+  },
+  {
+    "answers": [
+      ""-1"",
+      "++,||,|up,up",
+      "-+-,0,||,",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-4\\,;\\,0]$ sauf en une valeur.",
+  },
+]
+`;

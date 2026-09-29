@@ -52,3 +52,21 @@ export function evalCurveDerivative(k: Knot[], x: number, slopes = curveSlopes(k
   const t2 = t * t;
   return ((6 * t2 - 6 * t) * (y0 - y1)) / h + (3 * t2 - 4 * t + 1) * slopes[i] + (3 * t2 - 2 * t) * slopes[i + 1];
 }
+
+type Asymptote = { p: number; m: number; k: number; lin: 0 | 1; s: 1 | -1 };
+type Graph = { knots: Knot[]; asymptote?: Asymptote };
+
+/** Valeur de f en x pour une courbe donnée (±Infinity sur l'asymptote). */
+export function evalGraph(g: Graph, x: number): number {
+  const h = g.asymptote;
+  if (!h) return evalCurve(g.knots, x);
+  const t = x - h.p;
+  return h.s * (h.lin * t + h.m / t) + h.k;
+}
+
+export function evalGraphDerivative(g: Graph, x: number): number {
+  const h = g.asymptote;
+  if (!h) return evalCurveDerivative(g.knots, x);
+  const t = x - h.p;
+  return h.s * (h.lin - h.m / (t * t));
+}

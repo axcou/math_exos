@@ -222,4 +222,143 @@ const V12: Template = {
   },
 };
 
-export const GRAPH_TEMPLATES: Template[] = [V10, V11, V12];
+
+// ——————————————————————————————————— Courbe avec asymptote verticale (valeur interdite ||)
+
+type Asym = NonNullable<GraphData['asymptote']>;
+
+interface AsymCurve {
+  graph: GraphData;
+  a: number;
+  b: number;
+  p: number;
+  /** Sommets (abscisses), hors bornes. */
+  ext: number[];
+  zeros: number[];
+  f: (x: number) => number;
+  df: (x: number) => number;
+}
+
+function asymCurve(h: Asym, a: number, b: number, ext: number[], zeros: number[]): AsymCurve {
+  const f = (x: number) => h.s * (h.lin * (x - h.p) + h.m / (x - h.p)) + h.k;
+  const df = (x: number) => h.s * (h.lin - h.m / (x - h.p) ** 2);
+  const knots = [a, ...ext, ...zeros, b].sort((u, v) => u - v).map((x): Knot => [x, Math.round(f(x))]);
+  return { graph: { knots, asymptote: h }, a, b, p: h.p, ext, zeros, f, df };
+}
+
+/** k + m/(x − p) : une branche monotone de chaque côté, un zéro entier. */
+function homographic(rng: Rng): AsymCurve {
+  for (;;) {
+    const p = rng.int(-2, 3);
+    const mAbs = rng.pick([2, 3, 4, 6]);
+    const m = mAbs * rng.sign();
+    const divs = [1, 2, 3, 4, 5].filter((d) => mAbs % d === 0);
+    const d1 = rng.pick(divs);
+    const d2 = rng.pick(divs);
+    if (d1 + d2 < 4) continue;
+    const k = rng.pick(divs.filter((d) => d <= 3)) * rng.sign();
+    const x0 = p - m / k;
+    const [a, b] = [p - d1, p + d2];
+    if (!(x0 > a && x0 < b) || x0 === p) continue;
+    const c = asymCurve({ p, m, k, lin: 0, s: 1 }, a, b, [], [x0]);
+    if (Math.abs(c.f(a)) > 6 || Math.abs(c.f(b)) > 6) continue;
+    return c;
+  }
+}
+
+/** ±(t + 4/t) + k, t = x − p : un maximum et un minimum de part et d'autre de l'asymptote. */
+function withExtrema(rng: Rng): AsymCurve {
+  const p = rng.int(-1, 2);
+  const s = rng.sign();
+  const k = rng.int(-2, 2);
+  return asymCurve({ p, m: 4, k, lin: 1, s }, p - 4, p + 4, [p - 2, p + 2], []);
+}
+
+function asymSignTable(c: AsymCurve): TableData {
+  const inner = [...c.zeros, c.p].sort((u, v) => u - v);
+  const axis: Axis = { xs: inner, xsLatex: inner.map(String), lo: { value: c.a, latex: String(c.a) }, hi: { value: c.b, latex: String(c.b) } };
+  const bounds = [c.a, ...inner, c.b];
+  const row: SignRow = {
+    kind: 'sign',
+    label: 'f(x)',
+    signs: bounds.slice(1).map((x, i) => (c.f((x + bounds[i]) / 2) > 0 ? '+' : '-')),
+    marks: bounds.map((x, i) => (i === 0 || i === bounds.length - 1 ? '' : x === c.p ? '||' : '0')),
+  };
+  return makeTable(axis, [row]);
+}
+
+function asymVariationTable(c: AsymCurve): TableData {
+  const inner = [...c.ext, c.p].sort((u, v) => u - v);
+  const axis: Axis = { xs: inner, xsLatex: inner.map(String), lo: { value: c.a, latex: String(c.a) }, hi: { value: c.b, latex: String(c.b) } };
+  const bounds = [c.a, ...inner, c.b];
+  const dRow: SignRow = {
+    kind: 'sign',
+    label: "f'(x)",
+    signs: bounds.slice(1).map((x, i) => (c.df((x + bounds[i]) / 2) > 0 ? '+' : '-')),
+    marks: bounds.map((x, i) => (i === 0 || i === bounds.length - 1 ? '' : x === c.p ? '||' : '0')),
+  };
+  return makeTable(axis, [dRow, variationRow('f', dRow, bounds.map((x) => (x === c.p ? null : String(Math.round(c.f(x))))))]);
+}
+
+const V14: Template = {
+  code: 'V14',
+  theme: 'variation',
+  difficulty: 2,
+  subtype: 'lecture-graphique',
+  title: 'Courbe avec une valeur interdite',
+  variants: 2,
+  generate(rng, variant) {
+    const form = variant ?? (rng.bool() ? 0 : 1);
+    const c = form === 0 ? homographic(rng) : withExtrema(rng);
+    const vTable = asymVariationTable(c);
+    const sTable = asymSignTable(c);
+    const D = I(c.a, c.b);
+    const questions: Question[] = [
+      {
+        id: 'q1',
+        type: 'value',
+        prompt: 'Pour quelle valeur de $x$ la fonction $f$ n’est-elle pas définie ?',
+        label: 'x =',
+        expected: { kind: 'finite', expr: num(c.p), latex: String(c.p) },
+      },
+      { id: 'q2', type: 'table', prompt: `Dresser le tableau de variations de $f$, avec le signe de $f'(x)$.`, expected: vTable },
+      { id: 'q3', type: 'table', prompt: 'Dresser le tableau de signes de $f(x)$.', expected: sTable },
+    ];
+    const left = `$[${c.a}\\,;\\,${c.p}[$`;
+    const right = `$]${c.p}\\,;\\,${c.b}]$`;
+    const steps: Step[] = [
+      {
+        title: 'Valeur interdite',
+        text: `La courbe est en deux morceaux : de part et d'autre de la droite verticale $x = ${c.p}$ (en pointillés), elle part vers l'infini sans jamais la toucher. C'est une **asymptote verticale** : $f$ n'est pas définie en $${c.p}$. Dans les tableaux, on met une **double barre** $||$ sous $${c.p}$, et aucune valeur de $f$.`,
+      },
+      {
+        title: 'Lire le sens de variation',
+        text:
+          form === 0
+            ? `Sur ${left} la courbe ${c.df(c.a) > 0 ? 'monte' : 'descend'}, et sur ${right} elle ${c.df(c.b) > 0 ? 'monte' : 'descend'} aussi : $f$ est ${c.df(c.a) > 0 ? 'croissante' : 'décroissante'} sur chacun des deux intervalles (mais pas sur leur réunion : la double barre sépare les flèches).`
+            : `Sur ${left} la courbe ${c.df(c.a) > 0 ? 'monte jusqu’au sommet puis descend' : 'descend jusqu’au creux puis remonte'} ; sur ${right} elle ${c.df(c.b) > 0 ? 'descend jusqu’au creux puis remonte' : 'monte jusqu’au sommet puis descend'}. Les sommets sont en $x = ${c.ext[0]}$ et $x = ${c.ext[1]}$ (tangente horizontale : $f'(x) = 0$).`,
+      },
+      {
+        title: 'Lire les valeurs',
+        text: `On lit : ${list(c.graph.knots.filter(([x]) => !c.zeros.includes(x)).map(([x, y]) => `$f(${x}) = ${y}$`))}.`,
+      },
+      { title: 'Tableau de variations', table: vTable, formulas: ['v.var'] },
+      {
+        title: 'Lire le signe',
+        text: `${c.zeros.length ? `La courbe coupe l'axe des abscisses en $x = ${c.zeros[0]}$ (un $0$ dans le tableau). ` : 'La courbe ne coupe jamais l’axe des abscisses : pas de $0$ dans le tableau. '}$f(x) > 0$ là où la courbe est au-dessus de l'axe, $f(x) < 0$ là où elle est en dessous. Le signe peut changer en passant la double barre, sans passer par $0$.`,
+      },
+      { title: 'Tableau de signes', table: sTable },
+    ];
+    return {
+      statement: `On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $${D}$ sauf en une valeur.`,
+      lead: 'Pour chaque fonction dont la courbe est donnée, répondre aux questions par lecture graphique.',
+      item: `Fonction $f$ définie sur $${D}$ sauf en une valeur :`,
+      graph: c.graph,
+      questions,
+      steps,
+      meta: [{ kind: 'graph', graph: c.graph }],
+    };
+  },
+};
+
+export const GRAPH_TEMPLATES: Template[] = [V10, V11, V12, V14];

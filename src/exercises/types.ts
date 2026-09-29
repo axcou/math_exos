@@ -55,7 +55,13 @@ export interface TableData {
 
 /** Courbe donnée dans l'énoncé (lecture graphique) : points de passage, entiers. */
 export interface GraphData {
+  /** Points de passage (bornes, sommets, zéros), entiers. */
   knots: [number, number][];
+  /**
+   * Courbe à asymptote verticale x = p : f(x) = s·(lin·t + m/t) + k avec t = x − p
+   * (au lieu de l'interpolation des points). f n'est pas définie en p.
+   */
+  asymptote?: { p: number; m: number; k: number; lin: 0 | 1; s: 1 | -1 };
 }
 
 export interface KnownMistake {
