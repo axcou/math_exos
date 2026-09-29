@@ -108,6 +108,7 @@ const D01: Template = {
 
 const D02: Template = {
   code: 'D02',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 1,
   subtype: 'inverse',
@@ -148,6 +149,7 @@ const D02: Template = {
 
 const D03: Template = {
   code: 'D03',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 1,
   subtype: 'racine',
@@ -194,6 +196,7 @@ const D03: Template = {
 
 const D04: Template = {
   code: 'D04',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 2,
   subtype: 'produit',
@@ -234,6 +237,7 @@ function quotientNumerator(du: string, v: string, u: string, dv: string): string
 
 const D05: Template = {
   code: 'D05',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 2,
   subtype: 'quotient',
@@ -282,6 +286,7 @@ const D05: Template = {
 
 const D06: Template = {
   code: 'D06',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 2,
   subtype: 'quotient',
@@ -322,6 +327,7 @@ const D06: Template = {
 
 const D07: Template = {
   code: 'D07',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 2,
   subtype: 'exp',
@@ -357,6 +363,7 @@ const D07: Template = {
 
 const D08: Template = {
   code: 'D08',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 2,
   subtype: 'ln',
@@ -426,6 +433,7 @@ const D09: Template = {
 
 const D10: Template = {
   code: 'D10',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 3,
   subtype: 'composee-exp',
@@ -461,6 +469,7 @@ const D10: Template = {
 
 const D11: Template = {
   code: 'D11',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 3,
   subtype: 'composee-ln',
@@ -570,6 +579,7 @@ const D13: Template = {
 
 const D14: Template = {
   code: 'D14',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 3,
   subtype: 'composee-exp',
@@ -611,6 +621,7 @@ const D14: Template = {
 
 const D15: Template = {
   code: 'D15',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 3,
   subtype: 'quotient',
@@ -643,6 +654,7 @@ const D15: Template = {
 
 const D16: Template = {
   code: 'D16',
+  legacy: true, // hors programme des TD : conservé pour les anciens liens
   theme: 'derivee',
   difficulty: 3,
   subtype: 'quotient',
