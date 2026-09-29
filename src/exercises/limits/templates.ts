@@ -108,9 +108,10 @@ const L01: Template = {
   difficulty: 1,
   subtype: 'polynome',
   title: "Limite d'un polynôme en l'infini",
-  generate(rng) {
-    const p = randomPoly(rng, rng.int(2, 4));
-    const at = rng.pick(['+inf', '-inf'] as const);
+  variants: 4,
+  generate(rng, variant) {
+    const p = randomPoly(rng, variant === undefined ? rng.int(2, 4) : [2, 3, 4, 3][variant]);
+    const at = variant === undefined ? rng.pick(['+inf', '-inf'] as const) : (['+inf', '-inf', '-inf', '+inf'] as const)[variant];
     const n = p.degree;
     const a = Q.toNumber(p.lead);
     const ans = inf(monoSign(a, n, at));
@@ -140,8 +141,9 @@ const L02: Template = {
   difficulty: 1,
   subtype: 'reference',
   title: 'Limites de référence',
-  generate(rng) {
-    const variant = rng.int(0, 2);
+  variants: 3,
+  generate(rng, v) {
+    const variant = v ?? rng.int(0, 2);
     if (variant === 0) {
       const c = rng.nonZero(-6, 6);
       const b = rng.nonZero(-6, 6);
@@ -243,8 +245,10 @@ const L04: Template = {
   difficulty: 2,
   subtype: 'rationnelle',
   title: "Fraction rationnelle en l'infini",
-  generate(rng) {
-    const [dp, dq] = rng.pick([[1, 1], [2, 2], [1, 2], [2, 1], [3, 2], [2, 3], [3, 3]] as const);
+  variants: 3,
+  generate(rng, variant) {
+    const byKind: [number, number][][] = [[[1, 2], [2, 3], [1, 3]], [[1, 1], [2, 2], [3, 3]], [[2, 1], [3, 2], [3, 1]]];
+    const [dp, dq]: readonly number[] = variant === undefined ? rng.pick([[1, 1], [2, 2], [1, 2], [2, 1], [3, 2], [2, 3], [3, 3]] as const) : rng.pick(byKind[variant]);
     const p = randomPoly(rng, dp, 5);
     const q = randomPoly(rng, dq, 5);
     const at = rng.pick(['+inf', '-inf'] as const);
@@ -398,11 +402,12 @@ const L08: Template = {
   difficulty: 3,
   subtype: 'croissances-comparees',
   title: 'Croissances comparées',
-  generate(rng) {
+  variants: 5,
+  generate(rng, v) {
     const a = rng.nonZero(-5, 5);
     const n = rng.int(1, 3);
     const xn = pow(X, n);
-    const variant = rng.int(0, 4);
+    const variant = v ?? rng.int(0, 4);
     const cc = ['l.cc', 'l.ops'];
     const fi = (form: string) => ({ title: 'Forme indéterminée', text: `On obtient la forme indéterminée $${form}$ : on utilise les **croissances comparées**.`, formulas: cc });
     switch (variant) {
@@ -458,11 +463,12 @@ const L09: Template = {
   difficulty: 3,
   subtype: 'taux',
   title: "Taux d'accroissement",
-  generate(rng) {
+  variants: 2,
+  generate(rng, variant) {
     const a = rng.pick([-4, -3, -2, 2, 3, 4, 5]);
     const m = rng.pick([1, 1, 2, 3]);
     const ax = mono(a, 1);
-    const useExp = rng.bool();
+    const useExp = variant === undefined ? rng.bool() : variant === 0;
     const numer = useExp ? add(exp(ax), num(-1)) : ln(add(num(1), ax));
     const f = div(numer, mono(m, 1));
     const g = useExp ? '\\frac{\\mathrm{e}^{X} - 1}{X}' : '\\frac{\\ln(1 + X)}{X}';
@@ -491,8 +497,9 @@ const L10: Template = {
   difficulty: 3,
   subtype: 'composee',
   title: "Limite d'une fonction composée",
-  generate(rng) {
-    if (rng.bool()) {
+  variants: 2,
+  generate(rng, variant) {
+    if (variant === undefined ? rng.bool() : variant === 0) {
       const a = rng.nonZero(-4, 4);
       const b = rng.int(-5, 5);
       const c = rng.nonZero(1, 3);
@@ -570,15 +577,16 @@ const L11: Template = {
   difficulty: 1,
   subtype: 'valeur-interdite',
   title: 'Limite de k/(x − a) à gauche ou à droite',
-  generate(rng) {
+  variants: 4,
+  generate(rng, variant) {
     const k = rng.nonZero(-15, 15);
-    const a = rng.bool(0.3) ? (() => {
+    const a = (variant === undefined ? rng.bool(0.3) : variant >= 2) ? (() => {
       const q = rng.pick([2, 3, 4, 5]);
       let p = rng.nonZero(-70, 70);
       if (p % q === 0) p += 1;
       return Q.rat(p, q);
     })() : Q.rat(rng.int(-20, 20));
-    const side = rng.sign();
+    const side = variant === undefined ? rng.sign() : variant % 2 === 0 ? 1 : -1;
     const den = add(X, num(Q.neg(a)));
     const f = div(num(k), den);
     const ans = inf(k * side);
@@ -613,9 +621,20 @@ const L12: Template = {
   difficulty: 2,
   subtype: 'rationnelle',
   title: 'Fraction rationnelle en l’infini (termes en vrac)',
-  generate(rng) {
-    const dn = rng.int(0, 4);
-    const dd = rng.int(1, 4);
+  variants: 4,
+  generate(rng, variant) {
+    let dn = rng.int(0, 4);
+    let dd = rng.int(1, 4);
+    if (variant === 0) dn = 0;
+    if (variant === 1) {
+      dd = Math.max(dd, 2);
+      dn = rng.int(1, dd - 1);
+    }
+    if (variant === 2) dn = dd;
+    if (variant === 3) {
+      dd = Math.min(dd, 3);
+      dn = dd + rng.int(1, 2);
+    }
     const p = tdPoly(rng, dn);
     const q = tdPoly(rng, dd);
     const at = rng.bool(0.7) ? ('-inf' as const) : ('+inf' as const);

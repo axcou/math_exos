@@ -133,10 +133,9 @@ describe('exercices en plusieurs parties (a, b, c)', () => {
     }
   });
 
-  it('est reproductible et garde la partie a identique à l’exercice simple', () => {
+  it('est reproductible et se reconstruit depuis son uid', () => {
     const multi = generateExercise(t, 42, 3);
     expect(generateExercise(t, 42, 3).signature).toBe(multi.signature);
-    expect(multi.parts[0].item).toBe(generateExercise(t, 42).item);
     expect(exerciseFromUid(multi.uid)!.signature).toBe(multi.signature);
     expect(parseUid('D11.16.9')).toBeNull();
   });

@@ -108,12 +108,15 @@ export function generateExercise(template: Template, seed: number, parts = 1): E
   const n = Math.max(1, Math.min(MAX_PARTS, Math.floor(parts)));
   const drafts: ExerciseDraft[] = [];
   const items = new Set<string>();
+  const nv = template.variants ?? 0;
   for (let i = 0; i < n; i++) {
-    let d = template.generate(new Rng(partSeed(seed, i)));
+    // Série : les parties parcourent les variantes de forme (point de départ tiré de la graine)
+    const variant = n > 1 && nv > 1 ? (seed + i) % nv : undefined;
+    let d = template.generate(new Rng(partSeed(seed, i)), variant);
     // Parties toutes différentes
     // Contenu d'une partie : sa donnée et ses consignes (une partie « lim à gauche / à droite » n'a que des consignes)
     const content = (x: ExerciseDraft) => [x.item ?? x.statement, ...x.questions.map((q) => q.prompt)].join('|');
-    for (let k = 1; k < 20 && items.has(content(d)); k++) d = template.generate(new Rng(partSeed(seed, i + k * 16)));
+    for (let k = 1; k < 20 && items.has(content(d)); k++) d = template.generate(new Rng(partSeed(seed, i + k * 16)), variant);
     items.add(content(d));
     drafts.push({ ...d, questions: d.questions.map(dropHarmlessMistakes) });
   }

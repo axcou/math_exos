@@ -150,5 +150,12 @@ export interface Template {
   subtype: string;
   title: string;
   legacy?: boolean; // conservé pour décoder d'anciens liens, jamais tiré au hasard
-  generate(rng: Rng): ExerciseDraft;
+  /**
+   * Nombre de variantes de forme (0 … variants − 1). Dans un exercice en
+   * plusieurs parties, chaque partie reçoit une variante différente pour que
+   * a, b, c… ne se ressemblent pas. Sans variante imposée, le template tire
+   * sa forme au hasard (exactement comme avant : les liens restent valables).
+   */
+  variants?: number;
+  generate(rng: Rng, variant?: number): ExerciseDraft;
 }

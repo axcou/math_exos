@@ -80,9 +80,10 @@ const V02: Template = {
   difficulty: 1,
   subtype: 'signe-trinome',
   title: "Signe d'un trinôme",
-  generate(rng) {
+  variants: 2,
+  generate(rng, variant) {
     const a = rng.nonZero(-3, 3);
-    if (rng.bool(0.2)) {
+    if (variant === undefined ? rng.bool(0.2) : variant === 1) {
       // Discriminant négatif : signe constant
       const alpha = rng.int(-3, 3);
       const beta = Math.sign(a) * rng.int(1, 6);
@@ -163,8 +164,9 @@ const V04: Template = {
   difficulty: 2,
   subtype: 'signe-produit-quotient',
   title: "Signe d'un produit ou d'un quotient",
-  generate(rng) {
-    const quotient = rng.bool();
+  variants: 2,
+  generate(rng, variant) {
+    const quotient = variant === undefined ? rng.bool() : variant === 1;
     const a = rng.nonZero(-3, 3);
     const c = rng.nonZero(-3, 3);
     const r1 = rng.int(-5, 5);

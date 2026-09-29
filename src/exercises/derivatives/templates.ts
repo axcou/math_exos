@@ -77,8 +77,9 @@ const D01: Template = {
   difficulty: 1,
   subtype: 'polynome',
   title: "Dérivée d'un polynôme",
-  generate(rng) {
-    const p = randomPoly(rng, rng.int(2, 4));
+  variants: 3,
+  generate(rng, variant) {
+    const p = randomPoly(rng, variant === undefined ? rng.int(2, 4) : 2 + variant);
     const dp = p.derive();
     // Erreur : garder l'exposant (n·a·x^n)
     const keepExp = new Poly(p.c.map((a, k) => (k === 0 ? Q.ZERO : Q.mul(a, Q.rat(k)))));
@@ -111,8 +112,9 @@ const D02: Template = {
   difficulty: 1,
   subtype: 'inverse',
   title: 'Dérivée avec la fonction inverse',
-  generate(rng) {
-    const n = rng.int(2, 3);
+  variants: 2,
+  generate(rng, variant) {
+    const n = variant === undefined ? rng.int(2, 3) : 2 + variant;
     const a = rng.nonZero(-5, 5);
     const b = rng.nonZero(-6, 6);
     const c = rng.int(-6, 6);
@@ -150,10 +152,14 @@ const D03: Template = {
   difficulty: 1,
   subtype: 'racine',
   title: 'Dérivée avec la racine carrée',
-  generate(rng) {
+  variants: 3,
+  generate(rng, variant) {
     const a = rng.nonZero(-6, 6);
-    const b = rng.nonZero(-4, 4);
-    const c = rng.int(-5, 5);
+    let b = rng.nonZero(-4, 4);
+    let c = rng.int(-5, 5);
+    if (variant === 1) b = 0;
+    if (variant === 2) c = 0;
+    if (variant === 1 && c === 0) c = rng.nonZero(-5, 5);
     const f = add(mono(b, 2), mul(num(a), sqrt(X)), num(c));
     const half = Q.rat(a, 2);
     const sqrtTerm = div(num(half.n), mul(num(half.d), sqrt(X)));
@@ -192,9 +198,12 @@ const D04: Template = {
   difficulty: 2,
   subtype: 'produit',
   title: "Dérivée d'un produit",
-  generate(rng) {
-    const u = Poly.fromHigh(rng.nonZero(-4, 4), rng.nonZero(-5, 5));
-    const v = Poly.fromHigh(rng.nonZero(-3, 3), rng.int(-5, 5), rng.nonZero(-5, 5));
+  variants: 3,
+  generate(rng, variant) {
+    let u = Poly.fromHigh(rng.nonZero(-4, 4), rng.nonZero(-5, 5));
+    let v = Poly.fromHigh(rng.nonZero(-3, 3), rng.int(-5, 5), rng.nonZero(-5, 5));
+    if (variant === 1) [u, v] = [v, u];
+    if (variant === 2) v = Poly.fromHigh(v.coef(2), v.coef(0));
     const du = u.derive();
     const dv = v.derive();
     const result = du.mul(v).add(u.mul(dv));
@@ -421,9 +430,12 @@ const D10: Template = {
   difficulty: 3,
   subtype: 'composee-exp',
   title: 'Exponentielle d’une fonction',
-  generate(rng) {
-    const k = rng.nonZero(-4, 4);
-    const u = rng.bool() ? Poly.fromHigh(rng.nonZero(-4, 4), rng.int(-5, 5)) : Poly.fromHigh(rng.nonZero(-2, 2), rng.int(-4, 4), 0);
+  variants: 4,
+  generate(rng, variant) {
+    const k0 = rng.nonZero(-4, 4);
+    const k = variant !== undefined && variant >= 2 ? 1 : k0;
+    const affineU = variant === undefined ? rng.bool() : variant % 2 === 0;
+    const u = affineU ? Poly.fromHigh(rng.nonZero(-4, 4), rng.int(-5, 5)) : Poly.fromHigh(rng.nonZero(-2, 2), rng.int(-4, 4), 0);
     const du = u.derive();
     const e = exp(u.toExpr());
     const df = mul(du.scale(k).toExpr(), e);
@@ -453,11 +465,12 @@ const D11: Template = {
   difficulty: 3,
   subtype: 'composee-ln',
   title: 'Logarithme d’une fonction',
-  generate(rng) {
+  variants: 2,
+  generate(rng, variant) {
     let u: Poly;
     let domainText: string;
     let domain: [number, number];
-    if (rng.bool()) {
+    if (variant === undefined ? rng.bool() : variant === 0) {
       const a = rng.int(1, 5);
       const r = rng.int(-4, 4);
       u = Poly.fromHigh(a, -a * r);
@@ -528,8 +541,9 @@ const D13: Template = {
   difficulty: 3,
   subtype: 'composee-puissance',
   title: 'Puissance d’une fonction',
-  generate(rng) {
-    const n = rng.int(3, 5);
+  variants: 3,
+  generate(rng, variant) {
+    const n = variant === undefined ? rng.int(3, 5) : 3 + variant;
     const a = rng.nonZero(-4, 4);
     const b = rng.nonZero(-5, 5);
     const u = affine(a, b);
@@ -686,14 +700,39 @@ const D17: Template = {
   difficulty: 2,
   subtype: 'composee-puissance',
   title: 'Puissance d’un polynôme',
-  generate(rng) {
-    const n = rng.pick([2, 2, 3, 4, 5, 7, 10, 47]);
-    const p = smallPoly(rng, rng.pick([2, 2, 3, 4]), n > 4);
-    const k = rng.bool(0.65) ? 1 : rng.nonZero(-5, 5);
+  variants: 4,
+  generate(rng, variant) {
+    const form = variant ?? rng.int(0, 3);
+    let p: Poly;
+    let n: number;
+    let k = 1;
+    let domain: [number, number] = [-1.5, 1.5];
+    switch (form) {
+      case 0: // petit exposant : (x² − 2x)², (3x² + x − 4)³
+        p = Poly.fromHigh(rng.nonZero(-3, 3), rng.nonZero(-4, 4), rng.bool() ? 0 : rng.nonZero(-4, 4));
+        n = rng.int(2, 3);
+        break;
+      case 1: // très grand exposant : (x² − x)⁴⁷
+        p = Poly.fromHigh(rng.nonZero(-2, 2), rng.nonZero(-3, 3), 0);
+        n = rng.pick([12, 20, 47, 100]);
+        domain = [-0.6, 0.6];
+        break;
+      case 2: // coefficient devant, polynôme de degré 3 ou 4 : 3(x⁴ − 9x³ + x)⁷
+        p = smallPoly(rng, rng.int(3, 4), true);
+        n = rng.int(4, 8);
+        k = rng.pick([-5, -4, -3, -2, 2, 3, 4, 5]);
+        domain = [-0.8, 0.8];
+        break;
+      default: // trinôme sans terme en x : (x² + 3)⁵, (2 − x²)⁴
+        p = Poly.fromHigh(rng.pick([-1, 1, 2]), 0, rng.nonZero(-6, 6));
+        n = rng.int(3, 6);
+        k = rng.bool() ? 1 : rng.nonZero(-4, 4);
+        domain = [-1, 1];
+    }
     const u = p.toExpr();
-    const f = mul(num(k), pow(u, n));
+    const f = k === 1 ? pow(u, n) : mul(num(k), pow(u, n));
     const du = p.derive().toExpr();
-    return explained(f, n > 4 ? [-0.8, 0.8] : [-1.5, 1.5], [
+    return explained(f, domain, [
       { expr: mul(num(k * n), pow(u, n - 1)), message: FORGOT_U },
       { expr: mul(num(k), du, pow(u, n - 1)), message: "Attention : $(u^n)' = n\\,u'\\,u^{n-1}$ — l’exposant $n$ passe devant." },
     ]);
@@ -706,14 +745,16 @@ const D18: Template = {
   difficulty: 3,
   subtype: 'composee-racine',
   title: 'Racine d’un polynôme',
-  generate(rng) {
-    // u(x) = a x² + b x + c, toujours strictement positif (a > 0, Δ < 0)
-    const a = rng.int(1, 3);
-    const b = rng.bool(0.5) ? 0 : rng.int(-4, 4);
+  variants: 3,
+  generate(rng, variant) {
+    const form = variant ?? rng.int(0, 2);
+    // u(x) toujours strictement positif (a > 0, Δ < 0)
+    const a = form === 0 ? 1 : rng.int(1, 3);
+    const b = form === 2 ? rng.nonZero(-4, 4) : 0;
     const c = Math.floor((b * b) / (4 * a)) + rng.int(1, 6);
     const u = Poly.fromHigh(a, b, c).toExpr();
-    const k = rng.bool(0.7) ? 1 : rng.nonZero(-4, 4);
-    const f = mul(num(k), sqrt(u));
+    const k = form === 1 ? rng.pick([-4, -3, -2, 2, 3, 4]) : 1;
+    const f = k === 1 ? sqrt(u) : mul(num(k), sqrt(u));
     return explained(f, [-4, 4], [{ expr: div(num(k), mul(num(2), sqrt(u))), message: "Attention : $(\\sqrt{u})' = \\frac{u'}{2\\sqrt{u}}$ — il faut $u'$ au numérateur." }]);
   },
 };
@@ -724,18 +765,21 @@ const D19: Template = {
   difficulty: 3,
   subtype: 'produit',
   title: 'Produit avec une racine',
-  generate(rng) {
-    if (rng.bool(0.25)) {
+  variants: 4,
+  generate(rng, variant) {
+    const form = variant ?? rng.int(0, 3);
+    if (form === 0) {
       // x√x, 2x√x…
       const k = rng.bool(0.6) ? 1 : rng.nonZero(-4, 4);
-      const f = mul(num(k), X, sqrt(X));
+      const f = k === 1 ? mul(X, sqrt(X)) : mul(num(k), X, sqrt(X));
       return explained(f, [0.2, 5], [{ expr: div(num(k), mul(num(2), sqrt(X))), message: PRODUCT_TRAP }]);
     }
-    const n = rng.int(1, 3);
+    // x^n √(b(x − r)), n = 1, 2, 3 selon la variante
+    const n = form;
     const a = rng.bool(0.6) ? 1 : rng.nonZero(-3, 3);
     const b = rng.int(1, 4);
     const r = rng.int(0, 4);
-    const u = Poly.fromHigh(b, -b * r).toExpr(); // b(x − r) > 0 pour x > r
+    const u = Poly.fromHigh(b, -b * r).toExpr();
     const f = mul(mono(a, n), sqrt(u));
     return explained(f, [r + 0.3, r + 4], [{ expr: mul(num(n * a * b), pow(X, n - 1), div(num(1), mul(num(2), sqrt(u)))), message: PRODUCT_TRAP }]);
   },
@@ -747,16 +791,17 @@ const D20: Template = {
   difficulty: 1,
   subtype: 'produit',
   title: 'Produit de deux fonctions affines',
-  generate(rng) {
-    if (rng.bool(0.2)) {
-      // x · x³ : on peut dériver le produit ou simplifier d'abord
+  variants: 3,
+  generate(rng, variant) {
+    const form = variant ?? (rng.bool(0.2) ? 2 : rng.bool(0.6) ? 0 : 1);
+    if (form === 2) {
+      // x · x³ : on peut dériver le produit ou simplifier d'abord ; produit écrit tel quel
       const m = rng.int(1, 3);
       const p = rng.int(2, 4);
-      // produit écrit tel quel (sans regrouper les puissances), comme dans l'énoncé du TD
       const f: Expr = { type: 'mul', factors: [m === 1 ? X : pow(X, m), pow(X, p)] };
       return explained(f, [-3, 3], [{ expr: mono(m * p, m + p - 2), message: PRODUCT_TRAP }]);
     }
-    const k = rng.bool(0.6) ? 1 : rng.nonZero(-5, 5);
+    const k = form === 1 ? rng.pick([-5, -4, -3, -2, 2, 3, 4, 5]) : 1;
     const a = rng.nonZero(-4, 4);
     const b = rng.nonZero(-6, 6);
     const c = rng.nonZero(-4, 4);
@@ -773,10 +818,13 @@ const D21: Template = {
   difficulty: 1,
   subtype: 'inverse',
   title: 'Inverse d’une fonction affine',
-  generate(rng) {
-    const k = rng.bool(0.6) ? 1 : rng.nonZero(-6, 6);
-    const a = rng.bool(0.3) ? 1 : rng.nonZero(-4, 4);
-    const b = rng.bool(0.25) ? 0 : rng.nonZero(-6, 6);
+  variants: 3,
+  generate(rng, variant) {
+    const form = variant ?? rng.int(0, 2);
+    // 0 : k/x ; 1 : 1/(x + b) ; 2 : k/(ax + b)
+    const k = form === 1 ? 1 : rng.nonZero(-6, 6);
+    const a = form === 2 ? rng.pick([-4, -3, -2, 2, 3, 4]) : 1;
+    const b = form === 0 ? 0 : rng.nonZero(-6, 6);
     const v = affine(a, b);
     const f = div(num(k), v);
     return explained(f, [-5, 5], [
@@ -792,15 +840,18 @@ const D22: Template = {
   difficulty: 2,
   subtype: 'quotient',
   title: 'Quotient par un trinôme',
-  generate(rng) {
-    const c = rng.int(1, 6);
-    const v = Poly.fromHigh(1, 0, c);
-    const constant = rng.bool(0.4);
-    const a = constant ? 0 : rng.nonZero(-5, 5);
+  variants: 3,
+  generate(rng, variant) {
+    const form = variant ?? (rng.bool(0.4) ? 0 : 1);
+    // 0 : k/(x² + c) ; 1 : (ax + b)/(x² + c) ; 2 : (ax + b)/(x² + px + q), Δ < 0
+    const p = form === 2 ? rng.nonZero(-4, 4) : 0;
+    const c = Math.floor((p * p) / 4) + rng.int(1, 6);
+    const v = Poly.fromHigh(1, p, c);
+    const a = form === 0 ? 0 : rng.nonZero(-5, 5);
     const b = rng.nonZero(-6, 6);
-    const u = constant ? num(b) : affine(a, b);
-    const f = div(u, v.toExpr());
-    const numer = constant ? v.derive().scale(-b) : Poly.fromHigh(a, b).derive().mul(v).sub(Poly.fromHigh(a, b).mul(v.derive()));
+    const u = Poly.fromHigh(a, b);
+    const f = div(form === 0 ? num(b) : u.toExpr(), v.toExpr());
+    const numer = u.derive().mul(v).sub(u.mul(v.derive()));
     return explained(f, [-4, 4], [
       { expr: div(numer.scale(-1).toExpr(), pow(v.toExpr(), 2)), message: "Attention à l'ordre (ou au signe) : le numérateur est $u'v - uv'$." },
       { expr: div(numer.toExpr(), v.toExpr()), message: 'Le dénominateur est $v^2$ : n’oublie pas le carré.' },
@@ -814,13 +865,17 @@ const D23: Template = {
   difficulty: 3,
   subtype: 'quotient',
   title: 'Quotient avec une racine',
-  generate(rng) {
+  variants: 2,
+  generate(rng, variant) {
+    const form = variant ?? 0;
     const a = rng.int(1, 8);
     const r = rng.int(1, 3);
     const u = Poly.fromHigh(a, -a * r).toExpr(); // a(x − r) > 0 pour x > r
     const c = rng.int(1, 5);
-    const f = div(sqrt(u), mono(c, 1));
-    return explained(f, [r + 0.3, r + 4], [{ expr: div(num(a), mul(num(2 * c), sqrt(u))), message: "Ce n’est pas le quotient des dérivées : utilise $\\left(\\frac{u}{v}\\right)' = \\frac{u'v - uv'}{v^2}$." }]);
+    // 0 : √u / (cx) ; 1 : √u / (x + c)
+    const den = form === 0 ? mono(c, 1) : affine(1, c);
+    const f = div(sqrt(u), den);
+    return explained(f, [r + 0.3, r + 4], [{ expr: div(num(a), mul(num(2), sqrt(u))), message: "Ce n’est pas le quotient des dérivées : utilise $\\left(\\frac{u}{v}\\right)' = \\frac{u'v - uv'}{v^2}$." }]);
   },
 };
 
