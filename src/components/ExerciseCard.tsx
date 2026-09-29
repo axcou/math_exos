@@ -87,6 +87,7 @@ function QuestionBlock({ ex, q, marker, showPrompt, inputs, singleAttempt }: Que
         <p>
           {marker && <span className="mr-1.5 font-sans font-bold text-chap">{marker}</span>}
           <MathText text={q.prompt} />
+          {q.hideLabel && <Tex math="=" className="ml-1.5 hidden print:inline" />}
         </p>
       )}
       <PrintAnswerSpace q={q} />
@@ -161,7 +162,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
   const result = exerciseResult(ex, progress);
   const multi = ex.parts.length > 1;
   // Série de limites « comme en TD » : la limite est l'énoncé, on écrit « = » à côté à l'impression
-  const tdSeries = multi && ex.questions.every((q) => q.hideLabel);
+  const tdSeries = multi && ex.parts.every((p) => p.questions.length === 1 && p.questions[0].hideLabel);
   const methodId = METHOD_FOR_SUBTYPE[TEMPLATE_BY_CODE.get(ex.code)?.subtype ?? ''];
 
   const toggleSolution = () => {
@@ -192,10 +193,12 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
             <li key={p.label} className="grid grid-cols-[1.4rem_1fr] gap-x-1">
               <span className="font-sans font-bold text-chap">{p.label}.</span>
               <div className="min-w-0 space-y-2 print:space-y-0">
-                <p>
-                  <MathText text={p.item} />
-                  {tdSeries && <Tex math="=" className="ml-1.5 hidden print:inline" />}
-                </p>
+                {p.item && (
+                  <p>
+                    <MathText text={p.item} />
+                    {tdSeries && <Tex math="=" className="ml-1.5 hidden print:inline" />}
+                  </p>
+                )}
                 {p.questions.map((q, i) => (
                   <QuestionBlock key={q.id} ex={ex} q={q} marker={p.questions.length > 1 ? `${i + 1})` : ''} showPrompt={p.questions.length > 1} inputs={inputsEnabled} singleAttempt={singleAttempt} />
                 ))}
@@ -204,7 +207,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
           ))}
         </ol>
       ) : (
-        <div className="mb-5 space-y-6">
+        <div className={`mb-5 space-y-6 ${ex.questions.every((q) => q.hideLabel) ? 'print:space-y-1' : ''}`}>
           {ex.questions.map((q, i) => (
             <QuestionBlock key={q.id} ex={ex} q={q} marker={ex.questions.length > 1 ? `${String.fromCharCode(97 + i)}.` : ''} showPrompt inputs={inputsEnabled} singleAttempt={singleAttempt} />
           ))}

@@ -108,8 +108,10 @@ export function generateExercise(template: Template, seed: number, parts = 1): E
   for (let i = 0; i < n; i++) {
     let d = template.generate(new Rng(partSeed(seed, i)));
     // Parties toutes différentes
-    for (let k = 1; k < 20 && items.has(d.item ?? d.statement); k++) d = template.generate(new Rng(partSeed(seed, i + k * 16)));
-    items.add(d.item ?? d.statement);
+    // Contenu d'une partie : sa donnée et ses consignes (une partie « lim à gauche / à droite » n'a que des consignes)
+    const content = (x: ExerciseDraft) => [x.item ?? x.statement, ...x.questions.map((q) => q.prompt)].join('|');
+    for (let k = 1; k < 20 && items.has(content(d)); k++) d = template.generate(new Rng(partSeed(seed, i + k * 16)));
+    items.add(content(d));
     drafts.push({ ...d, questions: d.questions.map(dropHarmlessMistakes) });
   }
   const multi = n > 1;
@@ -131,7 +133,8 @@ export function generateExercise(template: Template, seed: number, parts = 1): E
     steps: exParts.flatMap((p) => p.steps),
     meta: drafts.flatMap((d) => d.meta),
     parts: exParts,
-    signature: multi ? `${statement}\n${exParts.map((p) => p.item).join('\n')}` : statement,
+    // Contenu complet (énoncé, données et consignes) : deux exercices différents n'ont jamais la même empreinte
+    signature: [statement, ...exParts.map((p) => [p.item, ...p.questions.map((q) => q.prompt)].join('\n'))].join('\n'),
     uid: exerciseUid(template.code, seed, n),
     code: template.code,
     seed: seed >>> 0,

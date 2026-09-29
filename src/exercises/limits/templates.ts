@@ -43,45 +43,44 @@ interface LimitSpec {
   steps: Step[];
   /** Interprétation graphique ajoutée à la conclusion. */
   asymptote?: string;
-  /** Énoncé « comme en TD » : la limite est écrite directement, sans nommer f. */
-  inline?: boolean;
 }
 
+/**
+ * Énoncé au format TD : la limite est écrite directement et en grand
+ * (« Déterminer la limite suivante. » puis lim_{x→a} …), sans passer par
+ * « Soit f la fonction… ». La réponse se tape (ou s'écrit sur le PDF)
+ * après la limite, sans la recopier.
+ */
 function limit(s: LimitSpec): ExerciseDraft {
   const fl = L(s.f);
-  if (s.inline) {
-    const q = s.limits[0];
-    const expr = `${limLatex(q.at, q.side)} ${fl}`;
-    return {
-      statement: `Déterminer $${expr}$.`,
-      lead: 'Déterminer les limites suivantes.',
-      item: `$\\displaystyle ${expr}$`,
-      questions: [{ id: 'q1', type: 'value', prompt: 'Donne la limite.', label: `${expr} =`, hideLabel: true, expected: q.answer, mistakes: q.mistakes }],
-      steps: [...s.steps, { title: 'Conclusion', math: `${expr} = ${valueLatex(q.answer)}`, text: s.asymptote, formulas: s.asymptote ? ['l.asym'] : undefined }],
-      meta: [{ kind: 'limit', f: s.f, at: q.at, side: q.side }],
-    };
-  }
-  const lims = s.limits.map((q) => `$${limLatex(q.at, q.side)} f(x)$`);
-  const domain = s.domainText ? ` définie ${s.domainText}` : '';
-  const statement =
-    s.limits.length === 1
-      ? `Soit $f$ la fonction${domain} par $f(x) = ${fl}$. Déterminer ${lims[0]}.`
-      : `Soit $f$ la fonction${domain} par $f(x) = ${fl}$. Déterminer ${lims.slice(0, -1).join(', ')} et ${lims[lims.length - 1]}.`;
-  const conclusion = s.limits.map((q) => `${limLatex(q.at, q.side)} f(x) = ${valueLatex(q.answer)}`).join(' \\qquad ');
-  const all = lims.length === 1 ? lims[0] : `${lims.slice(0, -1).join(', ')} et ${lims[lims.length - 1]}`;
+  // Une somme se met entre parenthèses : la limite porte sur toute l'expression
+  const body = s.f.type === 'add' ? `\\left(${fl}\\right)` : fl;
+  const exprs = s.limits.map((q) => `${limLatex(q.at, q.side)} ${body}`);
+  const one = s.limits.length === 1;
+  const display = (e: string) => `$\\displaystyle ${e}$`;
   return {
-    statement,
+    statement: one ? 'Déterminer la limite suivante.' : 'Déterminer les limites suivantes.',
     lead: 'Déterminer les limites suivantes.',
-    item: `$f(x) = ${fl}$${s.domainText ? ` ${s.domainText}` : ''} : ${all}.`,
+    // Dans une série (a, b, c…), une partie à une seule limite l'affiche ; sinon ce sont ses questions
+    item: one ? display(exprs[0]) : '',
     questions: s.limits.map((q, i) => ({
       id: `q${i + 1}`,
       type: 'value',
-      prompt: s.limits.length === 1 ? 'Donne la limite.' : `Limite en $${atLatex(q.at, q.side)}$ :`,
-      label: `${limLatex(q.at, q.side)} f(x) =`,
+      prompt: display(exprs[i]),
+      label: `${exprs[i]} =`,
+      hideLabel: true,
       expected: q.answer,
       mistakes: q.mistakes,
     })),
-    steps: [...s.steps, { title: 'Conclusion', math: conclusion, text: s.asymptote, formulas: s.asymptote ? ['l.asym'] : undefined }],
+    steps: [
+      ...s.steps,
+      {
+        title: 'Conclusion',
+        math: s.limits.map((q, i) => `${exprs[i]} = ${valueLatex(q.answer)}`).join(' \\qquad '),
+        text: s.asymptote,
+        formulas: s.asymptote ? ['l.asym'] : undefined,
+      },
+    ],
     meta: s.limits.map((q): ExerciseMeta => ({ kind: 'limit', f: s.f, at: q.at, side: q.side })),
   };
 }
@@ -587,7 +586,6 @@ const L11: Template = {
     const zs = side > 0 ? '0^{+}' : '0^{-}';
     return limit({
       f,
-      inline: true,
       limits: [
         {
           at: Q.toNumber(a),
@@ -665,7 +663,6 @@ const L12: Template = {
     }
     return limit({
       f,
-      inline: true,
       limits: [{ at, answer: ans, mistakes }],
       steps,
       asymptote: ans.kind === 'finite' ? `La droite $y = ${valueLatex(ans)}$ est asymptote horizontale en $${atLatex(at)}$.` : undefined,

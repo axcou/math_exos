@@ -374,19 +374,19 @@ exports[`golden seeds > L01 est stable 1`] = `
     "answers": [
       "{"kind":"infinity","sign":-1}",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = x^{3} - 3x^{2} + 6x$. Déterminer $\\lim_{x \\to -\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       "{"kind":"infinity","sign":-1}",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = 2x^{3} - 3x^{2} - 4x + 5$. Déterminer $\\lim_{x \\to -\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       "{"kind":"infinity","sign":-1}",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = -3x^{2} + 4$. Déterminer $\\lim_{x \\to -\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
 ]
 `;
@@ -397,19 +397,19 @@ exports[`golden seeds > L02 est stable 1`] = `
     "answers": [
       ""0"",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = -5\\mathrm{e}^{x}$. Déterminer $\\lim_{x \\to -\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""5"",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = -\\mathrm{e}^{x} + 5$. Déterminer $\\lim_{x \\to -\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""6"",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\frac{4}{x} + 6$. Déterminer $\\lim_{x \\to +\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
 ]
 `;
@@ -420,19 +420,19 @@ exports[`golden seeds > L03 est stable 1`] = `
     "answers": [
       ""-\\\\frac{59}{3}"",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{1\\}$ par $f(x) = \\frac{-4x^{2} + 5}{x - 1}$. Déterminer $\\lim_{x \\to 4} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""4"",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{1\\}$ par $f(x) = \\frac{3x^{2} + 2x - 4}{x - 1}$. Déterminer $\\lim_{x \\to 0} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""\\\\frac{19}{4}"",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{-2\\}$ par $f(x) = \\frac{4x^{2} + 3x - 3}{x + 2}$. Déterminer $\\lim_{x \\to 2} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
 ]
 `;
@@ -443,19 +443,19 @@ exports[`golden seeds > L04 est stable 1`] = `
     "answers": [
       "{"kind":"infinity","sign":-1}",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\frac{x^{3} - 2x^{2} + 5x}{-4x^{2} - 1}$. Déterminer $\\lim_{x \\to +\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       "{"kind":"infinity","sign":-1}",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\frac{x^{3} - 2x^{2} - 4x + 4}{4x^{2}}$. Déterminer $\\lim_{x \\to -\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""\\\\frac{1}{2}"",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\frac{-2x^{2} + 3}{-4x^{2} - 5x + 3}$. Déterminer $\\lim_{x \\to +\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
 ]
 `;
@@ -467,21 +467,21 @@ exports[`golden seeds > L05 est stable 1`] = `
       "{"kind":"infinity","sign":1}",
       "{"kind":"infinity","sign":-1}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{1\\}$ par $f(x) = -\\frac{4x}{x - 1}$. Déterminer $\\lim_{x \\to 1^{-}} f(x)$ et $\\lim_{x \\to 1^{+}} f(x)$.",
+    "statement": "Déterminer les limites suivantes.",
   },
   {
     "answers": [
       "{"kind":"infinity","sign":-1}",
       "{"kind":"infinity","sign":1}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{1\\}$ par $f(x) = \\frac{3x + 2}{x - 1}$. Déterminer $\\lim_{x \\to 1^{-}} f(x)$ et $\\lim_{x \\to 1^{+}} f(x)$.",
+    "statement": "Déterminer les limites suivantes.",
   },
   {
     "answers": [
       "{"kind":"infinity","sign":1}",
       "{"kind":"infinity","sign":-1}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{-2\\}$ par $f(x) = \\frac{4x + 4}{x + 2}$. Déterminer $\\lim_{x \\to -2^{-}} f(x)$ et $\\lim_{x \\to -2^{+}} f(x)$.",
+    "statement": "Déterminer les limites suivantes.",
   },
 ]
 `;
@@ -492,19 +492,19 @@ exports[`golden seeds > L06 est stable 1`] = `
     "answers": [
       ""18"",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{1\\}$ par $f(x) = \\frac{3x^{2} + 12x - 15}{x - 1}$. Déterminer $\\lim_{x \\to 1} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""4"",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{1\\}$ par $f(x) = \\frac{2x^{2} - 2}{x - 1}$. Déterminer $\\lim_{x \\to 1} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""-14"",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{-2\\}$ par $f(x) = \\frac{2x^{2} - 6x - 20}{x + 2}$. Déterminer $\\lim_{x \\to -2} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
 ]
 `;
@@ -515,19 +515,19 @@ exports[`golden seeds > L07 est stable 1`] = `
     "answers": [
       ""1"",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\sqrt{x^{2} + 2x + 1} - x$. Déterminer $\\lim_{x \\to +\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""\\\\frac{1}{2}"",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\sqrt{x^{2} + x + 5} - x$. Déterminer $\\lim_{x \\to +\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""-\\\\frac{3}{2}"",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\sqrt{x^{2} - 3x + 9} - x$. Déterminer $\\lim_{x \\to +\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
 ]
 `;
@@ -538,19 +538,19 @@ exports[`golden seeds > L08 est stable 1`] = `
     "answers": [
       ""0"",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = \\frac{\\ln(x)}{x}$. Déterminer $\\lim_{x \\to +\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       "{"kind":"infinity","sign":1}",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\mathrm{e}^{x} - 5x^{2}$. Déterminer $\\lim_{x \\to +\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""0"",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = -3x^{3}\\ln(x)$. Déterminer $\\lim_{x \\to 0^{+}} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
 ]
 `;
@@ -561,19 +561,19 @@ exports[`golden seeds > L09 est stable 1`] = `
     "answers": [
       ""3"",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\frac{\\ln(3x + 1)}{x}$. Déterminer $\\lim_{x \\to 0} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""3"",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\frac{\\ln(3x + 1)}{x}$. Déterminer $\\lim_{x \\to 0} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""-1"",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\frac{\\ln(-3x + 1)}{3x}$. Déterminer $\\lim_{x \\to 0} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
 ]
 `;
@@ -584,19 +584,19 @@ exports[`golden seeds > L10 est stable 1`] = `
     "answers": [
       ""\\\\ln(2)"",
     ],
-    "statement": "Soit $f$ la fonction définie sur un intervalle de la forme $]A\\,;\\,+\\infty[$ par $f(x) = \\ln\\left(\\frac{2x}{x + 5}\\right)$. Déterminer $\\lim_{x \\to +\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""\\\\ln(4)"",
     ],
-    "statement": "Soit $f$ la fonction définie sur un intervalle de la forme $]A\\,;\\,+\\infty[$ par $f(x) = \\ln\\left(\\frac{4x + 4}{x + 4}\\right)$. Déterminer $\\lim_{x \\to +\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""\\\\mathrm{e}^{4}"",
     ],
-    "statement": "Soit $f$ la fonction par $f(x) = \\mathrm{e}^{\\frac{4x + 3}{x + 2}}$. Déterminer $\\lim_{x \\to +\\infty} f(x)$.",
+    "statement": "Déterminer la limite suivante.",
   },
 ]
 `;
@@ -607,19 +607,19 @@ exports[`golden seeds > L11 est stable 1`] = `
     "answers": [
       "{"kind":"infinity","sign":-1}",
     ],
-    "statement": "Déterminer $\\lim_{x \\to \\frac{69}{4}^{-}} \\frac{4}{x - \\frac{69}{4}}$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       "{"kind":"infinity","sign":-1}",
     ],
-    "statement": "Déterminer $\\lim_{x \\to 14^{-}} \\frac{3}{x - 14}$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       "{"kind":"infinity","sign":-1}",
     ],
-    "statement": "Déterminer $\\lim_{x \\to 12^{+}} -\\frac{8}{x - 12}$.",
+    "statement": "Déterminer la limite suivante.",
   },
 ]
 `;
@@ -630,19 +630,19 @@ exports[`golden seeds > L12 est stable 1`] = `
     "answers": [
       "{"kind":"infinity","sign":1}",
     ],
-    "statement": "Déterminer $\\lim_{x \\to -\\infty} \\frac{5x^{3} - 6x^{3} - x^{2} + 9}{-8x - \\frac{37}{3}}$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       "{"kind":"infinity","sign":1}",
     ],
-    "statement": "Déterminer $\\lim_{x \\to -\\infty} \\frac{-6x - 5x^{2} + 8x + 5x^{3} - 6}{\\frac{49}{3}x + \\frac{26}{3} - \\frac{67}{3}x^{2}}$.",
+    "statement": "Déterminer la limite suivante.",
   },
   {
     "answers": [
       ""0"",
     ],
-    "statement": "Déterminer $\\lim_{x \\to -\\infty} \\frac{\\frac{35}{2} - 4x}{-2x^{4} + x^{2} + 8x^{4}}$.",
+    "statement": "Déterminer la limite suivante.",
   },
 ]
 `;

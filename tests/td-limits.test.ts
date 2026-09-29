@@ -47,7 +47,8 @@ describe('exercices au format TD', () => {
     const sides = new Set<number>();
     for (let seed = 1; seed <= 300; seed++) {
       const ex = generateExercise(L11, seed);
-      expect(ex.statement).toMatch(/^Déterminer \$\\lim_\{x \\to .+\^\{[+-]\}\} /);
+      expect(ex.statement).toBe('Déterminer la limite suivante.');
+      expect(ex.questions[0].prompt).toMatch(/^\$\\displaystyle \\lim_\{x \\to .+\^\{[+-]\}\} /);
       const m = ex.meta[0];
       if (m.kind !== 'limit') throw new Error();
       if (!Number.isInteger(m.at)) fractions++;
@@ -66,7 +67,7 @@ describe('exercices au format TD', () => {
       const ex = generateExercise(L12, seed);
       const steps = JSON.stringify(ex.steps);
       if (steps.includes('Ranger et réduire')) unordered++;
-      if (/x\^\{(\d)\}.*x\^\{\1\}/.test(ex.statement.split('\\frac')[1] ?? '')) merged++;
+      if (/x\^\{(\d)\}.*x\^\{\1\}/.test(ex.questions[0].prompt.split('\\frac')[1] ?? '')) merged++;
       const m = ex.meta[0];
       if (m.kind === 'limit' && m.at === '-inf') minusInf++;
       if (steps.includes('Numérateur constant')) constantNum++;
@@ -75,6 +76,24 @@ describe('exercices au format TD', () => {
     expect(merged).toBeGreaterThan(20);
     expect(minusInf).toBeGreaterThan(150);
     expect(constantNum).toBeGreaterThan(20);
+  });
+
+  it('toutes les limites sont au format TD (jamais « Soit f la fonction… »)', () => {
+    for (const t of TEMPLATES.filter((x) => x.theme === 'limite')) {
+      for (let seed = 1; seed <= 40; seed++) {
+        for (const parts of [1, 3]) {
+          const ex = generateExercise(t, seed, parts);
+          expect(ex.statement, ex.uid).toMatch(/^Déterminer (la limite suivante|les limites suivantes)\.$/);
+          expect(JSON.stringify(ex.parts.map((p) => p.item)), ex.uid).not.toMatch(/Soit/);
+          for (const q of ex.questions) {
+            expect(q.prompt, ex.uid).toMatch(/^\$\\displaystyle \\lim_\{x \\to /);
+            expect(q.hideLabel, ex.uid).toBe(true);
+            // la réponse complète reste disponible pour la page « Réponses » du PDF
+            expect(q.label, ex.uid).toMatch(/^\\lim_\{x \\to .+ =$/);
+          }
+        }
+      }
+    }
   });
 
   it('série de 4 limites « comme en TD » : a, b, c, d', () => {
