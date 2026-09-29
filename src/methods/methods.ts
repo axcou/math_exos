@@ -334,4 +334,5 @@ export const METHOD_FOR_SUBTYPE: Record<string, string> = {
   'variations-exp': 'var-tableau',
   'variations-ln': 'var-tableau',
   'lecture-graphique': 'lecture-graphique',
+  'etude-complete': 'var-tableau',
 };

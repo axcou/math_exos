@@ -45,6 +45,7 @@ export const SUBTYPE_LABELS: Record<string, string> = {
   'variations-exp': 'Avec exponentielle',
   'variations-ln': 'Avec logarithme',
   'lecture-graphique': 'Lecture graphique',
+  'etude-complete': 'Étude complète',
 };
 
 export function templatesFor(theme: Theme, difficulty?: Difficulty, subtypes?: string[]): Template[] {

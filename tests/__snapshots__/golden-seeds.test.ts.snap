@@ -1137,3 +1137,38 @@ exports[`golden seeds > V12 est stable 1`] = `
   },
 ]
 `;
+
+exports[`golden seeds > V13 est stable 1`] = `
+[
+  {
+    "answers": [
+      ""1"",
+      "{"kind":"infinity","sign":1}",
+      "x\\mathrm{e}^{x}",
+      "-+,0,|down,up",
+      "++,0,",
+    ],
+    "statement": "On considère la fonction $\\begin{array}{rrcl} g : & \\mathbb{R} & \\longrightarrow & \\mathbb{R} \\\\ & x & \\longmapsto & (x - 1)\\mathrm{e}^{x} + 1 \\end{array}$",
+  },
+  {
+    "answers": [
+      ""1"",
+      "{"kind":"infinity","sign":1}",
+      "x\\mathrm{e}^{x}",
+      "-+,0,|down,up",
+      "++,0,",
+    ],
+    "statement": "On considère la fonction $\\begin{array}{rrcl} g : & \\mathbb{R} & \\longrightarrow & \\mathbb{R} \\\\ & x & \\longmapsto & (x - 1)\\mathrm{e}^{x} + 1 \\end{array}$",
+  },
+  {
+    "answers": [
+      "{"kind":"infinity","sign":1}",
+      "{"kind":"infinity","sign":1}",
+      "\\frac{x - 1}{x}",
+      "-+,0,|down,up",
+      "+,",
+    ],
+    "statement": "On considère la fonction $\\begin{array}{rrcl} g : & ]0\\,;\\,+\\infty[ & \\longrightarrow & \\mathbb{R} \\\\ & x & \\longmapsto & x - \\ln(x) + 3 \\end{array}$",
+  },
+]
+`;

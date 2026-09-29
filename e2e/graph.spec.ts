@@ -28,3 +28,15 @@ test.describe('lecture graphique', () => {
     await page.screenshot({ path: 'test-results/graph-print.png', fullPage: true });
   });
 });
+
+test.describe('étude complète (TD)', () => {
+  test('les cinq questions se résolvent et le PDF garde le déroulé', async ({ page }) => {
+    const errors = trackErrors(page);
+    const ex = exercise('V13', 11);
+    await openSheet(page, [ex]);
+    await answerAll(page, ex);
+    await page.emulateMedia({ media: 'print' });
+    await page.screenshot({ path: 'test-results/study-print.png', fullPage: true });
+    expect(errors).toEqual([]);
+  });
+});

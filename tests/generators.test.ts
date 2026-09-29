@@ -92,7 +92,7 @@ function checkMeta(m: ExerciseMeta, ex: Exercise) {
         return [0.1, 0.5, 0.9].map((t) => a + (b - a) * t);
       };
       for (const row of t.rows) {
-        const g = row.label === 'f(x)' ? f : row.label === "f'(x)" ? df : row.kind === 'variation' ? f : null;
+        const g = row.label === 'f(x)' || row.label === 'g(x)' ? f : row.label === "f'(x)" || row.label === "g'(x)" ? df : row.kind === 'variation' ? f : null;
         if (!g) continue;
         for (let i = 0; i < xv.length - 1; i++) {
           const pts = insidePoints(i);
