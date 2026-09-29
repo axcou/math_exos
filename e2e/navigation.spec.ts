@@ -7,7 +7,7 @@ test.describe('navigation', () => {
     await page.goto('./');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Des exercices qui ne se répètent pas');
     for (const t of ['Dérivées', 'Limites', 'Signes & variations']) await expect(page.getByRole('link', { name: new RegExp(t) }).first()).toBeVisible();
-    await expect(page.getByText('16 types')).toBeVisible();
+    await expect(page.getByText('23 types')).toBeVisible();
     expect(errors).toEqual([]);
   });
 

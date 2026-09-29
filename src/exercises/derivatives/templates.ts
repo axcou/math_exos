@@ -1,4 +1,5 @@
 import type { Expr } from '../../core/expr/ast';
+import { solveDerivative } from '../../calculator/derivativeSolver';
 import { add, affine, div, exp, ln, mono, mul, num, pow, sqrt, X } from '../../core/expr/build';
 import { Poly } from '../../core/expr/poly';
 import * as Q from '../../core/expr/rational';
@@ -17,18 +18,23 @@ interface DerivSpec {
   mistakes?: KnownMistake[];
 }
 
+/**
+ * Énoncé au format TD : « Dériver la fonction suivante. » puis x ↦ … en
+ * grand ; la réponse se tape après « f'(x) = ».
+ */
 function derivative(s: DerivSpec): ExerciseDraft {
   const fl = L(s.f);
   const dfl = L(s.df);
+  const display = `$\\displaystyle x \\mapsto ${fl}$`;
   return {
-    statement: `Soit $f$ la fonction définie ${s.domainText} par $f(x) = ${fl}$. Calculer $f'(x)$.`,
-    lead: 'Calculer la dérivée de chacune des fonctions suivantes.',
-    item: `$f(x) = ${fl}$ ${s.domainText}`,
+    statement: 'Dériver la fonction suivante.',
+    lead: 'Dériver les fonctions suivantes.',
+    item: display,
     questions: [
       {
         id: 'q1',
         type: 'expression',
-        prompt: `Donne l'expression de $f'(x)$.`,
+        prompt: display,
         label: "f'(x) =",
         expected: s.df,
         expectedLatex: dfl,
@@ -654,4 +660,168 @@ const D16: Template = {
   },
 };
 
-export const DERIVATIVE_TEMPLATES: Template[] = [D01, D02, D03, D04, D05, D06, D07, D08, D09, D10, D11, D12, D13, D14, D15, D16];
+// ——————————————————————————————————— Format « TD » : corrections produites par le calculateur
+
+/** Exercice dont la correction détaillée vient du calculateur de dérivées. */
+function explained(f: Expr, domain: [number, number], mistakes: KnownMistake[] = []): ExerciseDraft {
+  const r = solveDerivative(f);
+  return derivative({ f, df: r.df, domainText: '', domain, steps: r.steps.filter((s) => s.title !== 'Conclusion'), mistakes });
+}
+
+const FORGOT_U = "Il manque le facteur $u'$ : on dérive aussi la fonction « intérieure ».";
+const PRODUCT_TRAP = "Attention : $(uv)' \\neq u'v'$. Il faut utiliser $(uv)' = u'v + uv'$.";
+
+/** Petit polynôme de degré d, sans terme constant si `noConst` (pour les grandes puissances). */
+function smallPoly(rng: Rng, d: number, noConst: boolean): Poly {
+  const c: number[] = [noConst ? 0 : rng.int(-4, 4)];
+  for (let k = 1; k < d; k++) c.push(rng.bool(0.3) ? 0 : rng.int(-3, 3));
+  c.push(rng.nonZero(-2, 2));
+  const p = new Poly(c);
+  return p.c.filter((x) => !Q.isZero(x)).length >= 2 ? p : p.add(new Poly([0, 1]));
+}
+
+const D17: Template = {
+  code: 'D17',
+  theme: 'derivee',
+  difficulty: 2,
+  subtype: 'composee-puissance',
+  title: 'Puissance d’un polynôme',
+  generate(rng) {
+    const n = rng.pick([2, 2, 3, 4, 5, 7, 10, 47]);
+    const p = smallPoly(rng, rng.pick([2, 2, 3, 4]), n > 4);
+    const k = rng.bool(0.65) ? 1 : rng.nonZero(-5, 5);
+    const u = p.toExpr();
+    const f = mul(num(k), pow(u, n));
+    const du = p.derive().toExpr();
+    return explained(f, n > 4 ? [-0.8, 0.8] : [-1.5, 1.5], [
+      { expr: mul(num(k * n), pow(u, n - 1)), message: FORGOT_U },
+      { expr: mul(num(k), du, pow(u, n - 1)), message: "Attention : $(u^n)' = n\\,u'\\,u^{n-1}$ — l’exposant $n$ passe devant." },
+    ]);
+  },
+};
+
+const D18: Template = {
+  code: 'D18',
+  theme: 'derivee',
+  difficulty: 3,
+  subtype: 'composee-racine',
+  title: 'Racine d’un polynôme',
+  generate(rng) {
+    // u(x) = a x² + b x + c, toujours strictement positif (a > 0, Δ < 0)
+    const a = rng.int(1, 3);
+    const b = rng.bool(0.5) ? 0 : rng.int(-4, 4);
+    const c = Math.floor((b * b) / (4 * a)) + rng.int(1, 6);
+    const u = Poly.fromHigh(a, b, c).toExpr();
+    const k = rng.bool(0.7) ? 1 : rng.nonZero(-4, 4);
+    const f = mul(num(k), sqrt(u));
+    return explained(f, [-4, 4], [{ expr: div(num(k), mul(num(2), sqrt(u))), message: "Attention : $(\\sqrt{u})' = \\frac{u'}{2\\sqrt{u}}$ — il faut $u'$ au numérateur." }]);
+  },
+};
+
+const D19: Template = {
+  code: 'D19',
+  theme: 'derivee',
+  difficulty: 3,
+  subtype: 'produit',
+  title: 'Produit avec une racine',
+  generate(rng) {
+    if (rng.bool(0.25)) {
+      // x√x, 2x√x…
+      const k = rng.bool(0.6) ? 1 : rng.nonZero(-4, 4);
+      const f = mul(num(k), X, sqrt(X));
+      return explained(f, [0.2, 5], [{ expr: div(num(k), mul(num(2), sqrt(X))), message: PRODUCT_TRAP }]);
+    }
+    const n = rng.int(1, 3);
+    const a = rng.bool(0.6) ? 1 : rng.nonZero(-3, 3);
+    const b = rng.int(1, 4);
+    const r = rng.int(0, 4);
+    const u = Poly.fromHigh(b, -b * r).toExpr(); // b(x − r) > 0 pour x > r
+    const f = mul(mono(a, n), sqrt(u));
+    return explained(f, [r + 0.3, r + 4], [{ expr: mul(num(n * a * b), pow(X, n - 1), div(num(1), mul(num(2), sqrt(u)))), message: PRODUCT_TRAP }]);
+  },
+};
+
+const D20: Template = {
+  code: 'D20',
+  theme: 'derivee',
+  difficulty: 1,
+  subtype: 'produit',
+  title: 'Produit de deux fonctions affines',
+  generate(rng) {
+    if (rng.bool(0.2)) {
+      // x · x³ : on peut dériver le produit ou simplifier d'abord
+      const m = rng.int(1, 3);
+      const p = rng.int(2, 4);
+      // produit écrit tel quel (sans regrouper les puissances), comme dans l'énoncé du TD
+      const f: Expr = { type: 'mul', factors: [m === 1 ? X : pow(X, m), pow(X, p)] };
+      return explained(f, [-3, 3], [{ expr: mono(m * p, m + p - 2), message: PRODUCT_TRAP }]);
+    }
+    const k = rng.bool(0.6) ? 1 : rng.nonZero(-5, 5);
+    const a = rng.nonZero(-4, 4);
+    const b = rng.nonZero(-6, 6);
+    const c = rng.nonZero(-4, 4);
+    const d = rng.nonZero(-6, 6);
+    const factors = [affine(a, b), affine(c, d)];
+    const f: Expr = k === 1 ? { type: 'mul', factors } : { type: 'mul', factors: [num(k), ...factors] };
+    return explained(f, [-3, 3], [{ expr: num(k * a * c), message: PRODUCT_TRAP }]);
+  },
+};
+
+const D21: Template = {
+  code: 'D21',
+  theme: 'derivee',
+  difficulty: 1,
+  subtype: 'inverse',
+  title: 'Inverse d’une fonction affine',
+  generate(rng) {
+    const k = rng.bool(0.6) ? 1 : rng.nonZero(-6, 6);
+    const a = rng.bool(0.3) ? 1 : rng.nonZero(-4, 4);
+    const b = rng.bool(0.25) ? 0 : rng.nonZero(-6, 6);
+    const v = affine(a, b);
+    const f = div(num(k), v);
+    return explained(f, [-5, 5], [
+      { expr: div(num(k * a), pow(v, 2)), message: "Attention au signe : $\\left(\\frac{1}{v}\\right)' = -\\frac{v'}{v^2}$." },
+      { expr: div(num(-k * a), v), message: 'Le dénominateur est $v^2$ : n’oublie pas le carré.' },
+    ]);
+  },
+};
+
+const D22: Template = {
+  code: 'D22',
+  theme: 'derivee',
+  difficulty: 2,
+  subtype: 'quotient',
+  title: 'Quotient par un trinôme',
+  generate(rng) {
+    const c = rng.int(1, 6);
+    const v = Poly.fromHigh(1, 0, c);
+    const constant = rng.bool(0.4);
+    const a = constant ? 0 : rng.nonZero(-5, 5);
+    const b = rng.nonZero(-6, 6);
+    const u = constant ? num(b) : affine(a, b);
+    const f = div(u, v.toExpr());
+    const numer = constant ? v.derive().scale(-b) : Poly.fromHigh(a, b).derive().mul(v).sub(Poly.fromHigh(a, b).mul(v.derive()));
+    return explained(f, [-4, 4], [
+      { expr: div(numer.scale(-1).toExpr(), pow(v.toExpr(), 2)), message: "Attention à l'ordre (ou au signe) : le numérateur est $u'v - uv'$." },
+      { expr: div(numer.toExpr(), v.toExpr()), message: 'Le dénominateur est $v^2$ : n’oublie pas le carré.' },
+    ]);
+  },
+};
+
+const D23: Template = {
+  code: 'D23',
+  theme: 'derivee',
+  difficulty: 3,
+  subtype: 'quotient',
+  title: 'Quotient avec une racine',
+  generate(rng) {
+    const a = rng.int(1, 8);
+    const r = rng.int(1, 3);
+    const u = Poly.fromHigh(a, -a * r).toExpr(); // a(x − r) > 0 pour x > r
+    const c = rng.int(1, 5);
+    const f = div(sqrt(u), mono(c, 1));
+    return explained(f, [r + 0.3, r + 4], [{ expr: div(num(a), mul(num(2 * c), sqrt(u))), message: "Ce n’est pas le quotient des dérivées : utilise $\\left(\\frac{u}{v}\\right)' = \\frac{u'v - uv'}{v^2}$." }]);
+  },
+};
+
+export const DERIVATIVE_TEMPLATES: Template[] = [D01, D02, D03, D04, D05, D06, D07, D08, D09, D10, D11, D12, D13, D14, D15, D16, D17, D18, D19, D20, D21, D22, D23];

@@ -214,7 +214,9 @@ function tidyMul(e: Extract<Expr, { type: 'mul' }>): Expr {
   for (const k of order) {
     const { base, n } = bases.get(k)!;
     if (Q.isZero(n)) continue;
-    const f = Q.eq(n, Q.ONE) ? base : pow(base, num(n));
+    // √u × √u = u (puissance paire d'une racine)
+    const evenRoot = base.type === 'fn' && base.name === 'sqrt' && Q.isInt(n) && n.n % 2 === 0 && n.n > 0;
+    const f = evenRoot ? tidy(pow((base as Extract<Expr, { type: 'fn' }>).arg, n.n / 2)) : Q.eq(n, Q.ONE) ? base : pow(base, num(n));
     const p = asPoly(f);
     // Les petits polynômes (x, 2x+1, x²) se multiplient entre eux ; les puissances de sommes restent telles quelles
     const powOfSum = f.type === 'pow' && f.base.type === 'add';
@@ -230,12 +232,59 @@ function tidyMul(e: Extract<Expr, { type: 'mul' }>): Expr {
   return mul(poly.toExpr(), ...others);
 }
 
+/** Terme écrit comme une fraction a/b (y compris « k × a/b »), ou null. */
+export function asFraction(t: Expr): { num: Expr; den: Expr } | null {
+  if (t.type === 'div') return { num: t.num, den: t.den };
+  if (t.type === 'mul') {
+    const i = t.factors.findIndex((f) => f.type === 'div');
+    if (i === -1) return null;
+    const d = t.factors[i] as Extract<Expr, { type: 'div' }>;
+    return { num: mul(...t.factors.filter((_, k) => k !== i), d.num), den: d.den };
+  }
+  return null;
+}
+
+/** a/b + c/d + e = (a·d + c·b + e·b·d) / (b·d) : dénominateurs distincts multipliés. */
+function sameDenominator(terms: Expr[]): { num: Expr; den: Expr } {
+  const dens: Expr[] = [];
+  for (const t of terms) {
+    const fr = asFraction(t);
+    if (fr && !dens.some((x) => key(x) === key(fr.den))) dens.push(fr.den);
+  }
+  const others = (skip: Expr | null) => dens.filter((x) => !skip || key(x) !== key(skip));
+  const parts = terms.map((t) => {
+    const fr = asFraction(t);
+    return fr ? mul(fr.num, ...others(fr.den)) : mul(t, ...others(null));
+  });
+  return { num: tidy(add(...parts)), den: dens.length === 1 ? dens[0] : mul(...dens) };
+}
+
+/**
+ * Somme contenant des fractions → une seule fraction (réduction au même
+ * dénominateur), comme on le rédige en TD : 2x√u + x²/(2√u) = (4xu + x²)/(2√u).
+ * Renvoie e inchangé s'il n'y a rien à réduire.
+ */
+export function combineFractions(e: Expr): Expr {
+  if (e.type !== 'add' || !e.terms.some((t) => asFraction(t))) return e;
+  // Un seul dénominateur en jeu (cas d'un produit avec une racine) ; sinon on laisse
+  // la somme telle quelle : 6x − 2/√x − 2/x² se lit mieux qu'une grande fraction
+  const dens = new Set(e.terms.map((t) => asFraction(t)).filter((f) => f).map((f) => key(f!.den)));
+  if (dens.size !== 1) return e;
+  const c = sameDenominator(e.terms);
+  return tidy(div(c.num, c.den));
+}
+
 function tidyDiv(e: Extract<Expr, { type: 'div' }>): Expr {
   let { num: n, den: d } = e;
   if (isNum(d) && Q.eq(d.value, Q.ONE)) return n;
   if (n.type === 'div') return tidy(div(n.num, mul(n.den, d)));
   if (d.type === 'div') return tidy(div(mul(n, d.den), d.num));
   if (isNum(d)) return tidy(mul(num(Q.div(Q.ONE, d.value)), n));
+  // Fraction dans le numérateur : on réduit au même dénominateur
+  if (n.type === 'add' && n.terms.some((t) => asFraction(t))) {
+    const c = sameDenominator(n.terms);
+    return tidy(div(c.num, mul(c.den, d)));
+  }
   // Facteurs communs identiques (même base) entre numérateur et dénominateur
   const nf = factorsOf(n);
   const df = factorsOf(d);
@@ -254,6 +303,27 @@ function tidyDiv(e: Extract<Expr, { type: 'div' }>): Expr {
     const top = nf2.length ? mul(...nf2) : num(1);
     const bot = df2.length ? mul(...df2) : num(1);
     return tidy(div(top, bot));
+  }
+  // u / √u = √u (et x^n / √x = x^{n−1}√x)
+  const sq = df.findIndex((f) => f.type === 'fn' && f.name === 'sqrt');
+  if (sq !== -1) {
+    const root = df[sq] as Extract<Expr, { type: 'fn' }>;
+    const k = nf.findIndex((f) => key(f) === key(root.arg) || (f.type === 'pow' && key(f.base) === key(root.arg) && isNum(f.exp) && Q.isInt(f.exp.value) && f.exp.value.n >= 1));
+    if (k !== -1) {
+      const f = nf[k];
+      const rest = f.type === 'pow' ? [pow(f.base, num(Q.sub((f.exp as Extract<Expr, { type: 'num' }>).value, Q.ONE)))] : [];
+      const top = mul(...nf.filter((_, i) => i !== k), ...rest, root);
+      const df2 = df.filter((_, i) => i !== sq);
+      return tidy(div(top, df2.length ? mul(...df2) : num(1)));
+    }
+  }
+  // Contenu entier commun : (−21x + 48) / (18…) = (−7x + 16) / (6…)
+  const pn = asPoly(n);
+  const [cd0, dRest0] = splitCoef(d);
+  if (pn && pn.degree >= 1 && pn.c.every((c) => Q.isInt(c)) && Q.isInt(cd0) && Math.abs(cd0.n) > 1 && dRest0) {
+    const g = pn.c.reduce((acc, c) => gcdInt(acc, Math.abs(c.n)), 0);
+    const h = gcdInt(g, Math.abs(cd0.n));
+    if (h > 1) return tidy(div(pn.scale(Q.rat(1, h)).toExpr(), mul(num(cd0.n / h), dRest0)));
   }
   // Coefficients numériques : 2/(2√u) = 1/√u
   const [cn, nRest] = splitCoef(n);
@@ -330,4 +400,9 @@ export function substituteVar(e: Expr, v: Expr): Expr {
     default:
       return e;
   }
+}
+
+function gcdInt(a: number, b: number): number {
+  while (b) [a, b] = [b, a % b];
+  return a;
 }

@@ -6,19 +6,19 @@ exports[`golden seeds > D01 est stable 1`] = `
     "answers": [
       "3x^{2} - 6x + 6",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = x^{3} - 3x^{2} + 6x$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "6x^{2} - 6x - 4",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = 2x^{3} - 3x^{2} - 4x + 5$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "-6x",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = -3x^{2} + 4$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -29,19 +29,19 @@ exports[`golden seeds > D02 est stable 1`] = `
     "answers": [
       "-15x^{2} - \\frac{6}{x^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}^*$ par $f(x) = -5x^{3} + \\frac{6}{x} + 6$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "-3x^{2} - \\frac{5}{x^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}^*$ par $f(x) = -x^{3} + \\frac{5}{x} + 2$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "10x - \\frac{4}{x^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}^*$ par $f(x) = 5x^{2} + \\frac{4}{x} - 4$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -52,19 +52,19 @@ exports[`golden seeds > D03 est stable 1`] = `
     "answers": [
       "-8x + \\frac{1}{\\sqrt{x}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = -4x^{2} + 2\\sqrt{x}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "6x + \\frac{1}{2\\sqrt{x}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = 3x^{2} + \\sqrt{x} + 2$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "8x - \\frac{3}{2\\sqrt{x}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = 4x^{2} - 3\\sqrt{x} + 3$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -75,19 +75,19 @@ exports[`golden seeds > D04 est stable 1`] = `
     "answers": [
       "9x^{2} - 20x - 27",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (x - 5)(3x^{2} + 5x - 2)$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "6x^{2} - 6",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (x - 1)(2x^{2} + 2x - 4)$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "-12x^{2} + 32x - 11",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (-2x + 5)(2x^{2} - 3x - 2)$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -98,19 +98,19 @@ exports[`golden seeds > D05 est stable 1`] = `
     "answers": [
       "\\frac{14}{(x + 4)^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{-4\\}$ par $f(x) = \\frac{5x + 6}{x + 4}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "-\\frac{2}{x^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{0\\}$ par $f(x) = \\frac{4x + 2}{x}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{16}{(-2x + 8)^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{4\\}$ par $f(x) = \\frac{3x - 4}{-2x + 8}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -121,19 +121,19 @@ exports[`golden seeds > D06 est stable 1`] = `
     "answers": [
       "\\frac{-3x^{2} + 6x - 6}{(x - 1)^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{1\\}$ par $f(x) = \\frac{-3x^{2} + 6}{x - 1}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{2x^{2} - 4x + 1}{(x - 1)^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{1\\}$ par $f(x) = \\frac{2x^{2} + 2x - 3}{x - 1}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{3x^{2} + 12x + 10}{(x + 2)^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{-2\\}$ par $f(x) = \\frac{3x^{2} + 3x - 4}{x + 2}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -144,19 +144,19 @@ exports[`golden seeds > D07 est stable 1`] = `
     "answers": [
       "(x - 5)\\mathrm{e}^{x}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (x - 6)\\mathrm{e}^{x}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "x\\mathrm{e}^{x}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (x - 1)\\mathrm{e}^{x}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "(-3x + 3)\\mathrm{e}^{x}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (-3x + 6)\\mathrm{e}^{x}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -167,19 +167,19 @@ exports[`golden seeds > D08 est stable 1`] = `
     "answers": [
       "\\ln(x) + \\frac{x - 6}{x}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = (x - 6)\\ln(x)$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\ln(x) + \\frac{x - 1}{x}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = (x - 1)\\ln(x)$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "-3\\ln(x) + \\frac{-3x + 6}{x}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = (-3x + 6)\\ln(x)$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -190,19 +190,19 @@ exports[`golden seeds > D09 est stable 1`] = `
     "answers": [
       "\\frac{-12x - 6}{(x^{2} + x + 1)^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = \\frac{6}{x^{2} + x + 1}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{-10x - 5}{(x^{2} + x + 3)^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = \\frac{5}{x^{2} + x + 3}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{-8x + 8}{(x^{2} - 2x + 6)^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = \\frac{4}{x^{2} - 2x + 6}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -213,19 +213,19 @@ exports[`golden seeds > D10 est stable 1`] = `
     "answers": [
       "4\\mathrm{e}^{4x + 5}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = \\mathrm{e}^{4x + 5}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "3\\mathrm{e}^{3x + 2}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = \\mathrm{e}^{3x + 2}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "(-4x + 6)\\mathrm{e}^{x^{2} - 3x}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = -2\\mathrm{e}^{x^{2} - 3x}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -236,19 +236,19 @@ exports[`golden seeds > D11 est stable 1`] = `
     "answers": [
       "\\frac{2x}{x^{2} + 1}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = \\ln(x^{2} + 1)$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{2x}{x^{2} + 5}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = \\ln(x^{2} + 5)$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{5}{5x - 15}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]{3}\\,;\\,+\\infty[$ par $f(x) = \\ln(5x - 15)$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -259,19 +259,19 @@ exports[`golden seeds > D12 est stable 1`] = `
     "answers": [
       "\\frac{2}{\\sqrt{4x + 16}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]{-4}\\,;\\,+\\infty[$ par $f(x) = \\sqrt{4x + 16}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{2}{\\sqrt{4x}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]{0}\\,;\\,+\\infty[$ par $f(x) = \\sqrt{4x}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{1}{\\sqrt{2x - 8}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]{4}\\,;\\,+\\infty[$ par $f(x) = \\sqrt{2x - 8}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -282,19 +282,19 @@ exports[`golden seeds > D13 est stable 1`] = `
     "answers": [
       "-16(-4x + 5)^{3}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (-4x + 5)^{4}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "12(3x + 2)^{3}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (3x + 2)^{4}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "12(4x + 3)^{2}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (4x + 3)^{3}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -305,19 +305,19 @@ exports[`golden seeds > D14 est stable 1`] = `
     "answers": [
       "(-x + 6)\\mathrm{e}^{-x + 3}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (x - 5)\\mathrm{e}^{-x + 3}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "(3x - 2)\\mathrm{e}^{3x + 1}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (x - 1)\\mathrm{e}^{3x + 1}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "(-4x + 8)\\mathrm{e}^{2x - 2}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R}$ par $f(x) = (-2x + 5)\\mathrm{e}^{2x - 2}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -328,19 +328,19 @@ exports[`golden seeds > D15 est stable 1`] = `
     "answers": [
       "\\frac{(-3x + 6)\\mathrm{e}^{x}}{(x - 1)^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{1\\}$ par $f(x) = -\\frac{3\\mathrm{e}^{x}}{x - 1}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{(-x + 2)\\mathrm{e}^{x}}{(x - 1)^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{1\\}$ par $f(x) = -\\frac{\\mathrm{e}^{x}}{x - 1}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{(3x + 3)\\mathrm{e}^{x}}{(x + 2)^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $\\mathbb{R} \\setminus \\{-2\\}$ par $f(x) = \\frac{3\\mathrm{e}^{x}}{x + 2}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;
@@ -351,19 +351,180 @@ exports[`golden seeds > D16 est stable 1`] = `
     "answers": [
       "\\frac{-\\ln(x) + 6}{x^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = \\frac{\\ln(x) - 5}{x}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{-\\ln(x) + 2}{x^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = \\frac{\\ln(x) - 1}{x}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
   },
   {
     "answers": [
       "\\frac{2\\ln(x) - 7}{x^{2}}",
     ],
-    "statement": "Soit $f$ la fonction définie sur $]0\\,;\\,+\\infty[$ par $f(x) = \\frac{-2\\ln(x) + 5}{x}$. Calculer $f'(x)$.",
+    "statement": "Dériver la fonction suivante.",
+  },
+]
+`;
+
+exports[`golden seeds > D17 est stable 1`] = `
+[
+  {
+    "answers": [
+      "7(4x + 3)(2x^{2} + 3x)^{6}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "5(-4x + 1)(-2x^{2} + x)^{4}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "6(-4x^{3} - 3x^{2} + 2x)(-2x^{4} - 2x^{3} + 2x^{2} + 3)^{2}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+]
+`;
+
+exports[`golden seeds > D18 est stable 1`] = `
+[
+  {
+    "answers": [
+      "\\frac{8x}{\\sqrt{2x^{2} + 4}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "\\frac{2x}{\\sqrt{2x^{2} + 6}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "\\frac{2x + 3}{2\\sqrt{x^{2} + 3x + 4}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+]
+`;
+
+exports[`golden seeds > D19 est stable 1`] = `
+[
+  {
+    "answers": [
+      "\\frac{6x - 16}{\\sqrt{4x - 16}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "\\frac{5x^{2} - 8x}{2\\sqrt{x - 2}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "\\frac{-14x^{3} + 36x^{2}}{\\sqrt{2x - 6}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+]
+`;
+
+exports[`golden seeds > D20 est stable 1`] = `
+[
+  {
+    "answers": [
+      "-16x - 8",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "-18x - 15",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "-36x - 54",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+]
+`;
+
+exports[`golden seeds > D21 est stable 1`] = `
+[
+  {
+    "answers": [
+      "\\frac{24}{(4x - 3)^{2}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "\\frac{1}{2x^{2}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "-\\frac{1}{3x^{2}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+]
+`;
+
+exports[`golden seeds > D22 est stable 1`] = `
+[
+  {
+    "answers": [
+      "-\\frac{12x}{(x^{2} + 4)^{2}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "\\frac{-4x^{2} - 4x + 16}{(x^{2} + 4)^{2}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "\\frac{-3x^{2} + 8x + 6}{(x^{2} + 2)^{2}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+]
+`;
+
+exports[`golden seeds > D23 est stable 1`] = `
+[
+  {
+    "answers": [
+      "\\frac{-x + 2}{x^{2} \\sqrt{6x - 6}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "\\frac{-x + 4}{2x^{2} \\sqrt{5x - 10}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
+  },
+  {
+    "answers": [
+      "\\frac{-3x + 18}{8x^{2} \\sqrt{3x - 9}}",
+    ],
+    "statement": "Dériver la fonction suivante.",
   },
 ]
 `;

@@ -39,6 +39,14 @@ export const PRESETS: { label: string; config: (base: SheetConfig) => SheetConfi
   { label: 'Dérivées + limites', config: (b) => only(b, { derivee: 5, limite: 5 }) },
   { label: 'Tout (3 × 3)', config: (b) => only(b, { derivee: 3, limite: 3, variation: 3 }) },
   {
+    // Comme en TD : des listes de fonctions à dériver (x ↦ …)
+    label: 'Série de dérivées (TD)',
+    config: (b) => {
+      const c = only(b, { derivee: 3 });
+      return { ...c, items: c.items.map((i) => (i.theme === 'derivee' ? { ...i, parts: 4, difficulty: 'mixte' as const, subtypes: [] } : i)) };
+    },
+  },
+  {
     // Comme en TD : des listes de limites (valeurs interdites, fractions rationnelles en l'infini)
     label: 'Série de limites (TD)',
     config: (b) => {

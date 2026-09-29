@@ -4,7 +4,7 @@ import { add, div, exp, isNum, ln, mul, num, pow, sqrt, X } from '../core/expr/b
 import { derive } from '../core/expr/derive';
 import { evaluate, hasVar } from '../core/expr/evaluate';
 import * as Q from '../core/expr/rational';
-import { asPoly, tidy } from '../core/expr/simplify';
+import { asPoly, combineFractions, tidy } from '../core/expr/simplify';
 import { toLatex } from '../core/expr/toLatex';
 import type { Step } from '../exercises/types';
 
@@ -210,15 +210,45 @@ function referenceStep(e: Expr, d: Expr): Step {
   return { title: 'Dérivée de référence', math: `${prime(e)} = ${L(d)}`, formulas: ids };
 }
 
+/**
+ * Met en facteur le coefficient entier commun d'un polynôme qui multiplie
+ * d'autres facteurs : (94x − 47)(x² − x)^{46} → 47(2x − 1)(x² − x)^{46}.
+ */
+function factorContent(e: Expr): Expr {
+  if (e.type === 'div') return div(factorContent(e.num), e.den);
+  if (e.type !== 'mul') return e;
+  const i = e.factors.findIndex((f) => f.type === 'add' && asPoly(f));
+  if (i === -1 || e.factors.length < 2) return e;
+  const p = asPoly(e.factors[i])!;
+  if (!p.c.every((c) => Q.isInt(c))) return e;
+  const g = p.c.reduce((acc, c) => gcd(acc, Math.abs(c.n)), 0);
+  if (g <= 1) return e;
+  const rest = e.factors.filter((_, k) => k !== i);
+  return mul(num(g), p.scale(Q.rat(1, g)).toExpr(), ...rest);
+}
+
+function gcd(a: number, b: number): number {
+  while (b) [a, b] = [b, a % b];
+  return a;
+}
+
 export function solveDerivative(f: Expr): DerivativeReport {
   const steps: Step[] = [];
   const c: Ctx = { steps };
   let df = D(f, c);
   if (immediate(f)) steps.push(referenceStep(f, df));
 
-  // Contrôle : le résultat simplifié doit coïncider avec la dérivée brute
   const raw = derive(f);
   const pts = testPoints(raw, [-4, 4], 12).concat(testPoints(raw, [0.1, 6], 8));
+
+  // Comme en TD : une seule fraction (même dénominateur), coefficient numérique mis en facteur
+  const combined = factorContent(combineFractions(df));
+  if (L(combined) !== L(df) && equivalent(combined, raw, pts)) {
+    if (combined.type === 'div' && df.type !== 'div') steps.push({ title: 'Réduire au même dénominateur', math: `f'(x) = ${L(df)} = ${L(combined)}` });
+    df = combined;
+  }
+
+  // Contrôle : le résultat simplifié doit coïncider avec la dérivée brute
   let checked = pts.length > 0 && equivalent(df, raw, pts);
   if (!checked && pts.length) {
     df = raw;

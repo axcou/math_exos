@@ -148,7 +148,7 @@ test.describe('répondre aux exercices', () => {
     const ex = exercise('D11', 42, 3);
     await openSheet(page, [ex]);
     const art = card(page, ex);
-    await expect(art.getByText('Calculer la dérivée de chacune des fonctions suivantes.')).toBeVisible();
+    await expect(art.getByText('Dériver les fonctions suivantes.')).toBeVisible();
     for (const label of ['a.', 'b.', 'c.']) await expect(art.getByText(label, { exact: true }).first()).toBeVisible();
     await expect(art.getByRole('button', { name: 'Vérifier' })).toHaveCount(3);
     await answerAll(page, ex);

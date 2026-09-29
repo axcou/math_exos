@@ -126,7 +126,7 @@ describe('exercices en plusieurs parties (a, b, c)', () => {
       const ex = generateExercise(t, seed, 3);
       expect(ex.parts.map((p) => p.label)).toEqual(['a', 'b', 'c']);
       expect(new Set(ex.parts.map((p) => p.item)).size).toBe(3);
-      expect(ex.statement).toMatch(/chacune des fonctions/);
+      expect(ex.statement).toBe('Dériver les fonctions suivantes.');
       const ids = ex.questions.map((q) => q.id);
       expect(new Set(ids).size).toBe(ids.length);
       expect(ex.uid).toBe(`D11.${seed.toString(36)}.3`);

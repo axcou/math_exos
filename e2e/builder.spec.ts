@@ -55,9 +55,11 @@ test.describe('composer une feuille', () => {
     const der = row(page, 'Dérivées');
     await der.getByRole('radio', { name: 'moyen' }).click();
     await der.getByRole('button', { name: 'tous les types' }).click();
-    for (const label of ['Produit', 'Exponentielle', 'Logarithme', 'Inverse', 'Polynômes', 'Racine carrée']) {
-      const box = der.getByLabel(label, { exact: true });
-      if (await box.count()) await box.uncheck();
+    // on ne garde que « Quotient » : on décoche tous les autres types
+    const boxes = der.locator('label').filter({ has: page.locator('input[type=checkbox]') });
+    for (const box of await boxes.all()) {
+      const name = (await box.innerText()).trim();
+      if (name && name !== 'Quotient' && name !== 'Dérivées') await box.locator('input').uncheck();
     }
     await page.getByRole('button', { name: 'Générer la feuille' }).click();
     await expect(page.locator('article')).toHaveCount(10);

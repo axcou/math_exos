@@ -78,7 +78,10 @@ export function parseUid(uid: string): { code: string; seed: number; parts: numb
 function dropHarmlessMistakes(q: Question): Question {
   if (q.type === 'expression' && q.mistakes) {
     const pts = testPoints(q.expected, q.domain);
-    return { ...q, mistakes: q.mistakes.filter((m) => !equivalent(m.expr, q.expected, pts)) };
+    // ni une erreur qui donnerait la bonne réponse, ni deux erreurs qui coïncident (le message serait ambigu)
+    const kept: typeof q.mistakes = [];
+    for (const m of q.mistakes) if (!equivalent(m.expr, q.expected, pts) && !kept.some((k) => equivalent(k.expr, m.expr, pts))) kept.push(m);
+    return { ...q, mistakes: kept };
   }
   if (q.type === 'value' && q.mistakes) {
     const same = (v: ValueAnswer) =>
