@@ -54,6 +54,14 @@ export const PRESETS: { label: string; config: (base: SheetConfig) => SheetConfi
       return { ...c, items: c.items.map((i) => (i.theme === 'limite' ? { ...i, parts: 4, difficulty: 'mixte' as const, subtypes: ['valeur-interdite', 'rationnelle'] } : i)) };
     },
   },
+  {
+    // Seulement la courbe : on en déduit les tableaux
+    label: 'Lecture graphique',
+    config: (b) => {
+      const c = only(b, { variation: 4 });
+      return { ...c, items: c.items.map((i) => (i.theme === 'variation' ? { ...i, parts: 1, difficulty: 'mixte' as const, subtypes: ['lecture-graphique'] } : i)) };
+    },
+  },
 ];
 
 export function only(base: SheetConfig, counts: Partial<Record<Theme, number>>): SheetConfig {

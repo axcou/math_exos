@@ -53,6 +53,11 @@ export interface TableData {
   rows: TableRow[];
 }
 
+/** Courbe donnée dans l'énoncé (lecture graphique) : points de passage, entiers. */
+export interface GraphData {
+  knots: [number, number][];
+}
+
 export interface KnownMistake {
   expr: Expr;
   message: string;
@@ -107,7 +112,8 @@ export interface Step {
 export type ExerciseMeta =
   | { kind: 'derivative'; f: Expr; df: Expr; domain: [number, number] }
   | { kind: 'limit'; f: Expr; at: number | '+inf' | '-inf'; side?: 1 | -1 }
-  | { kind: 'table'; f: Expr; df?: Expr };
+  | { kind: 'table'; f: Expr; df?: Expr }
+  | { kind: 'graph'; graph: GraphData };
 
 /** Ce que produit un générateur (les champs communs sont ajoutés par le registre). */
 export interface ExerciseDraft {
@@ -119,12 +125,15 @@ export interface ExerciseDraft {
   lead?: string;
   /** Donnée propre à une partie (« $f(x) = \ln(2x+1)$ sur … »). */
   item?: string;
+  /** Courbe à lire. */
+  graph?: GraphData;
 }
 
 /** Partie a, b, c… d'un exercice. */
 export interface ExercisePart {
   label: string; // 'a', 'b'… ; vide pour un exercice sans parties
   item: string;
+  graph?: GraphData;
   questions: Question[];
   steps: Step[];
 }

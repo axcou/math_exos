@@ -6,6 +6,7 @@ import { TEMPLATE_BY_CODE } from '../exercises/registry';
 import { emptyProgress, exerciseResult, useStore } from '../history/store';
 import { METHOD_FOR_SUBTYPE } from '../methods/methods';
 import { ExpressionInput, RootsInput, ValueInput } from './answers/AnswerInputs';
+import { FunctionGraph } from './FunctionGraph';
 import { MathText, Tex } from './Math';
 import { Solution, StepItem } from './Solution';
 import { VariationTable } from './VariationTable';
@@ -186,6 +187,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
       <p className="mb-4">
         <MathText text={ex.statement} />
       </p>
+      {!multi && ex.parts[0].graph && <FunctionGraph graph={ex.parts[0].graph} />}
 
       {multi ? (
         <ol className={`mb-5 space-y-5 ${tdSeries ? 'print:space-y-1' : ''}`}>
@@ -199,6 +201,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
                     {tdSeries && <Tex math="=" className="ml-1.5 hidden print:inline" />}
                   </p>
                 )}
+                {p.graph && <FunctionGraph graph={p.graph} />}
                 {p.questions.map((q, i) => (
                   <QuestionBlock key={q.id} ex={ex} q={q} marker={p.questions.length > 1 ? `${i + 1})` : ''} showPrompt={p.questions.length > 1} inputs={inputsEnabled} singleAttempt={singleAttempt} />
                 ))}

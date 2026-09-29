@@ -282,6 +282,25 @@ export const METHODS: Method[] = [
       { mode: 'variation', f: '(2x+1)/(x-3)' },
     ],
   },
+  {
+    id: 'lecture-graphique',
+    theme: 'variation',
+    title: 'Lire un tableau sur une courbe',
+    when: 'On donne seulement la courbe $\\mathcal{C}_f$ : les tableaux se lisent sur le graphique, sans calcul.',
+    steps: [
+      'Repérer l’intervalle de définition : abscisses des extrémités de la courbe (première et dernière colonne du tableau).',
+      'Signe : repérer les points où la courbe coupe l’axe des abscisses (les $0$ du tableau), puis mettre $+$ là où la courbe est au-dessus de l’axe et $-$ là où elle est en dessous.',
+      'Variations : lire la courbe de gauche à droite ; elle monte ($f$ croissante, flèche vers le haut) ou elle descend ($f$ décroissante).',
+      'Les colonnes du tableau de variations sont les abscisses des sommets ; on écrit en haut ou en bas l’ordonnée lue sur l’axe vertical.',
+      'Signe de $f\'(x)$ : $+$ quand $f$ croît, $-$ quand elle décroît, $0$ aux sommets (tangente horizontale).',
+    ],
+    pitfalls: [
+      'Confondre les deux tableaux : le signe de $f(x)$ dépend de la position par rapport à l’axe des abscisses, pas du sens de variation.',
+      'Écrire les ordonnées des sommets dans la ligne des $x$.',
+    ],
+    formulas: ['v.var'],
+    examples: [],
+  },
 ];
 
 /** Méthode la plus proche d'un type d'exercice (lien « voir la méthode »). */
@@ -314,4 +333,5 @@ export const METHOD_FOR_SUBTYPE: Record<string, string> = {
   'variations-homographique': 'var-tableau',
   'variations-exp': 'var-tableau',
   'variations-ln': 'var-tableau',
+  'lecture-graphique': 'lecture-graphique',
 };

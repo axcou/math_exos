@@ -28,7 +28,7 @@ describe('variété des parties', () => {
     const n = Math.min(4, t.variants!);
     for (const seed of SEEDS) {
       const ex = generateExercise(t, seed, n);
-      const contents = ex.parts.map((p) => [p.item, ...p.questions.map((q) => q.prompt)].join('|'));
+      const contents = ex.parts.map((p) => [p.item, ...p.questions.map((q) => q.prompt), JSON.stringify(p.graph ?? '')].join('|'));
       expect(new Set(contents).size).toBe(n);
     }
   });

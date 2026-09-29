@@ -3,7 +3,7 @@ import { evaluate } from '../core/expr/evaluate';
 import { Rng } from '../core/random/prng';
 import { DERIVATIVE_TEMPLATES } from './derivatives/templates';
 import { LIMIT_TEMPLATES } from './limits/templates';
-import { type Difficulty, type Exercise, type ExerciseDraft, type ExercisePart, MAX_PARTS, type Question, type Template, type Theme, type ValueAnswer } from './types';
+import { type Difficulty, type Exercise, type ExerciseDraft, type ExercisePart, type GraphData, MAX_PARTS, type Question, type Template, type Theme, type ValueAnswer } from './types';
 import { VARIATION_TEMPLATES } from './variations/templates';
 
 /*
@@ -44,6 +44,7 @@ export const SUBTYPE_LABELS: Record<string, string> = {
   'variations-homographique': 'Homographique',
   'variations-exp': 'Avec exponentielle',
   'variations-ln': 'Avec logarithme',
+  'lecture-graphique': 'Lecture graphique',
 };
 
 export function templatesFor(theme: Theme, difficulty?: Difficulty, subtypes?: string[]): Template[] {
@@ -100,6 +101,9 @@ function partSeed(seed: number, i: number): number {
 
 const LABELS = 'abcdefgh';
 
+/** Une courbe fait partie du contenu : deux graphiques différents donnent deux énoncés différents. */
+const graphKey = (g?: GraphData) => (g ? [g.knots.map((p) => p.join(',')).join(';')] : []);
+
 /**
  * Génère un exercice. Avec `parts` > 1, regroupe plusieurs énoncés du même
  * type en parties a, b, c… (tirés de graines dérivées, donc reproductibles).
@@ -115,7 +119,7 @@ export function generateExercise(template: Template, seed: number, parts = 1): E
     let d = template.generate(new Rng(partSeed(seed, i)), variant);
     // Parties toutes différentes
     // Contenu d'une partie : sa donnée et ses consignes (une partie « lim à gauche / à droite » n'a que des consignes)
-    const content = (x: ExerciseDraft) => [x.item ?? x.statement, ...x.questions.map((q) => q.prompt)].join('|');
+    const content = (x: ExerciseDraft) => [x.item ?? x.statement, ...x.questions.map((q) => q.prompt), ...graphKey(x.graph)].join('|');
     for (let k = 1; k < 20 && items.has(content(d)); k++) d = template.generate(new Rng(partSeed(seed, i + k * 16)), variant);
     items.add(content(d));
     drafts.push({ ...d, questions: d.questions.map(dropHarmlessMistakes) });
@@ -126,6 +130,7 @@ export function generateExercise(template: Template, seed: number, parts = 1): E
     return {
       label,
       item: multi ? d.item ?? d.statement : d.statement,
+      ...(d.graph ? { graph: d.graph } : {}),
       questions: multi ? d.questions.map((q) => ({ ...q, id: `${label}-${q.id}` })) : d.questions,
       steps: d.steps,
     };
@@ -135,12 +140,13 @@ export function generateExercise(template: Template, seed: number, parts = 1): E
     statement,
     lead: drafts[0].lead,
     item: drafts[0].item,
+    ...(drafts[0].graph ? { graph: drafts[0].graph } : {}),
     questions: exParts.flatMap((p) => p.questions),
     steps: exParts.flatMap((p) => p.steps),
     meta: drafts.flatMap((d) => d.meta),
     parts: exParts,
     // Contenu complet (énoncé, données et consignes) : deux exercices différents n'ont jamais la même empreinte
-    signature: [statement, ...exParts.map((p) => [p.item, ...p.questions.map((q) => q.prompt)].join('\n'))].join('\n'),
+    signature: [statement, ...exParts.map((p) => [p.item, ...p.questions.map((q) => q.prompt), ...graphKey(p.graph)].join('\n'))].join('\n'),
     uid: exerciseUid(template.code, seed, n),
     code: template.code,
     seed: seed >>> 0,

@@ -1,6 +1,7 @@
 import katex from 'katex';
 import { describe, expect, it } from 'vitest';
 import { checkExpression, checkTable, checkValue, equivalent, testPoints } from '../src/checking/check';
+import { evalCurve, evalCurveDerivative } from '../src/core/curve';
 import { evaluate } from '../src/core/expr/evaluate';
 import { generateExercise, TEMPLATES } from '../src/exercises/registry';
 import type { Exercise, ExerciseMeta, TableData } from '../src/exercises/types';
@@ -76,10 +77,10 @@ function checkMeta(m: ExerciseMeta, ex: Exercise) {
       });
     }
   }
-  if (m.kind === 'table') {
+  if (m.kind === 'table' || m.kind === 'graph') {
     const tables = ex.questions.flatMap((q) => (q.type === 'table' ? [q.expected] : []));
-    const f = (x: number) => evaluate(m.f, x);
-    const df = (x: number) => (m.df ? evaluate(m.df, x) : numDeriv(f, x));
+    const f = m.kind === 'graph' ? (x: number) => evalCurve(m.graph.knots, x) : (x: number) => evaluate(m.f, x);
+    const df = (x: number) => (m.kind === 'graph' ? evalCurveDerivative(m.graph.knots, x) : m.df ? evaluate(m.df, x) : numDeriv(f, x));
     for (const t of tables) {
       const xv = t.xv;
       expect(xv.length, ctx).toBe(t.xs.length);
@@ -152,7 +153,7 @@ describe.each(TEMPLATES.map((t) => [t.code, t] as const))('template %s', (_code,
     // Version en 3 parties : données distinctes et LaTeX valide
     for (const seed of SEEDS.slice(0, 20)) {
       const ex = generateExercise(template, seed, 3);
-      expect(new Set(ex.parts.map((p) => p.item + p.questions.map((q) => q.prompt).join())).size, ex.uid).toBe(3);
+      expect(new Set(ex.parts.map((p) => p.item + p.questions.map((q) => q.prompt).join() + JSON.stringify(p.graph ?? ''))).size, ex.uid).toBe(3);
       for (const p of ex.parts) for (const m of p.item.matchAll(/\$([^$]+)\$/g)) renderOk(m[1]);
     }
     // Variété : les graines donnent des énoncés différents

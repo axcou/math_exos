@@ -1059,3 +1059,81 @@ exports[`golden seeds > V09 est stable 1`] = `
   },
 ]
 `;
+
+exports[`golden seeds > V10 est stable 1`] = `
+[
+  {
+    "answers": [
+      "-2;3",
+      "-+-,0,0,",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-3\\,;\\,7]$.",
+  },
+  {
+    "answers": [
+      "-1;3",
+      "+-+,0,0,",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-3\\,;\\,4]$.",
+  },
+  {
+    "answers": [
+      "0",
+      "+-,0,",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-4\\,;\\,5]$.",
+  },
+]
+`;
+
+exports[`golden seeds > V11 est stable 1`] = `
+[
+  {
+    "answers": [
+      "up,down,up",
+      ""1"",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-4\\,;\\,4]$.",
+  },
+  {
+    "answers": [
+      "up,down,up",
+      ""-2"",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-4\\,;\\,6]$.",
+  },
+  {
+    "answers": [
+      "up,down",
+      ""-2"",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-2\\,;\\,8]$.",
+  },
+]
+`;
+
+exports[`golden seeds > V12 est stable 1`] = `
+[
+  {
+    "answers": [
+      "+-+,0,0,|up,down,up",
+      "-+,0,",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-4\\,;\\,4]$.",
+  },
+  {
+    "answers": [
+      "+-+,0,0,|up,down,up",
+      "-+-+,0,0,0,",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-4\\,;\\,6]$.",
+  },
+  {
+    "answers": [
+      "+-,0,|up,down",
+      "-+-,0,0,",
+    ],
+    "statement": "On donne ci-dessous la courbe représentative $\\mathcal{C}_f$ d'une fonction $f$ définie sur $[-2\\,;\\,8]$.",
+  },
+]
+`;

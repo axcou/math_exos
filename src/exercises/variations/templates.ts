@@ -4,6 +4,7 @@ import { Poly } from '../../core/expr/poly';
 import * as Q from '../../core/expr/rational';
 import { L, pn, R } from '../helpers';
 import type { ExerciseDraft, ExpressionQuestion, Question, RootsQuestion, Step, TableData, TableQuestion, Template, ValueQuestion } from '../types';
+import { GRAPH_TEMPLATES } from './graphTemplates';
 import { type Axis, factorRow, makeTable, productRow, signTable, variationRow } from './table';
 
 const tableQ = (id: string, expected: TableData, prompt: string): TableQuestion => ({
@@ -399,5 +400,5 @@ const V09: Template = {
   },
 };
 
-export const VARIATION_TEMPLATES: Template[] = [V01, V02, V03, V04, V05, V06, V07, V08, V09];
+export const VARIATION_TEMPLATES: Template[] = [V01, V02, V03, V04, V05, V06, V07, V08, V09, ...GRAPH_TEMPLATES];
 
