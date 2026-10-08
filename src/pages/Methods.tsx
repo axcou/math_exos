@@ -5,7 +5,8 @@ import { MathText, Tex } from '../components/Math';
 import { FormulaChips } from '../components/Solution';
 import { parse } from '../core/expr/parse';
 import { toLatex } from '../core/expr/toLatex';
-import { THEME_LABELS, THEMES } from '../exercises/types';
+import { ALL_THEMES as THEMES, THEME_LABELS } from '../exercises/types';
+import { CodeBlock } from '../components/DataTableView';
 import { type Method, type MethodExample, METHODS } from '../methods/methods';
 
 function exampleLatex(ex: MethodExample): string {
@@ -79,6 +80,7 @@ function MethodCard({ m, n }: { m: Method; n: number }) {
           ))}
         </ol>
         {m.formulas && <FormulaChips ids={m.formulas} />}
+        {m.code && <CodeBlock code={m.code} />}
       </div>
       {m.pitfalls && (
         <div className="box dashed">
@@ -118,7 +120,7 @@ export default function Methods() {
         <p className="mt-1 text-ink-soft">Pour chaque type de question : quand l’utiliser, les étapes, les pièges, et des exemples résolus pas à pas.</p>
       </header>
 
-      <nav className="grid gap-6 sm:grid-cols-3" aria-label="Sommaire des méthodes">
+      <nav className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" aria-label="Sommaire des méthodes">
         {THEMES.map((t) => (
           <div key={t} className={`chap-${t}`}>
             <p className="mb-1 font-sans text-sm font-bold uppercase tracking-wider text-chap">{THEME_LABELS[t]}</p>

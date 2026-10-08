@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Tex } from '../components/Math';
-import { THEME_LABELS, THEMES } from '../exercises/types';
+import { ALL_THEMES as THEMES, THEME_LABELS } from '../exercises/types';
 import { FORMULAS } from '../formulas/formulas';
 
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();

@@ -3,6 +3,7 @@ import { evaluate } from '../core/expr/evaluate';
 import { Rng } from '../core/random/prng';
 import { DERIVATIVE_TEMPLATES } from './derivatives/templates';
 import { LIMIT_TEMPLATES } from './limits/templates';
+import { STAT_TEMPLATES } from './stats/templates';
 import { type Difficulty, type Exercise, type ExerciseDraft, type DataTable, type ExercisePart, type GraphData, MAX_PARTS, type Question, type Template, type Theme, type ValueAnswer } from './types';
 import { VARIATION_TEMPLATES } from './variations/templates';
 
@@ -11,7 +12,7 @@ import { VARIATION_TEMPLATES } from './variations/templates';
  * partage. Un changement qui modifie ce qu'un template génère doit se faire
  * sous un nouveau code (l'ancien passe en `legacy`). Voir tests/golden-seeds.
  */
-export const TEMPLATES: Template[] = [...DERIVATIVE_TEMPLATES, ...LIMIT_TEMPLATES, ...VARIATION_TEMPLATES];
+export const TEMPLATES: Template[] = [...DERIVATIVE_TEMPLATES, ...LIMIT_TEMPLATES, ...VARIATION_TEMPLATES, ...STAT_TEMPLATES];
 
 export const TEMPLATE_BY_CODE = new Map(TEMPLATES.map((t) => [t.code, t]));
 
@@ -46,6 +47,12 @@ export const SUBTYPE_LABELS: Record<string, string> = {
   'variations-ln': 'Avec logarithme',
   'lecture-graphique': 'Lecture graphique',
   'etude-complete': 'Étude complète',
+  'deux-proportions': 'Deux proportions',
+  adequation: 'Adéquation (χ²)',
+  'adequation-estimation': 'Adéquation, paramètres estimés',
+  independance: 'Indépendance (χ²)',
+  homogeneite: 'Homogénéité (χ²)',
+  anova: 'Égalité des moyennes (ANOVA)',
 };
 
 export function templatesFor(theme: Theme, difficulty?: Difficulty, subtypes?: string[]): Template[] {

@@ -54,6 +54,16 @@ export const FORMULAS: Formula[] = [
   { id: 'v.var', theme: 'variation', group: 'Variations', title: 'Dérivée et variations', latex: "f' > 0 \\text{ sur } I \\Rightarrow f \\nearrow \\text{ sur } I \\qquad f' < 0 \\text{ sur } I \\Rightarrow f \\searrow \\text{ sur } I" },
   { id: 'v.extr', theme: 'variation', group: 'Variations', title: 'Extremum', latex: "f'(x_0) = 0 \\text{ en changeant de signe} \\Rightarrow f(x_0) \\text{ est un extremum local}" },
   { id: 'v.sommet', theme: 'variation', group: 'Variations', title: 'Sommet d’une parabole', latex: '\\alpha = -\\frac{b}{2a} \\qquad \\beta = f(\\alpha)', note: 'Si a > 0 : minimum ; si a < 0 : maximum.' },
+
+  // ——— Tests statistiques
+  { id: 's.pvalue', theme: 'stat', group: 'Principe d’un test', title: 'p-valeur et décision', latex: 'p = P_{H_0}\\big(\\text{statistique au moins aussi extrême que celle observée}\\big) \\qquad p < \\alpha \\Rightarrow \\text{on rejette } H_0', note: 'α est le risque de rejeter H₀ à tort (erreur de première espèce).' },
+  { id: 's.z2p', theme: 'stat', group: 'Deux proportions', title: 'Statistique de comparaison', latex: 'Z = \\frac{\\hat p_B - \\hat p_A}{\\sqrt{\\frac{\\hat p_A(1-\\hat p_A)}{n_A} + \\frac{\\hat p_B(1-\\hat p_B)}{n_B}}} \\;\\underset{H_0}{\\approx}\\; \\mathcal{N}(0,1)', note: 'Bilatéral : p = 2 P(Z > |z|). Unilatéral (H₁ : p_B > p_A) : p = P(Z > z).' },
+  { id: 's.ic2p', theme: 'stat', group: 'Deux proportions', title: 'Intervalle de confiance de p_B − p_A', latex: '\\hat p_B - \\hat p_A \\pm z_{1-\\alpha/2}\\sqrt{\\frac{\\hat p_A(1-\\hat p_A)}{n_A} + \\frac{\\hat p_B(1-\\hat p_B)}{n_B}} \\qquad z_{0{,}975} \\approx 1{,}96' },
+  { id: 's.chi2', theme: 'stat', group: 'Tests du χ²', title: 'Statistique du χ²', latex: 'T = \\sum_{i} \\frac{(n_i - n p_i)^2}{n p_i}', note: 'Effectifs observés nᵢ, effectifs théoriques npᵢ (à vérifier : npᵢ ≥ 5).' },
+  { id: 's.chi2ddl', theme: 'stat', group: 'Tests du χ²', title: 'Degrés de liberté', latex: '\\text{adéquation : } k - 1 - (\\text{nb de paramètres estimés}) \\qquad \\text{contingence : } (r-1)(c-1)' },
+  { id: 's.contingence', theme: 'stat', group: 'Tests du χ²', title: 'Effectif théorique (indépendance, homogénéité)', latex: 'E_{ij} = \\frac{(\\text{total de la ligne } i) \\times (\\text{total de la colonne } j)}{n}' },
+  { id: 's.anova', theme: 'stat', group: 'ANOVA', title: 'Décomposition de la variance', latex: '\\underbrace{\\sum_{i,j}(x_{ij} - \\bar x)^2}_{SCE_{tot}} = \\underbrace{\\sum_i n_i(\\bar x_i - \\bar x)^2}_{SCE_{inter}} + \\underbrace{\\sum_{i,j}(x_{ij} - \\bar x_i)^2}_{SCE_{intra}}' },
+  { id: 's.fisher', theme: 'stat', group: 'ANOVA', title: 'Statistique de Fisher', latex: 'F = \\frac{SCE_{inter}/(k-1)}{SCE_{intra}/(N-k)} \\;\\underset{H_0}{\\sim}\\; \\mathcal{F}(k-1,\\, N-k)', note: 'Conditions : échantillons indépendants, normalité dans chaque groupe, même variance.' },
 ];
 
 export const FORMULA_BY_ID = new Map(FORMULAS.map((f) => [f.id, f]));

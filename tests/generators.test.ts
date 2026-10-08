@@ -153,7 +153,7 @@ describe.each(TEMPLATES.map((t) => [t.code, t] as const))('template %s', (_code,
     // Version en 3 parties : données distinctes et LaTeX valide
     for (const seed of SEEDS.slice(0, 20)) {
       const ex = generateExercise(template, seed, 3);
-      expect(new Set(ex.parts.map((p) => p.item + p.questions.map((q) => q.prompt).join() + JSON.stringify(p.graph ?? ''))).size, ex.uid).toBe(3);
+      expect(new Set(ex.parts.map((p) => p.item + p.questions.map((q) => q.prompt).join() + JSON.stringify(p.graph ?? '') + JSON.stringify(p.tables ?? ''))).size, ex.uid).toBe(3);
       for (const p of ex.parts) for (const m of p.item.matchAll(/\$([^$]+)\$/g)) renderOk(m[1]);
     }
     // Variété : les graines donnent des énoncés différents

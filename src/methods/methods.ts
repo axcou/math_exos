@@ -19,6 +19,8 @@ export interface Method {
   pitfalls?: string[];
   formulas?: string[];
   examples: MethodExample[];
+  /** Code R de la méthode (tests statistiques). */
+  code?: string;
 }
 
 export const METHODS: Method[] = [
@@ -301,6 +303,94 @@ export const METHODS: Method[] = [
     formulas: ['v.var'],
     examples: [],
   },
+  // ——————————————————————————————————— Tests statistiques
+  {
+    id: 'test-principe',
+    theme: 'stat',
+    title: 'Mener un test statistique',
+    when: 'On se demande si des données contredisent une hypothèse sur une population (égalité de proportions, loi donnée, indépendance, égalité de moyennes…).',
+    steps: [
+      'Modéliser : définir les variables aléatoires et les paramètres inconnus ($p_A$, $p_i$, $\\mu_i$…).',
+      'Poser $H_0$ (le modèle de référence : égalité, loi annoncée, indépendance) et $H_1$ (ce qu’on cherche à montrer). Bilatéral ou unilatéral ?',
+      'Choisir la statistique de test et donner sa loi sous $H_0$ (souvent asymptotique : vérifier les conditions, par ex. effectifs théoriques $\\geq 5$).',
+      'Calculer la valeur observée de la statistique, puis la p-valeur : la probabilité, sous $H_0$, d’observer une valeur au moins aussi extrême.',
+      'Conclure au seuil $\\alpha$ : si $p < \\alpha$, on rejette $H_0$ ; sinon on ne la rejette pas (ce qui ne prouve pas qu’elle est vraie).',
+    ],
+    pitfalls: [
+      'Écrire les hypothèses sur les valeurs observées ($\\hat p$, $\\bar x$, $n_i$) au lieu des paramètres de la population.',
+      'Conclure « $H_0$ est vraie » quand on ne la rejette pas.',
+      'Oublier de doubler la probabilité pour un test bilatéral.',
+    ],
+    formulas: ['s.pvalue'],
+    examples: [],
+    code: '# p-valeurs avec les fonctions de répartition\n1 - pnorm(z)            # N(0,1), queue droite\n2 * (1 - pnorm(abs(z)))  # N(0,1), bilatéral\n1 - pchisq(T, df = d)    # khi-deux\n1 - pf(F, d1, d2)        # Fisher',
+  },
+  {
+    id: 'test-proportions',
+    theme: 'stat',
+    title: 'Comparer deux proportions',
+    when: 'Deux groupes indépendants, une réponse oui / non : traitement contre placebo, deux versions d’un site…',
+    steps: [
+      'Calculer les proportions observées $\\hat p_A = \\frac{x_A}{n_A}$ et $\\hat p_B = \\frac{x_B}{n_B}$.',
+      'Statistique $z = \\frac{\\hat p_B - \\hat p_A}{\\sqrt{\\hat p_A(1-\\hat p_A)/n_A + \\hat p_B(1-\\hat p_B)/n_B}}$, de loi $\\approx \\mathcal{N}(0,1)$ sous $H_0 : p_A = p_B$.',
+      'Bilatéral ($H_1 : p_A \\neq p_B$) : $p = 2\\,P(Z > |z|)$. Unilatéral ($H_1 : p_B > p_A$) : $p = P(Z > z)$.',
+      'Intervalle de confiance de $p_B - p_A$ : $\\hat p_B - \\hat p_A \\pm 1{,}96 \\times$ (même écart type). Il contient $0$ exactement quand le test bilatéral à $5\\,\\%$ ne rejette pas.',
+    ],
+    pitfalls: ['Prendre le mauvais côté pour un test unilatéral : on regarde la queue dans le sens de $H_1$.'],
+    formulas: ['s.z2p', 's.ic2p'],
+    examples: [],
+    code: 'pA <- 20 / 100; pB <- 30 / 100\nse <- sqrt(pA * (1 - pA) / 100 + pB * (1 - pB) / 100)\nz <- (pB - pA) / se\n2 * (1 - pnorm(abs(z)))  # p-valeur bilatérale',
+  },
+  {
+    id: 'test-adequation',
+    theme: 'stat',
+    title: 'Test d’adéquation du χ²',
+    when: 'Des effectifs observés par classes, et une loi théorique à tester : dé équilibré, proportions annoncées, loi de Poisson, loi normale…',
+    steps: [
+      'Calculer la probabilité $p_i$ de chaque classe sous $H_0$ (en estimant d’abord les paramètres inconnus : $\\hat\\lambda = \\bar x$, $\\hat\\mu$, $\\hat\\sigma$…).',
+      'Effectifs théoriques $n\\,p_i$ : tous doivent valoir au moins $5$ (sinon, regrouper des classes).',
+      'Statistique $T = \\sum_i \\frac{(n_i - n p_i)^2}{n p_i}$.',
+      'Sous $H_0$, $T$ suit asymptotiquement $\\chi^2(k - 1 - m)$ : $k$ classes, $m$ paramètres estimés.',
+      'p-valeur $= P(\\chi^2 > T)$ : on rejette pour les **grandes** valeurs de $T$.',
+    ],
+    pitfalls: ['Oublier de retirer un degré de liberté par paramètre estimé.', 'Diviser par l’effectif observé au lieu de l’effectif théorique.'],
+    formulas: ['s.chi2', 's.chi2ddl'],
+    examples: [],
+    code: 'obs <- c(82, 70, 28, 20)\np0 <- c(0.40, 0.35, 0.15, 0.10)\nth <- sum(obs) * p0\nT <- sum((obs - th)^2 / th)\n1 - pchisq(T, df = length(obs) - 1)',
+  },
+  {
+    id: 'test-contingence',
+    theme: 'stat',
+    title: 'Indépendance et homogénéité (χ²)',
+    when: 'Un tableau croisé de deux caractères qualitatifs (indépendance), ou plusieurs populations comparées sur un même caractère (homogénéité).',
+    steps: [
+      'Calculer les totaux des lignes, des colonnes et l’effectif total $n$.',
+      'Effectifs théoriques sous $H_0$ : $E_{ij} = \\frac{(\\text{total ligne } i)(\\text{total colonne } j)}{n}$, tous au moins égaux à $5$.',
+      'Statistique $T = \\sum_{i,j} \\frac{(O_{ij} - E_{ij})^2}{E_{ij}}$, de loi $\\chi^2\\big((r-1)(c-1)\\big)$ sous $H_0$.',
+      'p-valeur $= P(\\chi^2 > T)$, puis conclusion.',
+    ],
+    pitfalls: ['Indépendance : un échantillon, deux caractères. Homogénéité : plusieurs échantillons d’effectifs fixés. Les calculs sont identiques, seules les hypothèses changent.'],
+    formulas: ['s.contingence', 's.chi2', 's.chi2ddl'],
+    examples: [],
+    code: 'obs <- matrix(c(30, 20, 50, 10, 20, 30), nrow = 3, byrow = TRUE)\nth <- rowSums(obs) %o% colSums(obs) / sum(obs)\nT <- sum((obs - th)^2 / th)\n1 - pchisq(T, df = (nrow(obs) - 1) * (ncol(obs) - 1))',
+  },
+  {
+    id: 'test-anova',
+    theme: 'stat',
+    title: 'Comparer des moyennes (ANOVA)',
+    when: 'Une variable quantitative mesurée dans $k \\geq 3$ groupes indépendants : on se demande si les moyennes sont égales.',
+    steps: [
+      'Hypothèses de modèle : indépendance, normalité dans chaque groupe, même variance (homoscédasticité).',
+      'Calculer les moyennes $\\bar x_i$ des groupes et la moyenne générale $\\bar x$.',
+      '$SCE_{inter} = \\sum_i n_i(\\bar x_i - \\bar x)^2$ et $SCE_{intra} = \\sum_{i,j}(x_{ij} - \\bar x_i)^2$.',
+      '$F = \\frac{SCE_{inter}/(k-1)}{SCE_{intra}/(N-k)}$ suit $\\mathcal{F}(k-1, N-k)$ sous $H_0 : \\mu_1 = \\dots = \\mu_k$.',
+      'p-valeur $= P(\\mathcal{F} > F)$ : un grand $F$ signifie que les groupes diffèrent plus que ce que la variabilité interne explique.',
+    ],
+    pitfalls: ['$H_1$ est « au moins deux moyennes diffèrent », pas « toutes diffèrent ».', 'Moyenne générale ≠ moyenne des moyennes quand les groupes n’ont pas le même effectif.'],
+    formulas: ['s.anova', 's.fisher'],
+    examples: [],
+    code: 'A <- c(12, 14, 11, 13); B <- c(15, 17, 16, 18); C <- c(14, 13, 15, 12)\nx <- c(A, B, C); m <- mean(x)\ninter <- 4 * ((mean(A) - m)^2 + (mean(B) - m)^2 + (mean(C) - m)^2)\nintra <- sum((A - mean(A))^2) + sum((B - mean(B))^2) + sum((C - mean(C))^2)\nF <- (inter / 2) / (intra / 9)\n1 - pf(F, 2, 9)',
+  },
 ];
 
 /** Méthode la plus proche d'un type d'exercice (lien « voir la méthode »). */
@@ -334,5 +424,11 @@ export const METHOD_FOR_SUBTYPE: Record<string, string> = {
   'variations-exp': 'var-tableau',
   'variations-ln': 'var-tableau',
   'lecture-graphique': 'lecture-graphique',
+  'deux-proportions': 'test-proportions',
+  adequation: 'test-adequation',
+  'adequation-estimation': 'test-adequation',
+  independance: 'test-contingence',
+  homogeneite: 'test-contingence',
+  anova: 'test-anova',
   'etude-complete': 'var-tableau',
 };

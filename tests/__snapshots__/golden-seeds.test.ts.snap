@@ -808,6 +808,409 @@ exports[`golden seeds > L12 est stable 1`] = `
 ]
 `;
 
+exports[`golden seeds > S01 est stable 1`] = `
+[
+  {
+    "answers": [
+      "$H_0 : p_A = p_B$ contre $H_1 : p_A \\neq p_B$",
+      "3.5780",
+      "0.00035",
+      "On rejette $H_0$",
+      "On rejette $H_0$",
+      "0.00017",
+      "0.08818",
+      "0.30182",
+    ],
+    "data": [
+      "Achat 14 74 / Pas d’achat 66 126 / Total 80 200",
+    ],
+    "statement": "Un site marchand teste deux versions de sa page d’accueil : chacun des 280 visiteurs suivis voit au hasard l’une des deux versions. On note si la visite se termine par un achat. On note $p_A$ (resp. $p_B$) la probabilité d’achat dans le groupe « Version A » (resp. « Version B »).",
+  },
+  {
+    "answers": [
+      "$H_0 : p_A = p_B$ contre $H_1 : p_A \\neq p_B$",
+      "3.4437",
+      "0.00057",
+      "On rejette $H_0$",
+      "On rejette $H_0$",
+      "0.00029",
+      "0.11310",
+      "0.41190",
+    ],
+    "data": [
+      "Achat 28 49 / Pas d’achat 52 31 / Total 80 80",
+    ],
+    "statement": "Un site marchand teste deux versions de sa page d’accueil : chacun des 160 visiteurs suivis voit au hasard l’une des deux versions. On note si la visite se termine par un achat. On note $p_A$ (resp. $p_B$) la probabilité d’achat dans le groupe « Version A » (resp. « Version B »).",
+  },
+  {
+    "answers": [
+      "$H_0 : p_A = p_B$ contre $H_1 : p_A \\neq p_B$",
+      "2.2207",
+      "0.02637",
+      "On rejette $H_0$",
+      "On rejette $H_0$",
+      "0.01319",
+      "0.01526",
+      "0.24474",
+    ],
+    "data": [
+      "Réussite 56 41 / Échec 144 59 / Total 200 100",
+    ],
+    "statement": "Un lycée compare deux méthodes de révision : 300 élèves sont répartis au hasard entre l’ancienne et la nouvelle méthode, puis passent le même examen blanc. On note $p_A$ (resp. $p_B$) la probabilité de réussite dans le groupe « Ancienne méthode » (resp. « Nouvelle méthode »).",
+  },
+]
+`;
+
+exports[`golden seeds > S02 est stable 1`] = `
+[
+  {
+    "answers": [
+      "$H_0$ : « les dix chiffres sont équiprobables », c’est-à-dire $p_i = \\frac{1}{10}$ pour toute classe $i$",
+      "10.0000",
+      "9.0000",
+      "$\\chi^2(9)$",
+      "0.43727",
+      "On ne rejette pas $H_0$",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "Effectif observé $n_i$ 6 17 12 8 10 8 10 10 7 12 100",
+    ],
+    "statement": "Un programme est censé tirer des chiffres de 0 à 9 au hasard. On observe 100 tirages. On veut savoir si les dix chiffres sont équiprobables.",
+  },
+  {
+    "answers": [
+      "$H_0$ : « les dix chiffres sont équiprobables », c’est-à-dire $p_i = \\frac{1}{10}$ pour toute classe $i$",
+      "15.0000",
+      "2.2667",
+      "$\\chi^2(9)$",
+      "0.98652",
+      "On ne rejette pas $H_0$",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "Effectif observé $n_i$ 15 16 18 16 15 14 17 12 15 12 150",
+    ],
+    "statement": "Un programme est censé tirer des chiffres de 0 à 9 au hasard. On observe 150 tirages. On veut savoir si les dix chiffres sont équiprobables.",
+  },
+  {
+    "answers": [
+      "$H_0$ : « le dé est équilibré », c’est-à-dire $p_i = \\frac{1}{4}$ pour toute classe $i$",
+      "25.0000",
+      "7.2000",
+      "$\\chi^2(3)$",
+      "0.06579",
+      "On ne rejette pas $H_0$",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "Effectif observé $n_i$ 22 34 16 28 100",
+    ],
+    "statement": "On a lancé 100 fois un dé à quatre faces (un tétraèdre) et noté les résultats. On veut savoir si le dé est équilibré.",
+  },
+]
+`;
+
+exports[`golden seeds > S03 est stable 1`] = `
+[
+  {
+    "answers": [
+      "$H_0$ : « la répartition est celle annoncée » contre $H_1$ : « au moins une proportion diffère »",
+      "15.0000",
+      "3.1600",
+      "4.00",
+      "0.53142",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "Proportion annoncée 10 % 15 % 30 % 20 % 25 % 100 % / Effectif observé 8 16 26 18 32 100",
+    ],
+    "statement": "Un fabricant de bonbons annonce la répartition des couleurs ci-dessous. On compte les couleurs de 100 bonbons pris au hasard. On teste l’adéquation entre les données observées et les proportions annoncées, au niveau de signification $\\alpha = 0{,}05$.",
+  },
+  {
+    "answers": [
+      "$H_0$ : « la répartition est celle annoncée » contre $H_1$ : « au moins une proportion diffère »",
+      "30.0000",
+      "8.6733",
+      "4.00",
+      "0.06980",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "Proportion annoncée 15 % 20 % 20 % 20 % 25 % 100 % / Effectif observé 21 42 25 34 28 150",
+    ],
+    "statement": "Un fabricant de bonbons annonce la répartition des couleurs ci-dessous. On compte les couleurs de 150 bonbons pris au hasard. On teste l’adéquation entre les données observées et les proportions annoncées, au niveau de signification $\\alpha = 0{,}05$.",
+  },
+  {
+    "answers": [
+      "$H_0$ : « la répartition est celle annoncée » contre $H_1$ : « au moins une proportion diffère »",
+      "126.0000",
+      "1.8378",
+      "3.00",
+      "0.60674",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "Proportion annoncée 42 % 44 % 10 % 4 % 100 % / Effectif observé 124 126 36 14 300",
+    ],
+    "statement": "D’après une étude nationale, les groupes sanguins se répartissent comme ci-dessous. Dans un centre de don, on relève le groupe de 300 donneurs. On teste l’adéquation entre les données observées et les proportions annoncées, au niveau de signification $\\alpha = 0{,}05$.",
+  },
+]
+`;
+
+exports[`golden seeds > S04 est stable 1`] = `
+[
+  {
+    "answers": [
+      "la moyenne empirique $\\bar x$",
+      "15.4402",
+      "1.4241",
+      "$\\chi^2(5)$",
+      "0.92166",
+      "On ne rejette pas $H_0$",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "Effectif observé $n_i$ 6 18 19 21 17 10 9 100",
+    ],
+    "statement": "Sur une chaîne de production, on relève le nombre de pannes par semaine pendant 100 semaines. On se demande si ce nombre suit une loi de Poisson. La moyenne de l’échantillon vaut $\\bar x = 2{,}95$.",
+  },
+  {
+    "answers": [
+      "la moyenne empirique $\\bar x$",
+      "29.2615",
+      "11.7030",
+      "$\\chi^2(6)$",
+      "0.06893",
+      "On ne rejette pas $H_0$",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "Effectif observé $n_i$ 21 12 29 24 27 18 12 7 150",
+    ],
+    "statement": "Sur une chaîne de production, on relève le nombre de pannes par semaine pendant 150 semaines. On se demande si ce nombre suit une loi de Poisson. La moyenne de l’échantillon vaut $\\bar x = 4{,}11$.",
+  },
+  {
+    "answers": [
+      "la moyenne empirique $\\bar x$",
+      "28.2108",
+      "103.6944",
+      "$\\chi^2(7)$",
+      "0.00000",
+      "On rejette $H_0$",
+      "On rejette $H_0$",
+    ],
+    "data": [
+      "Effectif observé $n_i$ 51 33 32 33 26 27 14 11 23 250",
+    ],
+    "statement": "Le standard d’une entreprise relève le nombre d’appels reçus par minute, pendant 250 minutes prises au hasard. On se demande si ce nombre suit une loi de Poisson. La moyenne de l’échantillon vaut $\\bar x = 4{,}17$.",
+  },
+]
+`;
+
+exports[`golden seeds > S05 est stable 1`] = `
+[
+  {
+    "answers": [
+      "19.1250",
+      "6.6509",
+      "0.26756",
+      "22.8275",
+      "$\\chi^2(2)$",
+      "0.00001",
+      "On rejette $H_0$",
+    ],
+    "data": [
+      "Effectif observé $n_i$ 76 44 37 25 18 200",
+    ],
+    "statement": "On relève la durée (en minutes) du trajet domicile-travail de 200 salariés. Suit-elle une loi normale $\\mathcal{N}(\\mu, \\sigma^2)$ ? La valeur associée à chaque classe est son centre. Pour les probabilités théoriques, on étend la première classe à $-\\infty$ et la dernière à $+\\infty$. On teste au niveau $\\alpha = 0{,}05$.",
+  },
+  {
+    "answers": [
+      "23.2600",
+      "5.0022",
+      "0.04934",
+      "1.8788",
+      "$\\chi^2(2)$",
+      "0.39086",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "Effectif observé $n_i$ 9 58 93 66 24 250",
+    ],
+    "statement": "On relève la durée (en minutes) du trajet domicile-travail de 250 salariés. Suit-elle une loi normale $\\mathcal{N}(\\mu, \\sigma^2)$ ? La valeur associée à chaque classe est son centre. Pour les probabilités théoriques, on étend la première classe à $-\\infty$ et la dernière à $+\\infty$. On teste au niveau $\\alpha = 0{,}05$.",
+  },
+  {
+    "answers": [
+      "35.0250",
+      "6.5954",
+      "0.06426",
+      "3.5552",
+      "$\\chi^2(3)$",
+      "0.31367",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "Effectif observé $n_i$ 11 39 49 56 29 16 200",
+    ],
+    "statement": "Un horticulteur mesure la hauteur (en cm) de 200 plants après un mois de culture. Il se demande si cette hauteur suit une loi normale $\\mathcal{N}(\\mu, \\sigma^2)$. La valeur associée à chaque classe est son centre. Pour les probabilités théoriques, on étend la première classe à $-\\infty$ et la dernière à $+\\infty$. On teste au niveau $\\alpha = 0{,}05$.",
+  },
+]
+`;
+
+exports[`golden seeds > S06 est stable 1`] = `
+[
+  {
+    "answers": [
+      "$H_0$ : « le moyen d’information est indépendant de la tranche d’âge » contre $H_1$ : « le moyen d’information dépend de l’âge »",
+      "31.7935",
+      "33.8918",
+      "4.00",
+      "0.00000",
+      "On rejette $H_0$",
+    ],
+    "data": [
+      "18–30 ans 16 32 40 88 / 31–50 ans 10 68 30 108 / Plus de 50 ans 37 35 42 114 / Total 63 135 112 310",
+    ],
+    "statement": "Un institut de sondage demande à 310 personnes leur principal moyen d’information. Les résultats sont résumés dans le tableau suivant. On teste l’indépendance des deux caractères au niveau de signification $\\alpha = 0{,}05$.",
+  },
+  {
+    "answers": [
+      "$H_0$ : « le moyen d’information est indépendant de la tranche d’âge » contre $H_1$ : « le moyen d’information dépend de l’âge »",
+      "13.6615",
+      "19.3700",
+      "4.00",
+      "0.00066",
+      "On rejette $H_0$",
+    ],
+    "data": [
+      "18–30 ans 30 43 60 133 / 31–50 ans 27 18 34 79 / Plus de 50 ans 26 13 9 48 / Total 83 74 103 260",
+    ],
+    "statement": "Un institut de sondage demande à 260 personnes leur principal moyen d’information. Les résultats sont résumés dans le tableau suivant. On teste l’indépendance des deux caractères au niveau de signification $\\alpha = 0{,}05$.",
+  },
+  {
+    "answers": [
+      "$H_0$ : « la pratique sportive est indépendante du tabagisme » contre $H_1$ : « la pratique sportive dépend du tabagisme »",
+      "26.6250",
+      "2.6022",
+      "2.00",
+      "0.27224",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "Fumeur 48 110 92 250 / Non-fumeur 23 60 67 150 / Total 71 170 159 400",
+    ],
+    "statement": "On interroge 400 adultes sur leur consommation de tabac et leur pratique sportive. Les résultats sont résumés dans le tableau suivant. On teste l’indépendance des deux caractères au niveau de signification $\\alpha = 0{,}05$.",
+  },
+]
+`;
+
+exports[`golden seeds > S07 est stable 1`] = `
+[
+  {
+    "answers": [
+      "$H_0$ : « la qualité de la production est la même dans les trois usines » contre $H_1$ : « au moins deux usines ont des répartitions différentes »",
+      "19.5000",
+      "2.2685",
+      "4.00",
+      "0.68651",
+      "On ne rejette pas $H_0$",
+      "un test d’indépendance du $\\chi^2$ sur le même tableau",
+    ],
+    "data": [
+      "Usine A 115 20 15 150 / Usine B 157 28 15 200 / Usine C 204 30 16 250 / Total 476 78 46 600",
+    ],
+    "statement": "Un groupe industriel contrôle la qualité des pièces produites dans trois usines : un échantillon de pièces est prélevé dans chacune. Les résultats sont les suivants. On teste l’homogénéité des répartitions au niveau de signification $\\alpha = 0{,}05$.",
+  },
+  {
+    "answers": [
+      "$H_0$ : « la qualité de la production est la même dans les trois usines » contre $H_1$ : « au moins deux usines ont des répartitions différentes »",
+      "15.4167",
+      "1.1825",
+      "4.00",
+      "0.88098",
+      "On ne rejette pas $H_0$",
+      "un test d’indépendance du $\\chi^2$ sur le même tableau",
+    ],
+    "data": [
+      "Usine A 120 21 9 150 / Usine B 151 36 13 200 / Usine C 192 43 15 250 / Total 463 100 37 600",
+    ],
+    "statement": "Un groupe industriel contrôle la qualité des pièces produites dans trois usines : un échantillon de pièces est prélevé dans chacune. Les résultats sont les suivants. On teste l’homogénéité des répartitions au niveau de signification $\\alpha = 0{,}05$.",
+  },
+  {
+    "answers": [
+      "$H_0$ : « l’orientation se répartit de la même façon dans les deux lycées » contre $H_1$ : « au moins deux lycées ont des répartitions différentes »",
+      "24.0909",
+      "5.1488",
+      "3.00",
+      "0.16122",
+      "On ne rejette pas $H_0$",
+      "un test d’indépendance du $\\chi^2$ sur le même tableau",
+    ],
+    "data": [
+      "Lycée 1 42 24 49 35 150 / Lycée 2 50 29 42 59 180 / Total 92 53 91 94 330",
+    ],
+    "statement": "On compare l’orientation après le bac des élèves de deux lycées. Les résultats sont les suivants. On teste l’homogénéité des répartitions au niveau de signification $\\alpha = 0{,}05$.",
+  },
+]
+`;
+
+exports[`golden seeds > S08 est stable 1`] = `
+[
+  {
+    "answers": [
+      "$H_0 : \\mu_{1} = \\mu_{2} = \\mu_{3}$ contre $H_1$ : « au moins deux moyennes diffèrent »",
+      "Échantillons indépendants, loi normale dans chaque groupe, même variance dans tous les groupes",
+      "30.8000",
+      "97.6000",
+      "96.8000",
+      "6.0496",
+      "$\\mathcal{F}(2,\\, 12)$",
+      "0.01524",
+      "On rejette $H_0$",
+    ],
+    "data": [
+      "30 33 31 / 24 34 34 / 23 27 31 / 29 34 35 / 30 34 33",
+    ],
+    "statement": "Une association de consommateurs compare la durée de vie (en heures) de piles de trois marques, testées dans le même appareil. On veut savoir si la durée de vie moyenne dépend du groupe, au seuil de signification $5\\,\\%$.",
+  },
+  {
+    "answers": [
+      "$H_0 : \\mu_{1} = \\mu_{2} = \\mu_{3}$ contre $H_1$ : « au moins deux moyennes diffèrent »",
+      "Échantillons indépendants, loi normale dans chaque groupe, même variance dans tous les groupes",
+      "29.8889",
+      "45.7778",
+      "144.0000",
+      "2.3843",
+      "$\\mathcal{F}(2,\\, 15)$",
+      "0.12615",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "29 30 33 / 33 31 28 / 29 32 38 / 25 29 30 / 28 31 29 / 22 31 30",
+    ],
+    "statement": "Une association de consommateurs compare la durée de vie (en heures) de piles de trois marques, testées dans le même appareil. On veut savoir si la durée de vie moyenne dépend du groupe, au seuil de signification $5\\,\\%$.",
+  },
+  {
+    "answers": [
+      "$H_0 : \\mu_{1} = \\mu_{2} = \\mu_{3}$ contre $H_1$ : « au moins deux moyennes diffèrent »",
+      "Échantillons indépendants, loi normale dans chaque groupe, même variance dans tous les groupes",
+      "6.7857",
+      "11.2738",
+      "49.0833",
+      "1.2633",
+      "$\\mathcal{F}(2,\\, 11)$",
+      "0.32072",
+      "On ne rejette pas $H_0$",
+    ],
+    "data": [
+      "6 5 5 / 10 7 6 / 10 3 7 / 7 7 9 / 9   / 4  ",
+    ],
+    "statement": "Trois professeurs utilisent chacun une méthode différente pour préparer un même contrôle. On relève les notes (sur 20) d’élèves de chaque groupe. On veut savoir si la note moyenne dépend du groupe, au seuil de signification $5\\,\\%$.",
+  },
+]
+`;
+
 exports[`golden seeds > V01 est stable 1`] = `
 [
   {

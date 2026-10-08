@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { exerciseFromUid, TEMPLATE_BY_CODE } from '../exercises/registry';
-import { DIFFICULTY_LABELS, type Difficulty, type Exercise, THEME_LABELS, THEMES } from '../exercises/types';
+import { ALL_THEMES as THEMES, DIFFICULTY_LABELS, type Difficulty, type Exercise, THEME_LABELS } from '../exercises/types';
 import { type HistoryEntry, useStore } from '../history/store';
 
 function counts(entries: HistoryEntry[]) {
