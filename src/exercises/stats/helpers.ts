@@ -20,8 +20,12 @@ export function numberQ(
   tolerance: number,
   mistakes: { value: number; message: string }[] = [],
 ): NumberQuestion {
-  // une « erreur classique » trop proche de la bonne réponse n'aurait pas de sens
-  const kept = mistakes.filter((m) => Number.isFinite(m.value) && Math.abs(m.value - expected) > 2 * tolerance);
+  // une « erreur classique » trop proche de la bonne réponse, ou d'une autre erreur, rendrait le message ambigu
+  const kept: typeof mistakes = [];
+  for (const m of mistakes) {
+    const apart = (v: number) => Math.abs(m.value - v) > 2 * tolerance;
+    if (Number.isFinite(m.value) && apart(expected) && kept.every((k) => apart(k.value))) kept.push(m);
+  }
   return { id, type: 'number', prompt, label, expected, decimals, tolerance, ...(kept.length ? { mistakes: kept } : {}) };
 }
 
@@ -118,5 +122,5 @@ export function randomComposition(rng: Rng, k: number, min = 10, step = 5): numb
   return parts.map((x) => x / 100);
 }
 
-/** Écriture française d'un nombre décimal dans une cellule de tableau. */
-export const cell = (x: number, d = 2) => texNum(x, d).replace('{,}', ',');
+/** Écriture française d'un nombre décimal dans une cellule de tableau (décimales fixes, colonnes alignées). */
+export const cell = (x: number, d = 2) => texFixed(x, d).replace('{,}', ',');

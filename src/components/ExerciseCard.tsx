@@ -119,7 +119,7 @@ function QuestionBlock({ ex, q, marker, showPrompt, inputs, singleAttempt }: Que
       {q.type === 'expression' && <ExpressionInput value={text} onChange={onText} onSubmit={check} label={q.label} disabled={locked} />}
       {q.type === 'value' && <ValueInput value={text} onChange={onText} onSubmit={check} label={q.hideLabel ? undefined : q.label} disabled={locked} />}
       {q.type === 'roots' && <RootsInput value={text} onChange={onText} onSubmit={check} disabled={locked} />}
-      {q.type === 'number' && <NumberInput value={text} onChange={onText} onSubmit={check} label={q.label} disabled={locked} />}
+      {q.type === 'number' && <NumberInput value={text} onChange={onText} onSubmit={check} label={q.label} disabled={locked} placeholder={q.decimals === 0 ? 'nombre entier, ex. 4' : undefined} />}
       {q.type === 'choice' && (
         <ChoiceInput name={`${ex.uid}-${q.id}`} options={q.options} value={text} onChange={onText} disabled={locked} wrong={!!result && result.status !== 'correct'} />
       )}

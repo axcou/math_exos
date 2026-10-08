@@ -8,7 +8,8 @@ import type { SheetConfig } from '../sheet/sheetConfig';
 
 interface Props {
   exercises: Exercise[];
-  config: SheetConfig;
+  /** Composition à partager (absente : seul le partage de la feuille exacte est proposé). */
+  config?: SheetConfig;
   initialTitle: string;
   /** Réglages de la feuille courante, repris par défaut. */
   initial?: { showSolutions?: boolean; allowRetry?: boolean; singleAttempt?: boolean };
@@ -27,7 +28,7 @@ export function ShareDialog({ exercises, config, initialTitle, initial, onClose 
   const [bigQr, setBigQr] = useState(false);
 
   const url = absoluteUrl(
-    mode === 'sheet' ? encodeSheet({ refs: exercises.map(refOf), title, showSolutions, inputs, allowRetry, singleAttempt }) : encodeConfig(config),
+    mode === 'sheet' || !config ? encodeSheet({ refs: exercises.map(refOf), title, showSolutions, inputs, allowRetry, singleAttempt }) : encodeConfig(config),
   );
 
   useEffect(() => {
@@ -68,7 +69,7 @@ export function ShareDialog({ exercises, config, initialTitle, initial, onClose 
           </button>
         </div>
 
-        <fieldset className="mb-5 space-y-2">
+        <fieldset className={`mb-5 space-y-2 ${config ? '' : 'hidden'}`}>
           <legend className="label mb-2">Que partager ?</legend>
           {(['sheet', 'config'] as const).map((m) => (
             <label key={m} className="flex cursor-pointer gap-2.5">

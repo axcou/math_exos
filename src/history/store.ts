@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { CheckResult, TableAnswer } from '../checking/check';
 import { exerciseUid } from '../exercises/registry';
-import type { Difficulty, Exercise, Theme } from '../exercises/types';
+import type { Difficulty, DifficultyChoice, Exercise, Theme } from '../exercises/types';
 import type { ExerciseRef } from '../share/share';
 import { DEFAULT_CONFIG, type SheetConfig } from '../sheet/sheetConfig';
 import { type PastExercise, statementKey } from './antiRepeat';
@@ -46,9 +46,27 @@ export interface CurrentSheet {
   skipped?: number;
 }
 
+/** Feuille d'analyse (page « Exercices ») ou de tests statistiques (page « Tests stat. »). */
+export type SheetSlot = 'main' | 'stat';
+
+/** Réglages de la page « Tests stat. ». */
+export interface StatConfig {
+  /** Types de tests retenus (vide = tous). */
+  subtypes: string[];
+  count: number;
+  difficulty: DifficultyChoice;
+}
+
+export const DEFAULT_STAT_CONFIG: StatConfig = { subtypes: [], count: 3, difficulty: 'mixte' };
+
+const SLOT_KEY = { main: 'sheet', stat: 'statSheet' } as const;
+
 interface State {
   config: SheetConfig;
   sheet: CurrentSheet | null;
+  statConfig: StatConfig;
+  statSheet: CurrentSheet | null;
+  setStatConfig(c: StatConfig): void;
   history: HistoryEntry[];
   progress: Record<string, Progress>;
   inputsEnabled: boolean;
@@ -57,9 +75,9 @@ interface State {
   setPrintColumns(n: 1 | 2): void;
 
   setConfig(c: SheetConfig): void;
-  setSheet(exercises: Exercise[], opts?: Partial<Omit<CurrentSheet, 'refs'>>): void;
-  replaceInSheet(oldUid: string, ex: Exercise): void;
-  appendToSheet(ex: Exercise, afterUid?: string): void;
+  setSheet(exercises: Exercise[], opts?: Partial<Omit<CurrentSheet, 'refs'>>, slot?: SheetSlot): void;
+  replaceInSheet(oldUid: string, ex: Exercise, slot?: SheetSlot): void;
+  appendToSheet(ex: Exercise, afterUid?: string, slot?: SheetSlot): void;
   setInputsEnabled(v: boolean): void;
   setInput(uid: string, qid: string, v: AnswerValue): void;
   submit(ex: Exercise, qid: string, r: CheckResult): void;
@@ -125,6 +143,9 @@ export const useStore = create<State>()(
       return {
         config: DEFAULT_CONFIG,
         sheet: null,
+        statConfig: DEFAULT_STAT_CONFIG,
+        statSheet: null,
+        setStatConfig: (statConfig) => set({ statConfig }),
         history: [],
         progress: {},
         inputsEnabled: true,
@@ -132,10 +153,10 @@ export const useStore = create<State>()(
         setPrintColumns: (printColumns) => set({ printColumns }),
 
         setConfig: (config) => set({ config }),
-        setSheet: (exercises, opts) => {
+        setSheet: (exercises, opts, slot = 'main') => {
           const source = opts?.source ?? 'generated';
           set({
-            sheet: {
+            [SLOT_KEY[slot]]: {
               refs: exercises.map(refOf),
               title: opts?.title ?? '',
               source,
@@ -148,21 +169,23 @@ export const useStore = create<State>()(
           });
           record(exercises, source);
         },
-        replaceInSheet: (oldUid, ex) => {
-          set((s) =>
-            s.sheet
-              ? { sheet: { ...s.sheet, refs: s.sheet.refs.map((r) => (exerciseUid(r.code, r.seed, r.parts) === oldUid ? refOf(ex) : r)) } }
-              : {},
-          );
+        replaceInSheet: (oldUid, ex, slot = 'main') => {
+          const key = SLOT_KEY[slot];
+          set((s) => {
+            const sheet = s[key];
+            return sheet ? { [key]: { ...sheet, refs: sheet.refs.map((r) => (exerciseUid(r.code, r.seed, r.parts) === oldUid ? refOf(ex) : r)) } } : {};
+          });
           record([ex], 'generated');
         },
-        appendToSheet: (ex, afterUid) => {
+        appendToSheet: (ex, afterUid, slot = 'main') => {
+          const key = SLOT_KEY[slot];
           set((s) => {
-            if (!s.sheet) return {};
-            const refs = [...s.sheet.refs];
+            const sheet = s[key];
+            if (!sheet) return {};
+            const refs = [...sheet.refs];
             const idx = afterUid ? refs.findIndex((r) => exerciseUid(r.code, r.seed, r.parts) === afterUid) : -1;
             refs.splice(idx === -1 ? refs.length : idx + 1, 0, refOf(ex));
-            return { sheet: { ...s.sheet, refs } };
+            return { [key]: { ...sheet, refs } };
           });
           record([ex], 'generated');
         },

@@ -6,9 +6,11 @@ import History from './pages/History';
 import Home from './pages/Home';
 import Methods from './pages/Methods';
 import SharedLink from './pages/SharedLink';
+import Stats from './pages/Stats';
 
 const LINKS = [
   ['/exercices', 'Exercices'],
+  ['/tests', 'Tests stat.'],
   ['/methodes', 'Méthodes'],
   ['/calcul', 'Calculateurs'],
   ['/formulaire', 'Formulaire'],
@@ -52,6 +54,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/exercices" element={<Exercises />} />
+          <Route path="/tests" element={<Stats />} />
           <Route path="/methodes" element={<Methods />} />
           <Route path="/calcul" element={<Calculator />} />
           <Route path="/formulaire" element={<Formulas />} />

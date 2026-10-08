@@ -135,6 +135,7 @@ export function parseNumber(input: string): number | CheckResult {
   const s = input.trim().replace(/[\s  ]/g, '').replace(/[−–]/g, '-');
   if (!s) return { status: 'invalid', message: 'Réponse vide' };
   const dec = s.replace(/,/g, '.');
+  if (/\d*\.\d*\./.test(dec)) return { status: 'invalid', message: 'Un nombre n’a qu’une seule virgule (ex. 3,84).' };
   if (/^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(dec)) return Number(dec);
   if (/%$/.test(dec)) return { status: 'invalid', message: 'Écris la valeur sans « % » (ex. 0,05 plutôt que 5 %).' };
   const parsed = tryParse(dec);

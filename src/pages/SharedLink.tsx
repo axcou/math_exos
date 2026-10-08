@@ -18,8 +18,15 @@ export default function SharedLink({ kind }: { kind: 'sheet' | 'config' }) {
       const decoded = decodeSheet(params);
       if (!decoded) return setError(true);
       const exercises = decoded.refs.map((r) => exerciseFromRef(r.code, r.seed, r.parts)).filter((e): e is Exercise => !!e);
-      store.setSheet(exercises, { source: 'shared', title: decoded.title, showSolutions: decoded.showSolutions, allowRetry: decoded.allowRetry, singleAttempt: decoded.singleAttempt, skipped: decoded.skipped });
+      // Une feuille de tests statistiques s'ouvre sur sa propre page
+      const stat = exercises.length > 0 && exercises.every((e) => e.theme === 'stat');
+      store.setSheet(
+        exercises,
+        { source: 'shared', title: decoded.title, showSolutions: decoded.showSolutions, allowRetry: decoded.allowRetry, singleAttempt: decoded.singleAttempt, skipped: decoded.skipped },
+        stat ? 'stat' : 'main',
+      );
       store.setInputsEnabled(decoded.inputs);
+      if (stat) return void navigate('/tests', { replace: true });
     } else {
       const config = decodeConfig(params);
       if (!config) return setError(true);

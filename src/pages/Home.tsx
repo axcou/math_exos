@@ -3,10 +3,12 @@ import { Tex } from '../components/Math';
 import { SUBTYPE_LABELS, subtypesOf, templatesFor } from '../exercises/registry';
 import { THEME_LABELS, type Theme } from '../exercises/types';
 
-const CHAPTERS: { theme: Theme; example: string }[] = [
+const CHAPTERS: { theme: Theme; example: string; to?: string }[] = [
   { theme: 'derivee', example: "\\left(\\frac{u}{v}\\right)' = \\frac{u'v - uv'}{v^2}" },
   { theme: 'limite', example: '\\lim_{x\\to+\\infty} \\frac{\\mathrm{e}^x}{x^n} = +\\infty' },
   { theme: 'variation', example: '\\Delta = b^2 - 4ac' },
+  // page à part : hypothèses, tests du χ², ANOVA
+  { theme: 'stat', example: 'T = \\sum \\frac{(n_i - np_i)^2}{np_i}', to: '/tests' },
 ];
 
 export default function Home() {
@@ -30,7 +32,7 @@ export default function Home() {
         <ol>
           {CHAPTERS.map((c, i) => (
             <li key={c.theme} className={`chap-${c.theme} border-b border-rule`}>
-              <Link to={`/exercices?theme=${c.theme}`} className="group grid gap-x-6 gap-y-1 py-5 sm:grid-cols-[3rem_1fr_auto] sm:items-baseline">
+              <Link to={c.to ?? `/exercices?theme=${c.theme}`} className="group grid gap-x-6 gap-y-1 py-5 sm:grid-cols-[3rem_1fr_auto] sm:items-baseline">
                 <span className="ex-num h-9 min-w-9 justify-self-start text-lg">{i + 1}</span>
                 <span>
                   <span className="flex items-baseline gap-2">

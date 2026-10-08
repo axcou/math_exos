@@ -1,72 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
-import { ExerciseCard } from '../components/ExerciseCard';
-import { PRINT_MODES, PrintAppendix, PrintHeader, type PrintMode } from '../components/PrintSheet';
+import { useSearchParams } from 'react-router';
 import { SheetBuilder } from '../components/SheetBuilder';
-import { ShareDialog } from '../components/ShareDialog';
+import { SheetView } from '../components/SheetView';
 import { exerciseFromRef } from '../exercises/registry';
-import { type DifficultyChoice, type Exercise, THEME_LABELS, THEMES, type Theme } from '../exercises/types';
-import { exerciseResult, pastExercises, useStore } from '../history/store';
+import { type DifficultyChoice, type Exercise, THEMES, type Theme } from '../exercises/types';
+import { pastExercises, useStore } from '../history/store';
 import { buildSheet, replacementFor } from '../sheet/buildSheet';
 import { only, type SheetConfig } from '../sheet/sheetConfig';
-
-/** Menu « imprimer » : sujet seul, avec les réponses, ou avec le corrigé détaillé. */
-function PrintMenu({ onPrint }: { onPrint: (m: PrintMode) => void }) {
-  const [open, setOpen] = useState(false);
-  const columns = useStore((s) => s.printColumns);
-  const setColumns = useStore((s) => s.setPrintColumns);
-  return (
-    <span className="relative">
-      <button type="button" className="btn-link" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)}>
-        imprimer / PDF
-      </button>
-      {open && (
-        <span role="menu" className="panel absolute left-0 top-full z-30 mt-1 flex w-72 flex-col p-1 shadow-[4px_4px_0_var(--rule)]">
-          <label className="flex items-center gap-2 border-b border-rule px-3 py-2 font-sans text-sm">
-            <input type="checkbox" checked={columns === 2} onChange={(e) => setColumns(e.target.checked ? 2 : 1)} className="accent-[var(--ink)]" />
-            Deux colonnes
-          </label>
-          {PRINT_MODES.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              role="menuitem"
-              className="rounded px-3 py-2 text-left hover:bg-paper"
-              onClick={() => {
-                setOpen(false);
-                onPrint(m.id);
-              }}
-            >
-              <span className="block font-sans text-sm font-semibold">{m.label}</span>
-              <span className="block font-sans text-xs text-ink-faint">{m.hint}</span>
-            </button>
-          ))}
-        </span>
-      )}
-    </span>
-  );
-}
-
-function ScoreBar({ exercises }: { exercises: Exercise[] }) {
-  const progress = useStore((s) => s.progress);
-  const results = exercises.map((e) => exerciseResult(e, progress[e.uid]));
-  const ok = results.filter((r) => r === 'reussi').length;
-  const ko = results.filter((r) => r === 'rate').length;
-  const n = exercises.length || 1;
-  return (
-    <div className="flex items-baseline gap-3" aria-label={`${ok} réussis, ${ko} à revoir sur ${exercises.length}`}>
-      <span className="hand text-3xl text-pen">
-        {ok}
-        <span className="text-2xl">/{exercises.length}</span>
-      </span>
-      <span className="font-sans text-xs text-ink-faint">
-        réussi{ok > 1 ? 's' : ''}
-        {ko ? `, ${ko} à revoir` : ''}
-        {n - ok - ko > 0 ? `, ${n - ok - ko} à faire` : ''}
-      </span>
-    </div>
-  );
-}
 
 /** Composition déduite d'une feuille (pour « Générer une feuille similaire »). */
 function configFromSheet(exercises: Exercise[], base: SheetConfig): SheetConfig {
@@ -80,24 +20,9 @@ function configFromSheet(exercises: Exercise[], base: SheetConfig): SheetConfig 
 }
 
 export default function Exercises() {
-  const { config, sheet, history, inputsEnabled, printColumns, setConfig, setSheet, replaceInSheet, appendToSheet, setInputsEnabled } = useStore();
+  const { config, sheet, history, setConfig, setSheet, replaceInSheet, appendToSheet } = useStore();
   const [params, setParams] = useSearchParams();
-  const navigate = useNavigate();
   const [builderOpen, setBuilderOpen] = useState(!sheet);
-  const [sharing, setSharing] = useState(false);
-  const [printMode, setPrintMode] = useState<PrintMode>('sujet');
-
-  // Le corrigé imprimé n'existe que le temps de l'impression
-  useEffect(() => {
-    const reset = () => setPrintMode('sujet');
-    window.addEventListener('afterprint', reset);
-    return () => window.removeEventListener('afterprint', reset);
-  }, []);
-  const print = (m: PrintMode) => {
-    setPrintMode(m);
-    // laisser React afficher l'annexe avant d'ouvrir la boîte d'impression
-    setTimeout(() => window.print(), 60);
-  };
 
   const exercises = useMemo(() => (sheet?.refs ?? []).map((r) => exerciseFromRef(r.code, r.seed, r.parts)).filter((e): e is Exercise => !!e), [sheet?.refs]);
 
@@ -122,128 +47,64 @@ export default function Exercises() {
   }, [params]);
 
   const subtypesFor = (ex: Exercise) => config.items.find((i) => i.theme === ex.theme)?.subtypes ?? [];
-  const regenerate = (ex: Exercise) => replaceInSheet(ex.uid, replacementFor(ex, exercises, pastExercises(history), subtypesFor(ex)));
-  const addSimilar = (ex: Exercise) => appendToSheet(replacementFor(ex, exercises, pastExercises(history), subtypesFor(ex)), ex.uid);
 
-  // Titres de section seulement si les thèmes sont regroupés
-  const groups: { theme: Theme; items: Exercise[] }[] = [];
-  for (const e of exercises) {
-    const last = groups[groups.length - 1];
-    if (last && last.theme === e.theme) last.items.push(e);
-    else groups.push({ theme: e.theme, items: [e] });
-  }
-  // Un bandeau par chapitre si les thèmes sont regroupés, sinon une seule page « mélangée »
-  const byChapter = !sheet?.mixed && groups.length === new Set(exercises.map((e) => e.theme)).size;
-  let number = 0;
-
+  const banner = sheet?.source === 'shared' && (
+    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 border-y border-rule py-3 text-[0.95rem] print:hidden">
+      <span>
+        <span className="label mr-2">Feuille partagée</span>
+        {sheet.title && <b>{sheet.title}</b>}
+        {!sheet.showSolutions && <span className="text-ink-soft"> · sans corrigé</span>}
+        {sheet.singleAttempt && <span className="text-ink-soft"> · une seule vérification par question</span>}
+        {sheet.allowRetry === false && <span className="text-ink-soft"> · pas de nouvel essai</span>}
+        {sheet.skipped ? (
+          <span className="text-pen">
+            {' '}
+            · {sheet.skipped} exercice{sheet.skipped > 1 ? 's' : ''} n’ont pas pu être chargés (lien d’une ancienne version ?)
+          </span>
+        ) : null}
+      </span>
+      <span className="flex-1" />
+      <button
+        type="button"
+        className="btn-link"
+        onClick={() => {
+          const c = configFromSheet(exercises, config);
+          setConfig(c);
+          generate(c);
+        }}
+      >
+        générer une feuille du même genre
+      </button>
+    </div>
+  );
 
   return (
-    <div className={`space-y-6 ${printColumns === 2 ? 'print-cols-2' : ''}`}>
-      {sheet?.source === 'shared' && (
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 border-y border-rule py-3 text-[0.95rem] print:hidden">
-          <span>
-            <span className="label mr-2">Feuille partagée</span>
-            {sheet.title && <b>{sheet.title}</b>}
-            {!sheet.showSolutions && <span className="text-ink-soft"> · sans corrigé</span>}
-            {sheet.singleAttempt && <span className="text-ink-soft"> · une seule vérification par question</span>}
-            {sheet.allowRetry === false && <span className="text-ink-soft"> · pas de nouvel essai</span>}
-            {sheet.skipped ? (
-              <span className="text-pen">
-                {' '}
-                · {sheet.skipped} exercice{sheet.skipped > 1 ? 's' : ''} n’ont pas pu être chargés (lien d’une ancienne version ?)
-              </span>
-            ) : null}
-          </span>
-          <span className="flex-1" />
-          <button
-            type="button"
-            className="btn-link"
-            onClick={() => {
-              const c = configFromSheet(exercises, config);
-              setConfig(c);
-              generate(c);
-            }}
-          >
-            générer une feuille du même genre
+    <SheetView
+      exercises={exercises}
+      sheet={sheet}
+      banner={banner}
+      shareConfig={config}
+      controls={
+        <>
+          <button type="button" className="btn" onClick={() => setBuilderOpen(!builderOpen)} aria-expanded={builderOpen}>
+            {builderOpen ? 'Fermer les réglages' : 'Réglages de la feuille'}
           </button>
-        </div>
-      )}
-
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-3 print:hidden">
-        <button type="button" className="btn" onClick={() => setBuilderOpen(!builderOpen)} aria-expanded={builderOpen}>
-          {builderOpen ? 'Fermer les réglages' : 'Réglages de la feuille'}
-        </button>
-        <button type="button" className="btn btn-primary" onClick={() => generate()} title="Nouvelle feuille avec les mêmes réglages">
-          Nouvelle feuille
-        </button>
-        {exercises.length > 0 && (
-          <>
-            <button type="button" className="btn-link" onClick={() => setSharing(true)}>
-              partager
-            </button>
-            <PrintMenu onPrint={print} />
-          </>
-        )}
-        <label className="flex items-center gap-1.5 font-sans text-sm text-ink-soft">
-          <input type="checkbox" checked={inputsEnabled} onChange={(e) => setInputsEnabled(e.target.checked)} className="accent-[var(--ink)]" />
-          répondre à l’écran
-        </label>
-        <span className="flex-1" />
-        {exercises.length > 0 && <ScoreBar exercises={exercises} />}
-      </div>
-
-      {builderOpen && (
-        <div className="print:hidden">
-          <SheetBuilder config={config} onChange={setConfig} onGenerate={() => generate()} />
-        </div>
-      )}
-
-      {sheet?.title && <h1 className="font-serif text-3xl font-semibold print:hidden">{sheet.title}</h1>}
-      <PrintHeader title={sheet?.title ?? ''} count={exercises.length} />
-
-      {exercises.length === 0 && !builderOpen && (
+          <button type="button" className="btn btn-primary" onClick={() => generate()} title="Nouvelle feuille avec les mêmes réglages">
+            Nouvelle feuille
+          </button>
+        </>
+      }
+      panel={builderOpen && <SheetBuilder config={config} onChange={setConfig} onGenerate={() => generate()} />}
+      empty={
         <div className="py-16 text-center">
           <p className="mb-4 text-ink-soft">Pas encore de feuille.</p>
           <button type="button" onClick={() => generate()} className="btn btn-primary">
             Générer une feuille
           </button>
         </div>
-      )}
-
-      {(byChapter ? groups : exercises.length ? [{ theme: null, items: exercises }] : []).map((g, gi) => (
-        <section key={gi} className={`page ${g.theme ? `chap-${g.theme}` : ''}`}>
-          <div className="chap-band mb-2">
-            <span className="chap-tab">{g.theme ? THEME_LABELS[g.theme] : 'Exercices'}</span>
-            <span className="ml-auto self-end pb-1 text-[0.7rem] font-semibold uppercase tracking-widest text-ink-faint">
-              {g.items.length} exercice{g.items.length > 1 ? 's' : ''}
-            </span>
-          </div>
-          {g.items.map((ex) => (
-            <ExerciseCard
-              key={ex.uid}
-              ex={ex}
-              number={++number}
-              showTheme={!g.theme}
-              allowSolutions={sheet?.showSolutions ?? true}
-              allowRetry={sheet?.allowRetry ?? true}
-              singleAttempt={sheet?.singleAttempt ?? false}
-              onRegenerate={sheet?.source === 'shared' ? undefined : () => regenerate(ex)}
-              onAddSimilar={sheet?.source === 'shared' ? undefined : () => addSimilar(ex)}
-            />
-          ))}
-        </section>
-      ))}
-
-      <PrintAppendix exercises={exercises} mode={printMode} />
-
-      {sharing && <ShareDialog exercises={exercises} config={config} initialTitle={sheet?.title ?? ''} initial={sheet ?? undefined} onClose={() => setSharing(false)} />}
-      {exercises.length > 0 && (
-        <p className="pt-2 text-center print:hidden">
-          <button type="button" className="btn-link" onClick={() => navigate('/historique')}>
-            voir mon historique
-          </button>
-        </p>
-      )}
-    </div>
+      }
+      onRegenerate={(ex) => replaceInSheet(ex.uid, replacementFor(ex, exercises, pastExercises(history), subtypesFor(ex)))}
+      onAddSimilar={(ex) => appendToSheet(replacementFor(ex, exercises, pastExercises(history), subtypesFor(ex)), ex.uid)}
+    />
   );
 }
