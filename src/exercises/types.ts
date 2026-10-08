@@ -1,16 +1,21 @@
 import type { Expr } from '../core/expr/ast';
 import type { Rng } from '../core/random/prng';
 
-export type Theme = 'derivee' | 'limite' | 'variation';
+export type Theme = 'derivee' | 'limite' | 'variation' | 'stat';
 export type Difficulty = 1 | 2 | 3;
 export type DifficultyChoice = Difficulty | 'mixte';
 
+/** Chapitres d'analyse (page « Exercices »). */
 export const THEMES: Theme[] = ['derivee', 'limite', 'variation'];
+
+/** Tous les chapitres, y compris les tests statistiques (page « Tests stat. »). */
+export const ALL_THEMES: Theme[] = [...THEMES, 'stat'];
 
 export const THEME_LABELS: Record<Theme, string> = {
   derivee: 'Dérivées',
   limite: 'Limites',
   variation: 'Signes & variations',
+  stat: 'Tests statistiques',
 };
 
 export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
@@ -104,13 +109,52 @@ export interface TableQuestion extends QuestionBase {
   expected: TableData;
 }
 
-export type Question = ExpressionQuestion | ValueQuestion | RootsQuestion | TableQuestion;
+/** Résultat numérique approché (statistique de test, p-valeur…), accepté à une tolérance près. */
+export interface NumberQuestion extends QuestionBase {
+  type: 'number';
+  expected: number;
+  /** Écart maximal accepté (absolu). */
+  tolerance: number;
+  /** Nombre de décimales pour afficher la réponse attendue. */
+  decimals: number;
+  mistakes?: { value: number; message: string }[];
+}
+
+/** Question à choix unique (hypothèses, loi, décision…). */
+export interface ChoiceQuestion extends QuestionBase {
+  type: 'choice';
+  /** Propositions (texte avec $…$). */
+  options: string[];
+  /** Indice de la bonne proposition. */
+  expected: number;
+  /** Explication propre à une mauvaise proposition (même indice que options). */
+  feedback?: (string | undefined)[];
+}
+
+export type Question = ExpressionQuestion | ValueQuestion | RootsQuestion | TableQuestion | NumberQuestion | ChoiceQuestion;
+
+/** Tableau de données (énoncé ou corrigé) : cellules en texte avec $…$. */
+export interface DataTable {
+  caption?: string;
+  header: string[];
+  rows: string[][];
+  /** La première colonne contient les intitulés des lignes. */
+  rowHeaders?: boolean;
+  /** La dernière ligne est une ligne de totaux (filet au-dessus). */
+  totalRow?: boolean;
+  /** La dernière colonne est une colonne de totaux. */
+  totalCol?: boolean;
+}
 
 export interface Step {
   title: string;
   text?: string; // texte avec $…$
   math?: string; // bloc LaTeX
   table?: TableData;
+  /** Tableau de calculs (effectifs théoriques, contributions…). */
+  data?: DataTable;
+  /** Code R qui refait le calcul. */
+  code?: string;
   formulas?: string[]; // ids de formulas.ts
 }
 
@@ -119,7 +163,22 @@ export type ExerciseMeta =
   | { kind: 'derivative'; f: Expr; df: Expr; domain: [number, number] }
   | { kind: 'limit'; f: Expr; at: number | '+inf' | '-inf'; side?: 1 | -1 }
   | { kind: 'table'; f: Expr; df?: Expr }
-  | { kind: 'graph'; graph: GraphData };
+  | { kind: 'graph'; graph: GraphData }
+  | {
+      kind: 'stat';
+      test: 'two-proportions' | 'goodness-of-fit' | 'contingency' | 'anova';
+      /** Deux proportions : succès et effectifs des groupes A puis B. */
+      x?: [number, number];
+      n?: [number, number];
+      /** Adéquation : effectifs observés, probabilités théoriques, nombre de paramètres estimés. */
+      observed?: number[];
+      probs?: number[];
+      estimated?: number;
+      /** Contingence : tableau des effectifs observés. */
+      table?: number[][];
+      /** ANOVA : mesures de chaque groupe. */
+      groups?: number[][];
+    };
 
 /** Ce que produit un générateur (les champs communs sont ajoutés par le registre). */
 export interface ExerciseDraft {
@@ -133,6 +192,8 @@ export interface ExerciseDraft {
   item?: string;
   /** Courbe à lire. */
   graph?: GraphData;
+  /** Tableaux de données de l'énoncé. */
+  tables?: DataTable[];
 }
 
 /** Partie a, b, c… d'un exercice. */
@@ -140,6 +201,7 @@ export interface ExercisePart {
   label: string; // 'a', 'b'… ; vide pour un exercice sans parties
   item: string;
   graph?: GraphData;
+  tables?: DataTable[];
   questions: Question[];
   steps: Step[];
 }

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { type CheckResult, checkExpression, checkRoots, checkTable, checkValue, emptyTableAnswer, type TableAnswer } from '../checking/check';
+import { type CheckResult, checkChoice, checkExpression, checkNumber, checkRoots, checkTable, checkValue, emptyTableAnswer, type TableAnswer } from '../checking/check';
 import { DIFFICULTY_LABELS, type Exercise, type Question, THEME_LABELS } from '../exercises/types';
 import { TEMPLATE_BY_CODE } from '../exercises/registry';
 import { emptyProgress, exerciseResult, useStore } from '../history/store';
 import { METHOD_FOR_SUBTYPE } from '../methods/methods';
-import { ExpressionInput, RootsInput, ValueInput } from './answers/AnswerInputs';
+import { ChoiceInput, ExpressionInput, NumberInput, RootsInput, ValueInput } from './answers/AnswerInputs';
+import { DataTableView } from './DataTableView';
 import { FunctionGraph } from './FunctionGraph';
 import { MathText, Tex } from './Math';
 import { Solution, StepItem } from './Solution';
@@ -42,6 +43,18 @@ function PrintAnswerSpace({ q }: { q: Question }) {
       </div>
     );
   }
+  if (q.type === 'choice') {
+    return (
+      <ul className="hidden space-y-0.5 pl-1 print:block">
+        {q.options.map((o, i) => (
+          <li key={i} className="flex items-baseline gap-2">
+            <span className="inline-block h-[0.8em] w-[0.8em] shrink-0 border border-ink" />
+            <MathText text={o} />
+          </li>
+        ))}
+      </ul>
+    );
+  }
   // Limite déjà écrite en grand (série façon TD) : on répond après le « = », sans ligne en plus
   if (q.hideLabel) return null;
   const label = q.type === 'roots' ? 'x \\in' : q.label;
@@ -74,7 +87,16 @@ function QuestionBlock({ ex, q, marker, showPrompt, inputs, singleAttempt }: Que
     if (q.type === 'table') r = checkTable((raw as TableAnswer) ?? emptyTableAnswer(q.expected), q);
     else {
       const v = typeof raw === 'string' ? raw : '';
-      r = q.type === 'expression' ? checkExpression(v, q) : q.type === 'value' ? checkValue(v, q) : checkRoots(v, q);
+      r =
+        q.type === 'expression'
+          ? checkExpression(v, q)
+          : q.type === 'value'
+            ? checkValue(v, q)
+            : q.type === 'number'
+              ? checkNumber(v, q)
+              : q.type === 'choice'
+                ? checkChoice(v, q)
+                : checkRoots(v, q);
     }
     submit(ex, q.id, r);
   };
@@ -97,6 +119,10 @@ function QuestionBlock({ ex, q, marker, showPrompt, inputs, singleAttempt }: Que
       {q.type === 'expression' && <ExpressionInput value={text} onChange={onText} onSubmit={check} label={q.label} disabled={locked} />}
       {q.type === 'value' && <ValueInput value={text} onChange={onText} onSubmit={check} label={q.hideLabel ? undefined : q.label} disabled={locked} />}
       {q.type === 'roots' && <RootsInput value={text} onChange={onText} onSubmit={check} disabled={locked} />}
+      {q.type === 'number' && <NumberInput value={text} onChange={onText} onSubmit={check} label={q.label} disabled={locked} />}
+      {q.type === 'choice' && (
+        <ChoiceInput name={`${ex.uid}-${q.id}`} options={q.options} value={text} onChange={onText} disabled={locked} wrong={!!result && result.status !== 'correct'} />
+      )}
       {q.type === 'table' && (
         <>
           <p className="font-sans text-xs text-ink-faint">Clique sur une case pour faire défiler + et −, 0 et || (valeur interdite), ↗ et ↘. Au clavier : + − 0 | ↑ ↓.</p>
@@ -188,6 +214,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
         <MathText text={ex.statement} />
       </p>
       {!multi && ex.parts[0].graph && <FunctionGraph graph={ex.parts[0].graph} />}
+      {!multi && ex.parts[0].tables?.map((t, i) => <DataTableView key={i} table={t} />)}
 
       {multi ? (
         <ol className={`mb-5 space-y-5 ${tdSeries ? 'print:space-y-1' : ''}`}>
@@ -202,6 +229,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
                   </p>
                 )}
                 {p.graph && <FunctionGraph graph={p.graph} />}
+                {p.tables?.map((t, i) => <DataTableView key={i} table={t} />)}
                 {p.questions.map((q, i) => (
                   <QuestionBlock key={q.id} ex={ex} q={q} marker={p.questions.length > 1 ? `${i + 1})` : ''} showPrompt={p.questions.length > 1} inputs={inputsEnabled} singleAttempt={singleAttempt} />
                 ))}

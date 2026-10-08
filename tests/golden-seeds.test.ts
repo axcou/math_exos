@@ -19,8 +19,9 @@ describe('golden seeds', () => {
       const ex = generateExercise(t, seed);
       return {
         statement: ex.statement,
+        ...(ex.tables ? { data: ex.tables.map((t) => t.rows.map((r) => r.join(' ')).join(' / ')) } : {}),
         answers: ex.questions.map((q) =>
-          q.type === 'expression' ? q.expectedLatex : q.type === 'roots' ? q.expectedLatex.join(';') : q.type === 'value' ? JSON.stringify(q.expected.kind === 'finite' ? q.expected.latex : q.expected) : q.expected.rows.map((r) => (r.kind === 'sign' ? r.signs.join('') + r.marks.join(',') : r.arrows.join(','))).join('|'),
+          q.type === 'expression' ? q.expectedLatex : q.type === 'roots' ? q.expectedLatex.join(';') : q.type === 'value' ? JSON.stringify(q.expected.kind === 'finite' ? q.expected.latex : q.expected) : q.type === 'number' ? q.expected.toFixed(q.decimals + 2) : q.type === 'choice' ? q.options[q.expected] : q.expected.rows.map((r) => (r.kind === 'sign' ? r.signs.join('') + r.marks.join(',') : r.arrows.join(','))).join('|'),
         ),
       };
     });

@@ -1,5 +1,6 @@
 import type { Exercise, Question } from '../exercises/types';
 import { valueLatex } from '../exercises/limits/templates';
+import { texFixed } from '../core/stats/format';
 import { MathText, Tex } from './Math';
 import { StepItem } from './Solution';
 import { VariationTable } from './VariationTable';
@@ -54,8 +55,18 @@ function Answer({ q, marker }: { q: Question; marker: string }) {
       </div>
     );
   }
+  if (q.type === 'choice') {
+    return (
+      <p className="my-0.5">
+        {m}
+        <MathText text={q.options[q.expected]} />
+      </p>
+    );
+  }
   const latex =
-    q.type === 'expression'
+    q.type === 'number'
+      ? `${q.label ?? ''} ${texFixed(q.expected, q.decimals)}`
+      : q.type === 'expression'
       ? `${q.label ?? ''} ${q.expectedLatex}`
       : q.type === 'value'
         ? `${q.label ?? ''} ${valueLatex(q.expected)}`

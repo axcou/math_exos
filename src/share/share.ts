@@ -76,7 +76,7 @@ export function decodeSheet(params: URLSearchParams): DecodedSheet | null {
   };
 }
 
-const THEME_KEYS: Record<Theme, string> = { derivee: 'd', limite: 'l', variation: 's' };
+const THEME_KEYS: Record<Theme, string> = { derivee: 'd', limite: 'l', variation: 's', stat: 't' };
 
 export function encodeConfig(c: SheetConfig): string {
   const p = new URLSearchParams();

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Step } from '../exercises/types';
 import { FORMULA_BY_ID } from '../formulas/formulas';
+import { CodeBlock, DataTableView } from './DataTableView';
 import { MathText, Tex } from './Math';
 import { VariationTable } from './VariationTable';
 
@@ -58,6 +59,8 @@ export function StepItem({ step, index }: { step: Step; index: number }) {
             <VariationTable table={step.table} />
           </div>
         )}
+        {step.data && <DataTableView table={step.data} />}
+        {step.code && <CodeBlock code={step.code} />}
         {step.formulas && <FormulaChips ids={step.formulas} />}
       </div>
     </li>

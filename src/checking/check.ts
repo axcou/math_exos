@@ -2,7 +2,7 @@ import type { Expr } from '../core/expr/ast';
 import { evaluate, hasVar } from '../core/expr/evaluate';
 import { parse, ParseError } from '../core/expr/parse';
 import { Rng } from '../core/random/prng';
-import type { Arrow, ExpressionQuestion, Mark, RootsQuestion, Sign, TableData, TableQuestion, ValueAnswer, ValueQuestion } from '../exercises/types';
+import type { Arrow, ChoiceQuestion, ExpressionQuestion, Mark, NumberQuestion, RootsQuestion, Sign, TableData, TableQuestion, ValueAnswer, ValueQuestion } from '../exercises/types';
 
 export type Status = 'correct' | 'partial' | 'incorrect' | 'invalid';
 
@@ -123,6 +123,45 @@ export function checkRoots(input: string, q: RootsQuestion): CheckResult {
     };
   }
   return { status: 'incorrect', message: values.length ? 'Aucune de ces valeurs ne convient.' : 'Il y a au moins une solution.' };
+}
+
+// ——————————————————————————————————— Valeurs numériques approchées (statistiques)
+
+/**
+ * Nombre décimal saisi par l'élève : virgule ou point, espaces de milliers,
+ * notation scientifique (1,2e-3, 1.2E-3), ou calcul simple (« 22/3 »).
+ */
+export function parseNumber(input: string): number | CheckResult {
+  const s = input.trim().replace(/[\s  ]/g, '').replace(/[−–]/g, '-');
+  if (!s) return { status: 'invalid', message: 'Réponse vide' };
+  const dec = s.replace(/,/g, '.');
+  if (/^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(dec)) return Number(dec);
+  if (/%$/.test(dec)) return { status: 'invalid', message: 'Écris la valeur sans « % » (ex. 0,05 plutôt que 5 %).' };
+  const parsed = tryParse(dec);
+  if (isResult(parsed)) return { status: 'invalid', message: 'Écris un nombre, par exemple 3,84 ou 0,047.' };
+  if (hasVar(parsed)) return { status: 'invalid', message: 'La réponse doit être un nombre.' };
+  const v = evaluate(parsed, 0);
+  return Number.isFinite(v) ? v : { status: 'invalid', message: 'Ce nombre n’est pas défini.' };
+}
+
+export function checkNumber(input: string, q: NumberQuestion): CheckResult {
+  const v = parseNumber(input);
+  if (isResult(v)) return v;
+  if (Math.abs(v - q.expected) <= q.tolerance) return { status: 'correct', message: 'Bonne réponse !' };
+  const mistake = q.mistakes?.find((m) => Math.abs(v - m.value) <= q.tolerance);
+  if (mistake) return { status: 'incorrect', message: mistake.message };
+  if (Math.abs(v - q.expected) <= 5 * q.tolerance) return { status: 'partial', message: 'C’est proche : vérifie tes arrondis (garde plus de décimales dans les calculs intermédiaires).' };
+  return { status: 'incorrect', message: 'Ce n’est pas la bonne valeur. Reprends le calcul étape par étape (le coup de pouce peut aider).' };
+}
+
+// ——————————————————————————————————— Choix
+
+/** Réponse saisie : l'indice de la proposition choisie, en texte. */
+export function checkChoice(input: string, q: ChoiceQuestion): CheckResult {
+  const i = input.trim() === '' ? NaN : Number(input);
+  if (!Number.isInteger(i) || i < 0 || i >= q.options.length) return { status: 'invalid', message: 'Choisis une proposition.' };
+  if (i === q.expected) return { status: 'correct', message: 'Bonne réponse !' };
+  return { status: 'incorrect', message: q.feedback?.[i] ?? 'Ce n’est pas la bonne proposition.' };
 }
 
 // ——————————————————————————————————— Tableaux

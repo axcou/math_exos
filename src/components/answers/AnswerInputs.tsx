@@ -1,7 +1,8 @@
 import { useMemo, useRef } from 'react';
+import { parseNumber } from '../../checking/check';
 import { parse, ParseError } from '../../core/expr/parse';
 import { toLatex } from '../../core/expr/toLatex';
-import { Tex } from '../Math';
+import { MathText, Tex } from '../Math';
 
 interface TextProps {
   value: string;
@@ -151,5 +152,58 @@ export function RootsInput(p: TextProps) {
       </div>
       <Preview value={p.value} kind="roots" />
     </div>
+  );
+}
+
+/** Valeur décimale (statistique, p-valeur…) : virgule ou point. */
+export function NumberInput(p: TextProps) {
+  const ref = useRef<HTMLInputElement>(null);
+  const read = p.value.trim() ? parseNumber(p.value) : null;
+  return (
+    <div className="space-y-1.5">
+      <Field {...p} inputRef={ref} placeholder={p.placeholder ?? 'ex. 3,84 ou 0,047'} />
+      <p className={`min-h-6 font-sans text-xs ${read !== null && typeof read !== 'number' ? 'text-pen' : 'text-ink-faint'}`}>
+        {read === null ? (
+          'Valeur décimale : virgule ou point.'
+        ) : typeof read === 'number' ? (
+          <>
+            lu : <Tex math={String(Number(read.toPrecision(12))).replace('.', '{,}')} />
+          </>
+        ) : (
+          read.message
+        )}
+      </p>
+    </div>
+  );
+}
+
+interface ChoiceProps {
+  name: string;
+  options: string[];
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+  wrong?: boolean;
+}
+
+/** Choix unique parmi des propositions (texte avec $…$). */
+export function ChoiceInput({ name, options, value, onChange, disabled, wrong }: ChoiceProps) {
+  return (
+    <fieldset className="space-y-1" disabled={disabled}>
+      {options.map((o, i) => {
+        const checked = value === String(i);
+        return (
+          <label
+            key={i}
+            className={`flex cursor-pointer items-baseline gap-2.5 rounded border px-3 py-1.5 ${
+              checked ? (wrong ? 'border-pen bg-pen-soft' : 'border-ink bg-blue-soft') : 'border-rule hover:border-rule-strong'
+            } ${disabled ? 'cursor-default opacity-70' : ''}`}
+          >
+            <input type="radio" name={name} value={i} checked={checked} onChange={() => onChange(String(i))} className="accent-[var(--ink)]" />
+            <MathText text={o} />
+          </label>
+        );
+      })}
+    </fieldset>
   );
 }

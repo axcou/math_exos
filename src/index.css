@@ -29,6 +29,8 @@
   --c-limite-soft: #fbeee5;
   --c-variation: #23845a;
   --c-variation-soft: #e6f3ec;
+  --c-stat: #7a3f9a;
+  --c-stat-soft: #f3ecf7;
   --chalk-shadow: none;
   color-scheme: light;
 }
@@ -55,6 +57,8 @@
     --c-limite-soft: rgb(245 176 126 / 0.1);
     --c-variation: #8ed8b0;
     --c-variation-soft: rgb(142 216 176 / 0.1);
+    --c-stat: #d2a8ec;
+    --c-stat-soft: rgb(210 168 236 / 0.1);
     --chalk-shadow: 0 0 0.6px rgb(255 255 255 / 0.5);
     color-scheme: dark;
   }
@@ -72,6 +76,24 @@
 .chap-variation {
   --chap: var(--c-variation);
   --chap-soft: var(--c-variation-soft);
+}
+.chap-stat {
+  --chap: var(--c-stat);
+  --chap-soft: var(--c-stat-soft);
+}
+
+/* Tableaux de données (statistiques) */
+.data-table {
+  border-collapse: collapse;
+}
+@media print {
+  .data-table {
+    font-size: 9.5pt;
+  }
+  .data-table th,
+  .data-table td {
+    padding-block: 1px;
+  }
 }
 
 @theme inline {
@@ -409,6 +431,8 @@ body {
     --c-limite-soft: #fbefe7;
     --c-variation: #1f7a52;
     --c-variation-soft: #e8f3ed;
+    --c-stat: #6e3590;
+    --c-stat-soft: #f4edf8;
     --chalk-shadow: none;
     color-scheme: light;
   }
