@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router';
 import { ExpressionInput } from '../components/answers/AnswerInputs';
 import { CALC_MODES, type CalcMode, CalcResult, pointPreview, readPoint, runCalc } from '../components/CalcResult';
 import { Tex } from '../components/Math';
+import { PValueCalculator } from '../components/PValueCalculator';
 
 const EXAMPLES: Record<CalcMode, [string, string][]> = {
   limite: [
@@ -61,10 +62,15 @@ const INTRO: Record<CalcMode, string> = {
 
 const baseOf = (s: string) => s.trim().replace(/\s*[+\-⁺⁻]$/, '');
 
+/** Onglet supplémentaire (tests statistiques) : lois, p-valeur et seuils de rejet. */
+const LAW_TAB = { id: 'loi', label: 'Lois & p-valeur', chap: 'stat' } as const;
+const LAW_INTRO = 'Choisis la loi de la statistique sous H₀, le type de test et le seuil α : on obtient le ou les seuils de rejet (quantiles), la p-valeur de la valeur observée et la courbe de la loi.';
+
 export default function Calculator() {
   const [params, setParams] = useSearchParams();
   const mode = (CALC_MODES.find((m) => m.id === params.get('m'))?.id ?? 'limite') as CalcMode;
-  const chap = CALC_MODES.find((m) => m.id === mode)!.chap;
+  const isLaw = params.get('m') === LAW_TAB.id;
+  const chap = isLaw ? LAW_TAB.chap : CALC_MODES.find((m) => m.id === mode)!.chap;
   const [fText, setFText] = useState(params.get('f') ?? '');
   const [xText, setXText] = useState(params.get('x') ?? '');
 
@@ -75,9 +81,9 @@ export default function Calculator() {
     if (submitted.x) setXText(submitted.x);
   }, [submitted.f, submitted.x]);
   const out = useMemo(() => {
-    if (!submitted.f || (mode === 'limite' && !submitted.x)) return null;
+    if (isLaw || !submitted.f || (mode === 'limite' && !submitted.x)) return null;
     return runCalc(mode, submitted.f, submitted.x);
-  }, [mode, submitted.f, submitted.x]);
+  }, [isLaw, mode, submitted.f, submitted.x]);
 
   const point = readPoint(xText);
   const finite = point && typeof point.at === 'number';
@@ -109,7 +115,7 @@ export default function Calculator() {
     <div className={`chap-${chap} space-y-6`}>
       <header className="border-b border-rule pb-4">
         <h1 className="font-serif text-3xl font-semibold">Calculateurs</h1>
-        <p className="mt-1 text-ink-soft">{INTRO[mode]}</p>
+        <p className="mt-1 text-ink-soft">{isLaw ? LAW_INTRO : INTRO[mode]}</p>
       </header>
 
       <nav className="flex flex-wrap gap-x-1 border-b-[3px] border-chap font-sans text-sm" aria-label="Type de calcul">
@@ -118,14 +124,28 @@ export default function Calculator() {
             key={m.id}
             type="button"
             onClick={() => switchMode(m.id)}
-            aria-current={m.id === mode ? 'page' : undefined}
-            className={`chap-${m.chap} px-3 py-1.5 font-semibold ${m.id === mode ? 'bg-chap text-sheet' : 'text-ink-soft hover:text-chap'}`}
-            style={m.id === mode ? { textShadow: 'none' } : undefined}
+            aria-current={!isLaw && m.id === mode ? 'page' : undefined}
+            className={`chap-${m.chap} px-3 py-1.5 font-semibold ${!isLaw && m.id === mode ? 'bg-chap text-sheet' : 'text-ink-soft hover:text-chap'}`}
+            style={!isLaw && m.id === mode ? { textShadow: 'none' } : undefined}
           >
             {m.label}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={() => setParams({ m: LAW_TAB.id })}
+          aria-current={isLaw ? 'page' : undefined}
+          className={`chap-${LAW_TAB.chap} px-3 py-1.5 font-semibold ${isLaw ? 'bg-chap text-sheet' : 'text-ink-soft hover:text-chap'}`}
+          style={isLaw ? { textShadow: 'none' } : undefined}
+        >
+          {LAW_TAB.label}
+        </button>
       </nav>
+
+      {isLaw ? (
+        <PValueCalculator />
+      ) : (
+        <>
 
       <section className="page space-y-5">
         <form
@@ -201,6 +221,8 @@ export default function Calculator() {
           </div>
           <CalcResult out={out} />
         </section>
+      )}
+        </>
       )}
     </div>
   );

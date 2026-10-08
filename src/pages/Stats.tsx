@@ -125,6 +125,12 @@ export default function Stats() {
           Hypothèses, statistique de test, p-valeur et décision. Les données de chaque exercice sont tirées au hasard. Le corrigé détaille les calculs et donne le code R (opérations de base et fonctions de
           répartition).
         </p>
+        <p className="mt-2 font-sans text-sm">
+          <Link to="/calcul?m=loi" className="btn-link">
+            Calculateur de p-valeur et de seuils de rejet
+          </Link>{' '}
+          <span className="text-ink-faint">(lois normale, de Student, du χ² et de Fisher, avec la courbe)</span>
+        </p>
       </header>
 
       <Course open={!statSheet} />

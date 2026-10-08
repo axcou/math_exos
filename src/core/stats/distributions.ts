@@ -166,3 +166,35 @@ export function poissonCdf(k: number, lambda: number): number {
   for (let i = 0; i <= k; i++) s += poissonPmf(i, lambda);
   return Math.min(1, s);
 }
+
+// ——————————————————————————————————— Student
+
+/** P(T ≤ t), T ~ t(ν) (loi de Student). */
+export function studentCdf(t: number, nu: number): number {
+  const tail = betaI(nu / 2, 0.5, nu / (nu + t * t)) / 2;
+  return t >= 0 ? 1 - tail : tail;
+}
+
+// ——————————————————————————————————— Densités
+
+/** Densité de N(μ, σ²). */
+export const normalPdf = (x: number, mu = 0, sigma = 1): number => Math.exp(-(((x - mu) / sigma) ** 2) / 2) / (sigma * Math.sqrt(2 * Math.PI));
+
+/** Densité de t(ν). */
+export const studentPdf = (t: number, nu: number): number =>
+  Math.exp(lnGamma((nu + 1) / 2) - lnGamma(nu / 2) - 0.5 * Math.log(nu * Math.PI) - ((nu + 1) / 2) * Math.log(1 + (t * t) / nu));
+
+/** Densité de χ²(k) (nulle pour x < 0). */
+export function chi2Pdf(x: number, k: number): number {
+  if (x < 0) return 0;
+  if (x === 0) return k === 2 ? 0.5 : k < 2 ? Infinity : 0;
+  return Math.exp((k / 2 - 1) * Math.log(x) - x / 2 - (k / 2) * Math.LN2 - lnGamma(k / 2));
+}
+
+/** Densité de F(d1, d2) (nulle pour x < 0). */
+export function fPdf(x: number, d1: number, d2: number): number {
+  if (x < 0) return 0;
+  if (x === 0) return d1 === 2 ? 1 : d1 < 2 ? Infinity : 0;
+  const lnB = lnGamma(d1 / 2) + lnGamma(d2 / 2) - lnGamma((d1 + d2) / 2);
+  return Math.exp(0.5 * (d1 * Math.log(d1 * x) + d2 * Math.log(d2) - (d1 + d2) * Math.log(d1 * x + d2)) - Math.log(x) - lnB);
+}
