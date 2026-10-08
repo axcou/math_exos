@@ -16,6 +16,7 @@ test.describe('navigation', () => {
     await page.goto('./');
     const pages: [string, RegExp][] = [
       ['Exercices', /Réglages de la feuille|Pas encore de feuille|Composer la feuille/],
+      ['Tests stat.', /Tests statistiques/],
       ['Méthodes', /Méthodes/],
       ['Calculateurs', /Calculateurs/],
       ['Formulaire', /Formulaire/],

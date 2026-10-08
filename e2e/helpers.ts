@@ -36,6 +36,11 @@ export function typedAnswer(q: Question): string {
       return toText(q.expected.expr);
     case 'roots':
       return q.expected.length ? q.expected.map(String).join(' ; ') : 'aucune';
+    case 'number':
+      // comme un élève : arrondi demandé, virgule décimale
+      return q.expected.toFixed(q.decimals).replace('.', ',');
+    case 'choice':
+      throw new Error('choix : cocher la proposition');
     default:
       throw new Error('tableau : utiliser fillTable');
   }
@@ -65,6 +70,7 @@ export async function answerAll(page: Page, ex: Exercise) {
   for (const q of ex.questions) {
     const block = questionBlock(art, q);
     if (q.type === 'table') await fillTable(block, q.expected);
+    else if (q.type === 'choice') await block.getByRole('radio').nth(q.expected).check();
     else await block.locator('input').first().fill(typedAnswer(q));
     await block.getByRole('button', { name: 'Vérifier' }).click();
     await expect(block.getByRole('status')).toContainText('Juste');
