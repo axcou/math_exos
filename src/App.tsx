@@ -21,7 +21,7 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <header className="border-b border-rule bg-paper/90 backdrop-blur-[2px] print:hidden">
-        <nav className="mx-auto flex max-w-4xl flex-wrap items-baseline gap-x-6 gap-y-1 px-4 py-3">
+        <nav aria-label="Menu principal" className="mx-auto flex max-w-4xl flex-wrap items-baseline gap-x-6 gap-y-1 px-4 py-3">
           <NavLink to="/" className="mr-auto font-serif text-xl font-semibold tracking-tight">
             Math-Exo<span className="text-pen">.</span>
           </NavLink>

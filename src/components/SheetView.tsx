@@ -4,6 +4,7 @@ import { type Exercise, THEME_LABELS, type Theme } from '../exercises/types';
 import { type CurrentSheet, exerciseResult, useStore } from '../history/store';
 import type { SheetConfig } from '../sheet/sheetConfig';
 import { ExerciseCard } from './ExerciseCard';
+import { FloatingToc, type TocSection } from './FloatingToc';
 import { PRINT_MODES, PrintAppendix, PrintHeader, type PrintMode } from './PrintSheet';
 import { ShareDialog } from './ShareDialog';
 
@@ -113,6 +114,15 @@ export function SheetView({ exercises, sheet, controls, panel, empty, banner, on
   }
   const byChapter = !sheet?.mixed && groups.length === new Set(exercises.map((e) => e.theme)).size;
   const shared = sheet?.source === 'shared';
+  const sections = byChapter ? groups : exercises.length ? [{ theme: null, items: exercises }] : [];
+  const sectionId = (gi: number) => `feuille-partie-${gi + 1}`;
+  let tocNumber = 0;
+  const toc: TocSection[] = sections.map((g, gi) => ({
+    id: sectionId(gi),
+    title: g.theme ? THEME_LABELS[g.theme] : 'Exercices',
+    chap: g.theme ?? undefined,
+    children: g.items.map((ex) => ({ id: ex.uid, title: `${++tocNumber}. ${ex.title}` })),
+  }));
   let number = 0;
 
   return (
@@ -144,8 +154,9 @@ export function SheetView({ exercises, sheet, controls, panel, empty, banner, on
 
       {exercises.length === 0 && !panel && empty}
 
-      {(byChapter ? groups : exercises.length ? [{ theme: null, items: exercises }] : []).map((g, gi) => (
-        <section key={gi} className={`page ${g.theme ? `chap-${g.theme}` : ''}`}>
+      <FloatingToc sections={toc} label="Exercices" />
+      {sections.map((g, gi) => (
+        <section key={gi} id={sectionId(gi)} className={`page scroll-mt-6 ${g.theme ? `chap-${g.theme}` : ''}`}>
           <div className="chap-band mb-2">
             <span className="chap-tab">{g.theme ? THEME_LABELS[g.theme] : 'Exercices'}</span>
             <span className="ml-auto self-end pb-1 text-[0.7rem] font-semibold uppercase tracking-widest text-ink-faint">

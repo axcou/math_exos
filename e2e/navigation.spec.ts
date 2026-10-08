@@ -23,7 +23,7 @@ test.describe('navigation', () => {
       ['Historique', /Historique/],
     ];
     for (const [link, text] of pages) {
-      await page.getByRole('navigation').getByRole('link', { name: link, exact: true }).click();
+      await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: link, exact: true }).click();
       await expect(page.locator('main')).toContainText(text);
     }
     await page.getByRole('link', { name: 'Math-Exo.' }).click();

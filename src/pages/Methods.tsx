@@ -7,6 +7,7 @@ import { parse } from '../core/expr/parse';
 import { toLatex } from '../core/expr/toLatex';
 import { ALL_THEMES as THEMES, THEME_LABELS } from '../exercises/types';
 import { CodeBlock } from '../components/DataTableView';
+import { FloatingToc } from '../components/FloatingToc';
 import { type Method, type MethodExample, METHODS } from '../methods/methods';
 
 function exampleLatex(ex: MethodExample): string {
@@ -113,8 +114,15 @@ export default function Methods() {
   }, [target, hash]);
 
   let n = 0;
+  const toc = THEMES.map((t) => ({
+    id: `methodes-${t}`,
+    title: THEME_LABELS[t],
+    chap: t,
+    children: METHODS.filter((m) => m.theme === t).map((m) => ({ id: m.id, title: m.title })),
+  }));
   return (
     <div className="space-y-8">
+      <FloatingToc sections={toc} />
       <header className="border-b border-rule pb-4">
         <h1 className="font-serif text-3xl font-semibold">Méthodes</h1>
         <p className="mt-1 text-ink-soft">Pour chaque type de question : quand l’utiliser, les étapes, les pièges, et des exemples résolus pas à pas.</p>
@@ -138,7 +146,7 @@ export default function Methods() {
       </nav>
 
       {THEMES.map((t) => (
-        <section key={t} className={`chap-${t} space-y-5`}>
+        <section key={t} id={`methodes-${t}`} className={`chap-${t} scroll-mt-6 space-y-5`}>
           <h2 className="flex items-baseline gap-3">
             <span className="ex-num">{THEMES.indexOf(t) + 1}</span>
             <span className="font-serif text-2xl font-semibold text-chap">{THEME_LABELS[t]}</span>

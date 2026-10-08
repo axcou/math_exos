@@ -198,7 +198,7 @@ export function ExerciseCard({ ex, number, allowSolutions, onRegenerate, onAddSi
   };
 
   return (
-    <article className={`chap-${ex.theme} break-inside-avoid border-t border-rule py-6 [&:nth-child(2)]:border-t-0 [&:nth-child(2)]:pt-3`} id={ex.uid} aria-label={`Exercice ${number}`}>
+    <article className={`chap-${ex.theme} scroll-mt-6 break-inside-avoid border-t border-rule py-6 [&:nth-child(2)]:border-t-0 [&:nth-child(2)]:pt-3`} id={ex.uid} aria-label={`Exercice ${number}`}>
       <header className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
         <span className="ex-num">{number}</span>
         <h3 className="font-sans text-[0.95rem] font-bold text-chap">{ex.title}</h3>

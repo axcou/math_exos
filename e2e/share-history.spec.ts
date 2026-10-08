@@ -73,7 +73,7 @@ test.describe('historique', () => {
     await card(page, ko).getByRole('button', { name: 'Voir la correction' }).click();
     await expect(card(page, ko).getByText('À revoir')).toBeVisible();
 
-    await page.getByRole('navigation').getByRole('link', { name: 'Historique' }).click();
+    await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: 'Historique' }).click();
     const table = page.getByRole('table');
     await expect(table.getByRole('row', { name: /Dérivées tous/ })).toContainText('100 %');
     await expect(table.getByRole('row', { name: /Limites tous/ })).toContainText('0 %');
@@ -84,7 +84,7 @@ test.describe('historique', () => {
     await expect(page.locator('article')).toHaveCount(1);
     await expect(page.locator(`article[id="${ko.uid}"]`)).toBeVisible();
 
-    await page.getByRole('navigation').getByRole('link', { name: 'Historique' }).click();
+    await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: 'Historique' }).click();
     await page.getByRole('button', { name: 'effacer l’historique' }).click();
     await page.getByRole('button', { name: 'annuler' }).click();
     await expect(page.getByRole('table')).toBeVisible();

@@ -40,9 +40,9 @@ test.describe('page des tests statistiques', () => {
     await page.goto('#/tests');
     await page.getByRole('button', { name: 'Générer la feuille' }).click();
     await expect(page.locator('article[id^="S0"]').first()).toBeVisible();
-    await page.getByRole('navigation').getByRole('link', { name: 'Exercices', exact: true }).click();
+    await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: 'Exercices', exact: true }).click();
     await expect(page.locator('article[id^="S0"]')).toHaveCount(0);
-    await page.getByRole('navigation').getByRole('link', { name: 'Tests stat.', exact: true }).click();
+    await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: 'Tests stat.', exact: true }).click();
     await expect(page.locator('article[id^="S0"]').first()).toBeVisible();
   });
 });
