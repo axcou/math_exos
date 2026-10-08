@@ -167,7 +167,7 @@ describe('tests du TD', () => {
     expect(a.df1).toBe(2);
     expect(a.df2).toBe(9);
     expect(a.F).toBeCloseTo(10.4, 10);
-    expect(a.pValue).toBeCloseTo(0.004581, 4);
+    expect(a.pValue).toBeCloseTo((1 + (2 * 10.4) / 9) ** -4.5, 12);
   });
 
   it('moments sur données groupées', () => {

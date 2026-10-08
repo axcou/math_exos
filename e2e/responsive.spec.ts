@@ -8,6 +8,9 @@ const ROUTES = [
   '#/methodes',
   '#/calcul?m=variation&f=x%2B1%2Fx',
   '#/calcul?m=limite&f=(sqrt(x%2B1)-2)%2F(x-3)&x=3',
+  '#/calcul?m=loi&l=normal&p=0,1&x=1.644&a=0.1&t=two',
+  '#/tests',
+  sheetRoute([exercise('S06', 2), exercise('S08', 3)]),
   '#/formulaire',
   '#/historique',
 ];
