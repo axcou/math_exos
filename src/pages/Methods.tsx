@@ -6,7 +6,8 @@ import { FormulaChips } from '../components/Solution';
 import { parse } from '../core/expr/parse';
 import { toLatex } from '../core/expr/toLatex';
 import { ALL_THEMES as THEMES, THEME_LABELS } from '../exercises/types';
-import { CodeBlock } from '../components/DataTableView';
+import { CodeBlock, DataTableView } from '../components/DataTableView';
+import { RejectionSketch } from '../components/RejectionSketch';
 import { FloatingToc } from '../components/FloatingToc';
 import { type Method, type MethodExample, METHODS } from '../methods/methods';
 
@@ -83,6 +84,53 @@ function MethodCard({ m, n }: { m: Method; n: number }) {
         {m.formulas && <FormulaChips ids={m.formulas} />}
         {m.code && <CodeBlock code={m.code} />}
       </div>
+      {m.rejection && (
+        <div className="box">
+          <span className="box-tab">Région de rejet selon H₀</span>
+          <div className="grid gap-5 sm:grid-cols-3" data-testid="rejection-cases">
+            {m.rejection.map((r) => (
+              <figure key={r.h0} className="space-y-1.5 text-center">
+                <Tex math={r.h0} className="font-semibold" />
+                <RejectionSketch tail={r.tail} label={`Région de rejet pour ${r.h0.replace(/\\/g, '')}`} />
+                <figcaption className="space-y-1 text-[0.85rem]">
+                  <Tex math={r.region} />
+                  {r.pvalues.map((p) => (
+                    <p key={p.law} className="text-ink-soft">
+                      <span className="font-sans text-xs">{p.law} : </span>
+                      <Tex math={p.latex} />
+                    </p>
+                  ))}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      )}
+      {m.blocks?.map((b) => (
+        <section key={b.title} className="space-y-1.5">
+          <h4 className="border-b border-chap/30 pb-0.5 font-sans text-[0.95rem] font-bold text-chap">
+            <MathText text={b.title} />
+          </h4>
+          {b.text && (
+            <p>
+              <MathText text={b.text} />
+            </p>
+          )}
+          {b.formulas?.map((f) => (
+            <div key={f.latex} className="overflow-x-auto">
+              <Tex math={f.latex} display />
+              {f.caption && (
+                <p className="-mt-1 font-sans text-xs text-ink-soft">
+                  <MathText text={f.caption} />
+                </p>
+              )}
+            </div>
+          ))}
+        </section>
+      ))}
+      {m.tables?.map((t) => (
+        <DataTableView key={t.caption ?? t.header.join()} table={t} />
+      ))}
       {m.pitfalls && (
         <div className="box dashed">
           <span className="box-tab">Erreurs fréquentes</span>

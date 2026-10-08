@@ -1,10 +1,27 @@
 import type { CalcMode } from '../components/CalcResult';
-import type { Theme } from '../exercises/types';
+import type { Tail } from '../calculator/pvalueSolver';
+import type { DataTable, Theme } from '../exercises/types';
+import { STAT_METHOD_ORDER, STAT_SHEET_METHODS } from './statSheet';
 
 export interface MethodExample {
   mode: CalcMode;
   f: string;
   x?: string;
+}
+
+/** Bloc de formules légendées (fiches de statistique). */
+export interface MethodBlock {
+  title: string;
+  text?: string;
+  formulas?: { latex: string; caption?: string }[];
+}
+
+/** Un cas de région de rejet : H0, schéma, région et p-valeurs. */
+export interface RejectionCase {
+  h0: string;
+  tail: Tail;
+  region: string;
+  pvalues: { law: string; latex: string }[];
 }
 
 export interface Method {
@@ -21,9 +38,12 @@ export interface Method {
   examples: MethodExample[];
   /** Code R de la méthode (tests statistiques). */
   code?: string;
+  blocks?: MethodBlock[];
+  rejection?: RejectionCase[];
+  tables?: DataTable[];
 }
 
-export const METHODS: Method[] = [
+const BASE_METHODS: Method[] = [
   // ——————————————————————————————————— Limites
   {
     id: 'lim-continuite',
@@ -392,6 +412,13 @@ export const METHODS: Method[] = [
     code: 'A <- c(12, 14, 11, 13); B <- c(15, 17, 16, 18); C <- c(14, 13, 15, 12)\nx <- c(A, B, C); m <- mean(x)\ninter <- 4 * ((mean(A) - m)^2 + (mean(B) - m)^2 + (mean(C) - m)^2)\nintra <- sum((A - mean(A))^2) + sum((B - mean(B))^2) + sum((C - mean(C))^2)\nF <- (inter / 2) / (intra / 9)\n1 - pf(F, 2, 9)',
   },
 ];
+
+/** Toutes les fiches ; celles des tests statistiques dans l'ordre du cours. */
+export const METHODS: Method[] = (() => {
+  const all = [...BASE_METHODS, ...STAT_SHEET_METHODS];
+  const rank = (m: Method) => (m.theme === 'stat' ? STAT_METHOD_ORDER.indexOf(m.id) : -1);
+  return [...all.filter((m) => m.theme !== 'stat'), ...all.filter((m) => m.theme === 'stat').sort((a, b) => rank(a) - rank(b))];
+})();
 
 /** Méthode la plus proche d'un type d'exercice (lien « voir la méthode »). */
 export const METHOD_FOR_SUBTYPE: Record<string, string> = {
